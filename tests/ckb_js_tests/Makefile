@@ -36,6 +36,10 @@ file_system: build/testdata_fs_modules.bin
 syscall:
 	cargo run --bin syscall | $(CKB_DEBUGGER) --tx-file=- -s lock
 
+fs_mount:
+	cd test_data/fs_module_mount && lua ../../../../tools/fs.lua pack ../../../../build/fib_module.bin fib_module.js
+	cargo run --bin module_mount | ${CKB_DEBUGGER} --tx-file=- -s lock
+
 install-lua:
 	sudo apt install lua5.4
 

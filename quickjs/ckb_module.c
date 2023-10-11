@@ -5,6 +5,7 @@
 #include "ckb_syscalls.h"
 #include "molecule/blockchain.h"
 #include "molecule/molecule_reader.h"
+#include "ckb_cell_fs.h"
 
 // For syscalls supporting partial loading, the arguments are described as:
 // argument 1: index
@@ -460,6 +461,18 @@ static JSValue syscall_current_memory(JSContext *ctx, JSValueConst this_value, i
     return JS_NewUint32(ctx, (uint32_t)size);
 }
 
+static JSValue mount(JSContext *ctx, JSValueConst this_value, int argc, JSValueConst *argv) {
+    JSValue buf = syscall_load_cell_data(ctx, this_value, argc, argv);
+    size_t psize = 0;
+    uint8_t *addr = JS_GetArrayBuffer(ctx, &psize, buf);
+    int err = ckb_load_fs(addr, psize);
+    if (err != 0) {
+        return JS_EXCEPTION;
+    } else {
+        return JS_UNDEFINED;
+    }
+}
+
 /*
 TODO:
 // who allocated the memory indicated by aligned_addr?
@@ -501,6 +514,8 @@ int js_init_module_ckb(JSContext *ctx) {
                       JS_NewCFunction(ctx, syscall_get_memory_limit, "get_memory_limit", 0));
     JS_SetPropertyStr(ctx, ckb, "current_memory",
                       JS_NewCFunction(ctx, syscall_current_memory, "current_memory", 0));
+    JS_SetPropertyStr(ctx, ckb, "mount",
+                      JS_NewCFunction(ctx, mount, "mount", 3));
     JS_SetPropertyStr(ctx, ckb, "SOURCE_INPUT", JS_NewInt64(ctx, CKB_SOURCE_INPUT));
     JS_SetPropertyStr(ctx, ckb, "SOURCE_OUTPUT", JS_NewInt64(ctx, CKB_SOURCE_OUTPUT));
     JS_SetPropertyStr(ctx, ckb, "SOURCE_CELL_DEP", JS_NewInt64(ctx, CKB_SOURCE_CELL_DEP));
