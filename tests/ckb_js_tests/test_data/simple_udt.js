@@ -90,7 +90,7 @@ function main() {
         if (data.byteLength != 16) {
             throw `Invalid data length: ${data.byteLength}`;
         }
-        let n = new BigUint64Array(data, 0, 2);
+        let n = new BigUint64Array(data);
         let current_amount = n[0] | (n[1] << 64n);
         input_amount += current_amount;
     }
@@ -99,7 +99,7 @@ function main() {
         if (data.byteLength != 16) {
             throw `Invalid data length: ${data.byteLength}`;
         }
-        let n = new BigUint64Array(data, 0, 2);
+        let n = new BigUint64Array(data);
         let current_amount = n[0] | (n[1] << 64n);
         output_amount += current_amount;
     }
