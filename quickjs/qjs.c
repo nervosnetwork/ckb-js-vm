@@ -123,6 +123,20 @@ void js_std_dump_error(JSContext *ctx) {
     JS_FreeValue(ctx, exception_val);
 }
 
+void js_std_loop(JSContext *ctx) {
+    JSContext *ctx1;
+    int err;
+    for(;;) {
+        err = JS_ExecutePendingJob(JS_GetRuntime(ctx), &ctx1);
+        if (err <= 0) {
+            if (err < 0) {
+                js_std_dump_error(ctx1);
+            }
+            break;
+        }
+    }
+}
+
 int compile_from_file(JSContext *ctx) {
     enable_local_access(1);
     char buf[1024 * 512];
@@ -304,18 +318,33 @@ int main(int argc, const char **argv) {
     switch (type) {
         case RunJsWithCode:
             err = eval_buf(ctx, argv[1], strlen(argv[1]), "<cmdline>", 0);
+            if (err == 0) {
+                js_std_loop(ctx);
+            }
             break;
         case RunJsWithFile:
             err = run_from_cell_data(ctx, false);
+            if (err == 0) {
+                js_std_loop(ctx);
+            }
             break;
         case RunJsWithFileSystem:
             err = run_from_cell_data(ctx, true);
+            if (err == 0) {
+                js_std_loop(ctx);
+            }
             break;
         case RunJsWithDbgFile:
             err = run_from_local_file(ctx, false);
+            if (err == 0) {
+                js_std_loop(ctx);
+            }
             break;
         case RunJsWithDbgFileSystem:
             err = run_from_local_file(ctx, true);
+            if (err == 0) {
+                js_std_loop(ctx);
+            }
             break;
         case CompileWithFile:
             JS_SetModuleLoaderFunc(rt, NULL, js_module_dummy_loader, NULL);
