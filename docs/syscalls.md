@@ -312,7 +312,7 @@ See also: [`ckb_vm_version` syscall](https://github.com/nervosnetwork/rfcs/blob/
 
 #### ckb.exec_cell
 Description: runs an executable file from specified cell data in the context of
-an already existing machine, replacing the previous executable. 
+an already existing machine, replacing the previous executable.
 
 Example:
 ```js
@@ -329,7 +329,7 @@ See also: [`ckb_exec` syscall](https://github.com/nervosnetwork/rfcs/blob/master
 
 #### ckb.spawn_cell
 Description: runs an executable file from specified cell data in a new
-context, without changing previous executable. 
+context, without changing previous executable.
 
 Example:
 ```js
@@ -344,7 +344,7 @@ let content = value.content;
 let exit_code = value.exit_code;
 ```
 
-Arguments: 
+Arguments:
 - code_hash/hash_type(denote a cell to load JS code)
 - spawn_args, extra spawn arguments
     * content_length, optional, specify content length, default to 0
@@ -404,10 +404,21 @@ Return value(s): memory size in bytes
 
 See also: [`ckb_current_memory` syscall](https://github.com/nervosnetwork/rfcs/pull/418/files)
 
+#### ckb.mount
+Description: Load the file system in the cell.
+
+Example:
+```js
+ckb.mount(2, ckb.SOURCE_CELL_DEP)
+```
+
+Arguments: index (the index of the cell), source (the source of the cell)
+
+Return value(s): none
 
 ## Exported Constants
 
-Most constants here are directly taken from [ckb_consts.h](https://github.com/nervosnetwork/ckb-system-scripts/blob/master/c/ckb_consts.h): 
+Most constants here are directly taken from [ckb_consts.h](https://github.com/nervosnetwork/ckb-system-scripts/blob/master/c/ckb_consts.h):
 
 ```
 ckb.SOURCE_INPUT
