@@ -318,23 +318,33 @@ int main(int argc, const char **argv) {
     switch (type) {
         case RunJsWithCode:
             err = eval_buf(ctx, argv[1], strlen(argv[1]), "<cmdline>", 0);
-            js_std_loop(ctx);
+            if (err == 0) {
+                js_std_loop(ctx);
+            }
             break;
         case RunJsWithFile:
             err = run_from_cell_data(ctx, false);
-            js_std_loop(ctx);
+            if (err == 0) {
+                js_std_loop(ctx);
+            }
             break;
         case RunJsWithFileSystem:
             err = run_from_cell_data(ctx, true);
-            js_std_loop(ctx);
+            if (err == 0) {
+                js_std_loop(ctx);
+            }
             break;
         case RunJsWithDbgFile:
             err = run_from_local_file(ctx, false);
-            js_std_loop(ctx);
+            if (err == 0) {
+                js_std_loop(ctx);
+            }
             break;
         case RunJsWithDbgFileSystem:
             err = run_from_local_file(ctx, true);
-            js_std_loop(ctx);
+            if (err == 0) {
+                js_std_loop(ctx);
+            }
             break;
         case CompileWithFile:
             JS_SetModuleLoaderFunc(rt, NULL, js_module_dummy_loader, NULL);

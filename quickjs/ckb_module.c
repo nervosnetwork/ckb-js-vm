@@ -463,6 +463,9 @@ static JSValue syscall_current_memory(JSContext *ctx, JSValueConst this_value, i
 
 static JSValue mount(JSContext *ctx, JSValueConst this_value, int argc, JSValueConst *argv) {
     JSValue buf = syscall_load_cell_data(ctx, this_value, argc, argv);
+    if (JS_IsException(buf)) {
+        return JS_EXCEPTION;
+    }
     size_t psize = 0;
     uint8_t *addr = JS_GetArrayBuffer(ctx, &psize, buf);
     int err = ckb_load_fs(addr, psize);
@@ -515,7 +518,7 @@ int js_init_module_ckb(JSContext *ctx) {
     JS_SetPropertyStr(ctx, ckb, "current_memory",
                       JS_NewCFunction(ctx, syscall_current_memory, "current_memory", 0));
     JS_SetPropertyStr(ctx, ckb, "mount",
-                      JS_NewCFunction(ctx, mount, "mount", 3));
+                      JS_NewCFunction(ctx, mount, "mount", 2));
     JS_SetPropertyStr(ctx, ckb, "SOURCE_INPUT", JS_NewInt64(ctx, CKB_SOURCE_INPUT));
     JS_SetPropertyStr(ctx, ckb, "SOURCE_OUTPUT", JS_NewInt64(ctx, CKB_SOURCE_OUTPUT));
     JS_SetPropertyStr(ctx, ckb, "SOURCE_CELL_DEP", JS_NewInt64(ctx, CKB_SOURCE_CELL_DEP));

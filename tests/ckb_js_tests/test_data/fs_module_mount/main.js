@@ -1,6 +1,6 @@
 /* example of JS module */
 
-ckb.mount(2, 3)
+ckb.mount(2, ckb.SOURCE_CELL_DEP)
 
 import('./fib_module.js')
     .then((module) => {
