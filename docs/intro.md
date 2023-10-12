@@ -77,3 +77,15 @@ binary. Finally, it is written as `hello.bc`.
 
 `ckb-js-vm` can transparently run JavaScript bytecode or source files, which can also
 be in file systems.
+
+## Script
+A ckb-js-vm script contains following data structure:
+
+```
+code_hash: <code_hash to ckb-js-vm cell>
+hash_type: <hash_type>
+args: <ckb-js-vm args, 2 bytes> <code_hash to JavaScript code cell, 32 bytes> <hash_type to JavaScript code cell, 1 byte> <JavaScript code args, variable length>
+```
+
+The tailing bytes are JavaScript code arguments which can be used by JavaScript.
+Note: 2 bytes ckb-js-vm args are reserved for further use. 

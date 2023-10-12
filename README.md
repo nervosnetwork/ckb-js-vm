@@ -19,6 +19,7 @@ make all
 
 ## Examples
 
+* [Demo Script: Simple UDT](./tests/ckb_js_tests/test_data/simple_udt.js)
 * [Fibonacci Number](./tests/examples/fib.js)
 * [Calculate PI](./tests/examples/pi_bigint.js)
 
