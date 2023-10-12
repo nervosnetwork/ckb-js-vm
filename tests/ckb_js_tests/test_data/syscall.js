@@ -12,12 +12,15 @@ function expect_array(a, b) {
 
 function must_throw_exception(f) {
     let has_exception = false;
+    let error_code = 0;
     try {
         f();
     } catch (e) {
         has_exception = true;
+        error_code = e.error_code;
     }
     console.assert(has_exception, 'Error, no exception found');
+    return error_code;
 }
 
 function test_partial_loading(load_func) {
@@ -35,10 +38,12 @@ function test_partial_loading(load_func) {
     data = load_func(0, ckb.SOURCE_OUTPUT, 7, 1);
     expect_array(data, ARRAY8.slice(1, 8));
 
-    must_throw_exception(() => {
-        load_func(1001n, ckb.SOURCE_OUTPUT);
+    let error_code = must_throw_exception(() => {
+        load_func(1001, ckb.SOURCE_OUTPUT);
     });
-    must_throw_exception(() => {
+    // CKB_INDEX_OUT_OF_BOUND
+    console.log(error_code === 1);
+    error_code = must_throw_exception(() => {
         load_func(0, ckb.SOURCE_OUTPUT + 1000n);
     });
     console.log('test_partial_loading done');

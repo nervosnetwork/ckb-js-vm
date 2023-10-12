@@ -28,6 +28,26 @@ static JSValue syscall_exit(JSContext *ctx, JSValueConst this_val, int argc, JSV
     return JS_UNDEFINED;
 }
 
+static JSValue ThrowError(JSContext *ctx, int32_t error_code, const char *message) {
+    JSValue obj, ret;
+    obj = JS_NewError(ctx);
+    if (unlikely(JS_IsException(obj))) {
+        /* out of memory: throw JS_NULL to avoid recursing */
+        obj = JS_NULL;
+    } else {
+        JS_DefinePropertyValueStr(ctx, obj, "message", JS_NewString(ctx, message),
+                                  JS_PROP_WRITABLE | JS_PROP_CONFIGURABLE);
+        JS_DefinePropertyValueStr(ctx, obj, "error_code", JS_NewInt32(ctx, error_code),
+                                  JS_PROP_WRITABLE | JS_PROP_CONFIGURABLE);
+    }
+    // TODO
+    // if (add_backtrace) {
+    //     build_backtrace(ctx, obj, NULL, 0, 0);
+    // }
+    ret = JS_Throw(ctx, obj);
+    return ret;
+}
+
 static void my_free(JSRuntime *rt, void *opaque, void *_ptr) { free(opaque); }
 struct LoadData;
 typedef int (*LoadFunc)(void *addr, uint64_t *len, struct LoadData *data);
@@ -51,8 +71,8 @@ static JSValue parse_args(JSContext *ctx, LoadData *data, bool has_field, int ar
     if (JS_ToInt64(ctx, &index, argv[0])) {
         return JS_EXCEPTION;
     }
-    if (JS_ToInt64(ctx, &source, argv[1])) {
-        return JS_EXCEPTION;
+    if (JS_ToBigInt64(ctx, &source, argv[1])) {
+        if (JS_ToInt64(ctx, &source, argv[1])) return JS_EXCEPTION;
     }
     int var_arg_index = 2;
     if (has_field) {
@@ -112,6 +132,7 @@ static JSValue syscall_load(JSContext *ctx, LoadData *data) {
     ret = JS_NewArrayBuffer(ctx, addr, real_len, my_free, addr, false);
 exit:
     if (err != 0) {
+        ThrowError(ctx, err, "ckb syscall error");
         return JS_EXCEPTION;
     } else {
         return ret;
@@ -515,10 +536,14 @@ int js_init_module_ckb(JSContext *ctx) {
     JS_SetPropertyStr(ctx, ckb, "set_content", JS_NewCFunction(ctx, syscall_set_content, "set_content", 1));
     JS_SetPropertyStr(ctx, ckb, "get_memory_limit",
                       JS_NewCFunction(ctx, syscall_get_memory_limit, "get_memory_limit", 0));
+<<<<<<< HEAD
     JS_SetPropertyStr(ctx, ckb, "current_memory",
                       JS_NewCFunction(ctx, syscall_current_memory, "current_memory", 0));
     JS_SetPropertyStr(ctx, ckb, "mount",
                       JS_NewCFunction(ctx, mount, "mount", 2));
+=======
+    JS_SetPropertyStr(ctx, ckb, "current_memory", JS_NewCFunction(ctx, syscall_current_memory, "current_memory", 0));
+>>>>>>> 8e446b0 (Add simple UDT example)
     JS_SetPropertyStr(ctx, ckb, "SOURCE_INPUT", JS_NewInt64(ctx, CKB_SOURCE_INPUT));
     JS_SetPropertyStr(ctx, ckb, "SOURCE_OUTPUT", JS_NewInt64(ctx, CKB_SOURCE_OUTPUT));
     JS_SetPropertyStr(ctx, ckb, "SOURCE_CELL_DEP", JS_NewInt64(ctx, CKB_SOURCE_CELL_DEP));

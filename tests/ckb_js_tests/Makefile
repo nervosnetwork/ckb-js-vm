@@ -7,7 +7,9 @@ all: \
 	cargo_test \
 	file_system \
 	syscall \
-	fs_bytecode
+	fs_bytecode\
+	simple_udt\
+	fs_mount
 
 cargo_test:
 	cargo test
@@ -40,6 +42,9 @@ fs_mount:
 	cd test_data/fs_module_mount && lua ../../../../tools/fs.lua pack ../../../../build/fib_module.bin fib_module.js
 	cargo run --bin module_mount | ${CKB_DEBUGGER} --tx-file=- -s lock
 
+simple_udt:
+	cargo run --bin simple_udt | $(CKB_DEBUGGER) --tx-file=- --script-group-type type --cell-type output --cell-index 0
+	
 install-lua:
 	sudo apt install lua5.4
 
