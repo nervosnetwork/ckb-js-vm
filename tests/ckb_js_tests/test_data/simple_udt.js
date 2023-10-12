@@ -20,7 +20,6 @@ function compare_array(a, b) {
     return true;
 }
 
-
 function unpack_script(buf) {
     let script = new Uint32Array(buf);
     let raw_data = new Uint8Array(buf);
@@ -34,39 +33,6 @@ function unpack_script(buf) {
     let args_offset = script[3];
     let args = buf.slice(args_offset + 4);
     return {'code_hash': code_hash, 'hash_type': hash_type, 'args': args};
-}
-
-function test() {
-    function assert_equal(a, b) {
-        if (a.byteLength != b.byteLength) {
-            throw Error(`not equal: ${a}\n${b}`);
-        }
-        for (let i = 0; i < a.byteLength; i++) {
-            if (a[i] != b[i]) {
-                throw Error(`not equal: ${a}\n${b}`);
-            }
-        }
-    }
-    let buf = new Uint8Array([
-        88,  0,  0,   0,   16,  0,  0,   0,   48,  0,   0,  0,   49,  0,   0,  0,   223, 151, 119, 120, 8,   155,
-        243, 63, 197, 31,  34,  69, 250, 109, 183, 250, 24, 25,  213, 3,   17, 49,  168, 61,  78,  203, 203, 108,
-        186, 7,  206, 145, 1,   35, 0,   0,   0,   0,   0,  145, 188, 29,  31, 200, 193, 146, 137, 231, 45,  21,
-        0,   77, 213, 6,   183, 98, 70,  191, 234, 209, 51, 145, 165, 179, 81, 121, 207, 124, 143, 55,  239, 1
-    ]);
-    let script = unpack_script(buf.buffer);
-    let expect_code_hash = new Uint8Array([
-        223, 151, 119, 120, 8,  155, 243, 63, 197, 31,  34,  69,  250, 109, 183, 250,
-        24,  25,  213, 3,   17, 49,  168, 61, 78,  203, 203, 108, 186, 7,   206, 145,
-    ]);
-    let code_hash = new Uint8Array(script.code_hash);
-    assert_equal(expect_code_hash == code_hash, 'code_hash mismatched');
-    assert(script.hash_type == 1, 'hash_type mismatched');
-    let expect_args = new Uint8Array([
-        0,  0,  145, 188, 29,  31, 200, 193, 146, 137, 231, 45,  21,  0,   77, 213, 6, 183,
-        98, 70, 191, 234, 209, 51, 145, 165, 179, 81,  121, 207, 124, 143, 55, 239, 1
-    ])
-    let args = new Uint8Array(buf.args);
-    assert_equal(script.args == expect_args, 'args mismatched');
 }
 
 function* iterate_field(source, field) {
