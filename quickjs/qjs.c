@@ -126,7 +126,7 @@ void js_std_dump_error(JSContext *ctx) {
 void js_std_loop(JSContext *ctx) {
     JSContext *ctx1;
     int err;
-    for(;;) {
+    for (;;) {
         err = JS_ExecutePendingJob(JS_GetRuntime(ctx), &ctx1);
         if (err <= 0) {
             if (err < 0) {

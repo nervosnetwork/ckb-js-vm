@@ -491,6 +491,7 @@ static JSValue mount(JSContext *ctx, JSValueConst this_value, int argc, JSValueC
     uint8_t *addr = JS_GetArrayBuffer(ctx, &psize, buf);
     int err = ckb_load_fs(addr, psize);
     if (err != 0) {
+        ThrowError(ctx, SyscallErrorUnknown, "ckb_load_fs failed");
         return JS_EXCEPTION;
     } else {
         return JS_UNDEFINED;
@@ -536,14 +537,8 @@ int js_init_module_ckb(JSContext *ctx) {
     JS_SetPropertyStr(ctx, ckb, "set_content", JS_NewCFunction(ctx, syscall_set_content, "set_content", 1));
     JS_SetPropertyStr(ctx, ckb, "get_memory_limit",
                       JS_NewCFunction(ctx, syscall_get_memory_limit, "get_memory_limit", 0));
-<<<<<<< HEAD
-    JS_SetPropertyStr(ctx, ckb, "current_memory",
-                      JS_NewCFunction(ctx, syscall_current_memory, "current_memory", 0));
-    JS_SetPropertyStr(ctx, ckb, "mount",
-                      JS_NewCFunction(ctx, mount, "mount", 2));
-=======
     JS_SetPropertyStr(ctx, ckb, "current_memory", JS_NewCFunction(ctx, syscall_current_memory, "current_memory", 0));
->>>>>>> 8e446b0 (Add simple UDT example)
+    JS_SetPropertyStr(ctx, ckb, "mount", JS_NewCFunction(ctx, mount, "mount", 2));
     JS_SetPropertyStr(ctx, ckb, "SOURCE_INPUT", JS_NewInt64(ctx, CKB_SOURCE_INPUT));
     JS_SetPropertyStr(ctx, ckb, "SOURCE_OUTPUT", JS_NewInt64(ctx, CKB_SOURCE_OUTPUT));
     JS_SetPropertyStr(ctx, ckb, "SOURCE_CELL_DEP", JS_NewInt64(ctx, CKB_SOURCE_CELL_DEP));

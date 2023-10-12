@@ -77,7 +77,7 @@ and `index`.
 
 Example:
 ```js
-ckb.mount(source, index)
+ckb.mount(index, source)
 ```
 
 Arguments: source (the source of the cell to load), index (the index of the cell
@@ -403,18 +403,6 @@ Arguments: none
 Return value(s): memory size in bytes
 
 See also: [`ckb_current_memory` syscall](https://github.com/nervosnetwork/rfcs/pull/418/files)
-
-#### ckb.mount
-Description: Load the file system in the cell.
-
-Example:
-```js
-ckb.mount(2, ckb.SOURCE_CELL_DEP)
-```
-
-Arguments: index (the index of the cell), source (the source of the cell)
-
-Return value(s): none
 
 ## Exported Constants
 
