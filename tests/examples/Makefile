@@ -20,6 +20,7 @@ define compile-run
 endef
 
 all:
+	$(call run,hello.js)
 	$(call run,fib.js)
 	$(call debug,pi_bigint.js)
 	$(call compile-run,fib.js)
