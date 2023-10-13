@@ -25,4 +25,3 @@ all:
 	$(call debug,pi_bigint.js)
 	$(call compile-run,fib.js)
 	$(call compile-run,pi_bigint.js)
-	

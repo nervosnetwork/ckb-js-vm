@@ -1,12 +1,13 @@
 
 
 ### Modification on original QuickJS
-The original version of quickjs is from: 
+To facilitate effective auditing, here we list the changes upon original
+QuickJS. The original version of QuickJS is from:
 https://bellard.org/quickjs/quickjs-2021-03-27.tar.xz
 
-with following modifications in `quickjs` folder:
+With following modifications in `quickjs` folder:
 1. The qjs.c is rewrote because it becomes a script on CKB
-2. The following files are copied from original quickjs with very small modifications:
+2. The following files are copied from original QuickJS with very small modifications:
     - cutils.c
     - cutils.h
     - libbf.c
@@ -29,7 +30,7 @@ with following modifications in `quickjs` folder:
     3. Macros for other platforms
     4. Replace `alloca` function
 
-3. The following files are removed from original quickjs:
+3. The following files are removed from original QuickJS:
     - quickjs-libc.c
     - quickjs-libc.h
 
@@ -40,3 +41,22 @@ with following modifications in `quickjs` folder:
     - mocked.h
     - std_module.c
     - std_module.h
+
+
+### Dynamic Library Issue
+It is possible to load RISC-V binaries as dynamic libraries on ckb-vm. However,
+using ckb-js-vm as a dynamic library is not recommended due to security issues.
+
+If ckb-js-vm is used as a dynamic library, a host script can load it and execute
+JavaScript code. However, this setup can potentially be exploited by malicious
+JavaScript code, leading to memory overflow issues in QuickJS. It is important
+to note that in this scenario, the host script and the dynamic library share the
+same memory space, which means that the host script may be compromised,
+resulting in unexpected behavior or skipped checks.
+
+To mitigate this security risk, it is strongly advised to use ckb-js-vm with the
+`spawn` or `exec` methods. This allows ckb-js-vm to run in a separate ckb-vm
+instance, preventing malicious JavaScript code from accessing or modifying
+anything in the host script.
+
+

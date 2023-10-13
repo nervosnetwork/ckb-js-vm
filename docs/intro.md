@@ -92,9 +92,9 @@ Note: 2 bytes ckb-js-vm args are reserved for further use.
 
 ## Performance
 The JavaScript code implementation for a ["hello,
-world"](../tests/examples/hello.js) costs an approximate expense of 2.9 million
+world"](../tests/examples/hello.js) costs an approximate expense of 2.9 M
 cycles. The utilization of a
-[SimpleUDT](../tests/ckb_js_tests/test_data/simple_udt.js) consumes around 5.1
-million cycles, while the
+[SimpleUDT](../tests/ckb_js_tests/test_data/simple_udt.js) consumes around 5.1 M
+cycles(3.4 M for bytecode), while the
 [ckb-lua-vm](https://github.com/nervosnetwork/ckb-lua-vm) takes a cost of
-roughly 2.0 million cycles.
+roughly 2.0 M(1.3 M for bytecode) cycles.
