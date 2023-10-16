@@ -77,6 +77,9 @@ test:
 	make -f tests/basic/Makefile
 	cd tests/ckb_js_tests && make all
 
+benchmark:
+	make -f tests/benchmark/Makefile
+	
 clean:
 	rm -f build/*.o
 	rm -f build/ckb-js-vm
