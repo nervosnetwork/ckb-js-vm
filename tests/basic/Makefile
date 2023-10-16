@@ -21,6 +21,7 @@ qjs-tests:
 	$(call run,test_closure.js)
 	$(call run,test_builtin.js)
 	$(call run,test_bignum.js)
+	$(call run,test_float.js)
 
 log:
 	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e "console.log(scriptArgs[0], scriptArgs[1]);" hello world

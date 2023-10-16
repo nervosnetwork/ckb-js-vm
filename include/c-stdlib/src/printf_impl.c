@@ -246,12 +246,24 @@ static inline unsigned int _strnlen_s(const char *str, size_t maxsize) {
 static inline bool _is_digit(char ch) { return (ch >= '0') && (ch <= '9'); }
 
 // internal ASCII string to unsigned int conversion
-unsigned int atoi(const char **str) {
+unsigned int _atoi(const char **str) {
     unsigned int i = 0U;
     while (_is_digit(**str)) {
         i = i * 10U + (unsigned int)(*((*str)++) - '0');
     }
     return i;
+}
+
+int atoi(const char *str) {
+    if (str[0] == '+') {
+        const char *sub = str + 1;
+        return +_atoi(&sub);
+    }
+    if (str[0] == '-') {
+        const char *sub = str + 1;
+        return -_atoi(&sub);
+    }
+    return _atoi(&str);
 }
 
 // output the specified string in reverse, taking care of any zero-padding
@@ -685,7 +697,7 @@ static int _vsnprintf(out_fct_type out, char *buffer, const size_t maxlen, const
         // evaluate width field
         width = 0U;
         if (_is_digit(*format)) {
-            width = atoi(&format);
+            width = _atoi(&format);
         } else if (*format == '*') {
             const int w = va_arg(va, int);
             if (w < 0) {
@@ -703,7 +715,7 @@ static int _vsnprintf(out_fct_type out, char *buffer, const size_t maxlen, const
             flags |= FLAGS_PRECISION;
             format++;
             if (_is_digit(*format)) {
-                precision = atoi(&format);
+                precision = _atoi(&format);
             } else if (*format == '*') {
                 const int prec = (int)va_arg(va, int);
                 precision = prec > 0 ? (unsigned int)prec : 0U;
