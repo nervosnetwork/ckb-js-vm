@@ -527,7 +527,6 @@ function int_to_string(n) {
     return n;
 }
 
-// TODO
 function float_to_string(n) {
     var s, r, j;
     r = 0;
@@ -596,8 +595,7 @@ function json_stringify_bench(_) {
         'isStudent': false,
         'grades': [80, 90, 95],
         'address': {'street': '123 ABC Street', 'city': 'Example City', 'country': 'USA'},
-        // TODO: into float
-        'height': 6,
+        'height': 5.9,
         'skills': ['JavaScript', 'Python', 'HTML', 'CSS'],
         'isActive': true
     };
@@ -638,10 +636,7 @@ const BENCH_LIST = [
     {'name': 'string_build3', 'func': string_build3},
     {'name': 'string_build4', 'func': string_build4},
     {'name': 'int_to_string', 'func': int_to_string},
-    // {
-    //     "name": "float_to_string",
-    //     "func": float_to_string,
-    // },
+    {'name': 'float_to_string', 'func': float_to_string},
     {'name': 'string_to_int', 'func': string_to_int},
     {'name': 'string_to_float', 'func': string_to_float},
     {'name': 'sort_bench(5000 numbers)', 'func': sort_bench, 'bench_prepare': sort_prepare},

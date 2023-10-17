@@ -32,11 +32,12 @@ string_build2: 191 K cycles
 string_build3: 189 K cycles
 string_build4: 194 K cycles
 int_to_string: 10 K cycles
+float_to_string: 21 K cycles
 string_to_int: 5 K cycles
 string_to_float: 8 K cycles
-sort_bench(5000 numbers): 23807 K cycles
+sort_bench(5000 numbers): 23806 K cycles
 json_parse_bench: 123 K cycles
-json_stringify_bench: 175 K cycles
+json_stringify_bench: 198 K cycles
 Run result: 0
-Total cycles consumed: 53483362(51.0M)
-Transfer cycles: 123789(120.9K), running cycles: 53359573(50.9M)
+Total cycles consumed: 53546530(51.1M)
+Transfer cycles: 123824(120.9K), running cycles: 53422706(50.9M)
