@@ -1,0 +1,43 @@
+Run from file, local access enabled. For Testing only.
+Benchmark started. Every test may iterate 1 internally ...
+empty_loop: 3 K cycles
+prop_read: 11 K cycles
+prop_write: 10 K cycles
+prop_create: 10 K cycles
+prop_delete: 7 K cycles
+array_read: 17 K cycles
+array_write: 16 K cycles
+array_prop_create: 937 K cycles
+array_length_decr: 1278 K cycles
+array_hole_length_decr: 3142 K cycles
+array_push: 1181 K cycles
+array_pop: 1366 K cycles
+typed_array_read: 20 K cycles
+typed_array_write: 20 K cycles
+global_read: 3 K cycles
+global_write: 4 K cycles
+global_write_strict: 3 K cycles
+local_destruct: 93 K cycles
+global_destruct: 37 K cycles
+global_destruct_strict: 64 K cycles
+func_call: 12 K cycles
+int_arith: 994 K cycles
+set_collection_add: 893 K cycles
+array_for: 133 K cycles
+array_for_in: 351 K cycles
+array_for_of: 174 K cycles
+math_min: 1222 K cycles
+string_build1: 188 K cycles
+string_build2: 191 K cycles
+string_build3: 189 K cycles
+string_build4: 194 K cycles
+int_to_string: 10 K cycles
+float_to_string: 21 K cycles
+string_to_int: 5 K cycles
+string_to_float: 8 K cycles
+sort_bench(5000 numbers): 23806 K cycles
+json_parse_bench: 123 K cycles
+json_stringify_bench: 198 K cycles
+Run result: 0
+Total cycles consumed: 53546530(51.1M)
+Transfer cycles: 123824(120.9K), running cycles: 53422706(50.9M)

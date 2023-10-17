@@ -18,6 +18,8 @@ jobs:
       run: make install
     - name: Tests
       run: make test
+    - name: Benchmark
+      run: make benchmark
   
   macos:
     runs-on: macos-latest
