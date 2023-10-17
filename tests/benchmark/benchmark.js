@@ -570,6 +570,41 @@ function sort_bench(_, arr) {
     arr.sort();
 }
 
+function json_parse_bench(_) {
+    let json = `{
+        "name": "John Doe",
+        "age": 30,
+        "isStudent": false,
+        "grades": [80, 90, 95],
+        "address": {
+          "street": "123 ABC Street",
+          "city": "Example City",
+          "country": "USA"
+        },
+        "height": 5.9,
+        "skills": ["JavaScript", "Python", "HTML", "CSS"],
+        "isActive": true
+    }`;
+    let obj = JSON.parse(json);
+    console.assert(obj.name == 'John Doe');
+}
+
+function json_stringify_bench(_) {
+    let json = {
+        'name': 'John Doe',
+        'age': 30,
+        'isStudent': false,
+        'grades': [80, 90, 95],
+        'address': {'street': '123 ABC Street', 'city': 'Example City', 'country': 'USA'},
+        // TODO: into float
+        'height': 6,
+        'skills': ['JavaScript', 'Python', 'HTML', 'CSS'],
+        'isActive': true
+    };
+    let str = JSON.stringify(json);
+    console.assert(str != undefined);
+}
+
 const BENCH_LIST = [
     {'name': 'empty_loop', 'func': empty_loop},
     {'name': 'prop_read', 'func': prop_read},
@@ -610,6 +645,8 @@ const BENCH_LIST = [
     {'name': 'string_to_int', 'func': string_to_int},
     {'name': 'string_to_float', 'func': string_to_float},
     {'name': 'sort_bench(5000 numbers)', 'func': sort_bench, 'bench_prepare': sort_prepare},
+    {'name': 'json_parse_bench', 'func': json_parse_bench},
+    {'name': 'json_stringify_bench', 'func': json_stringify_bench},
 ];
 
 function main() {
