@@ -5094,11 +5094,10 @@ static JSValue js_c_function_data_call(JSContext *ctx, JSValueConst func_obj,
     JSCFunctionDataRecord *s = JS_GetOpaque(func_obj, JS_CLASS_C_FUNCTION_DATA);
     JSValueConst *arg_buf;
     int i;
-    uint8_t temp[sizeof(arg_buf[0]) * s->length];
 
     /* XXX: could add the function on the stack for debug */
     if (unlikely(argc < s->length)) {
-        arg_buf = (JSValueConst *)temp;
+        arg_buf = alloca(sizeof(arg_buf[0]) * s->length);
         for(i = 0; i < argc; i++)
             arg_buf[i] = argv[i];
         for(i = argc; i < s->length; i++)
@@ -16043,11 +16042,10 @@ static JSValue js_call_c_function(JSContext *ctx, JSValueConst func_obj,
     sf->cur_func = (JSValue)func_obj;
     sf->arg_count = argc;
     arg_buf = argv;
-    uint8_t temp[sizeof(arg_buf[0]) * arg_count];
 
     if (unlikely(argc < arg_count)) {
         /* ensure that at least argc_count arguments are readable */
-        arg_buf = (JSValueConst *)temp;
+        arg_buf = alloca(sizeof(arg_buf[0]) * arg_count);
         for(i = 0; i < argc; i++)
             arg_buf[i] = argv[i];
         for(i = argc; i < arg_count; i++)
@@ -16158,8 +16156,7 @@ static JSValue js_call_bound_function(JSContext *ctx, JSValueConst func_obj,
     arg_count = bf->argc + argc;
     if (js_check_stack_overflow(ctx->rt, sizeof(JSValue) * arg_count))
         return JS_ThrowStackOverflow(ctx);
-    uint8_t temp[sizeof(JSValue) * arg_count];
-    arg_buf = (JSValueConst *)temp;
+    arg_buf = alloca(sizeof(JSValue) * arg_count);
     for(i = 0; i < bf->argc; i++) {
         arg_buf[i] = bf->argv[i];
     }
@@ -16290,9 +16287,7 @@ static JSValue JS_CallInternal(JSContext *caller_ctx, JSValueConst func_obj,
     init_list_head(&sf->var_ref_list);
     var_refs = p->u.func.var_refs;
 
-    // TODO: fix it
-    uint8_t temp[1024*10];
-    local_buf = (JSValue *)temp;
+    local_buf = alloca(alloca_size);
     if (unlikely(arg_allocated_size)) {
         int n = min_int(argc, b->arg_count);
         arg_buf = local_buf;
