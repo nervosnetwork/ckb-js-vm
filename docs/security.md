@@ -28,7 +28,6 @@ With following modifications in `quickjs` folder:
     1. header file including
     2. A lot of binding functions are removed
     3. Macros for other platforms
-    4. Replace `alloca` function
 
 3. The following files are removed from original QuickJS:
     - quickjs-libc.c

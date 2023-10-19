@@ -9,5 +9,6 @@ int atoi(const char *);
 int abs(int);
 void exit(int);
 void abort(void);
+#define alloca __builtin_alloca
 
 #endif /* C_STDLIB_STDLIB_H_ */
