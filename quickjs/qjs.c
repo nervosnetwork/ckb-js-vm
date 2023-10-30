@@ -35,59 +35,10 @@
 #include "std_module.h"
 #include "ckb_module.h"
 #include "ckb_exec.h"
+#include "cmdopt.h"
 
 #define MAIN_FILE_NAME "main.js"
 #define MAIN_FILE_NAME_BC "main.bc"
-
-typedef enum {
-    RunJsError = 0,
-    RunJsWithCode,
-    RunJsWithFile,
-    RunJsWithFileSystem,
-
-    RunJsWithDbgFile,
-    RunJsWithDbgFileSystem,
-
-    CompileWithFile,
-} RunJSType;
-
-static RunJSType parse_args(int argc, const char **argv) {
-    bool has_r = false;
-    bool has_f = false;
-    bool has_e = false;
-    bool has_c = false;
-
-    for (int i = 0; i < argc; i++) {
-        if (strcmp(argv[i], "-r") == 0) {
-            has_r = true;
-        } else if (strcmp(argv[i], "-f") == 0) {
-            has_f = true;
-        } else if (strcmp(argv[i], "-e") == 0) {
-            has_e = true;
-        } else if (strcmp(argv[i], "-c") == 0) {
-            has_c = true;
-        }
-    }
-
-    if (has_c) {
-        return CompileWithFile;
-    } else if (has_e) {
-        if (argc < 2 || argv[1] == NULL) return RunJsError;
-        if (has_r || has_f)
-            return RunJsError;
-        else
-            return RunJsWithCode;
-    } else if (has_r) {
-        if (has_f)
-            return RunJsWithDbgFileSystem;
-        else
-            return RunJsWithDbgFile;
-    } else if (has_f) {
-        return RunJsWithFileSystem;
-    } else {
-        return RunJsWithFile;
-    }
-}
 
 static void js_dump_obj(JSContext *ctx, JSValueConst val) {
     const char *str;
@@ -274,6 +225,39 @@ static int run_from_cell_data(JSContext *ctx, bool enable_fs) {
     }
 }
 
+static int run_from_target(JSContext *ctx, const char *target, bool enable_fs) {
+    if (strlen(target) < 66) {
+        return -1;
+    }
+
+    uint8_t target_byte[33] = {};
+    uint32_t length = 0;
+    _exec_hex2bin(target, target_byte, 33, &length);
+    uint8_t *code_hash = target_byte;
+    uint8_t hash_type = target_byte[32];
+
+    int err = 0;
+    size_t buf_size = 0;
+    size_t index = 0;
+
+    err = load_cell_code_info_explicit(&buf_size, &index, code_hash, hash_type);
+    if (err) {
+        return err;
+    }
+
+    char buf[buf_size + 1];
+    err = load_cell_code(buf_size, index, (uint8_t *)buf);
+    if (err != 0) {
+        return err;
+    }
+    if (enable_fs) {
+        return run_from_file_system_buf(ctx, buf, buf_size);
+    } else {
+        buf[buf_size] = 0;
+        return eval_buf(ctx, buf, buf_size, "<run_from_file>", 0);
+    }
+}
+
 /* also used to initialize the worker context */
 static JSContext *JS_NewCustomContext(JSRuntime *rt) {
     JSContext *ctx;
@@ -286,18 +270,36 @@ static JSContext *JS_NewCustomContext(JSRuntime *rt) {
     return ctx;
 }
 
+static const CMDOptDesc nncp_options[] = {
+    { "h,help", 0, "show the help" },
+    { "c", 0, "compile javascript to bytecode" },
+    { "e", CMD_HAS_ARG, "run javascript from argument value" },
+    { "r", 0, "read from file" },
+    { "t", CMD_HAS_ARG, "specify target code_hash and hash_type in hex" },
+    { "f", 0, "use file system" },
+    { NULL },
+};
+
 int main(int argc, const char **argv) {
+    int optind;
+    CMDOption *co;
+    co = cmdopt_init("ckb-js-vm");
+    cmdopt_add_desc(co, nncp_options);
+    optind = cmdopt_parse(co, argc, argv);
+    if (optind > argc) {
+        cmdopt_show_desc(nncp_options);
+        exit(1);
+    }
+    if (cmdopt_has(co, "help")) {
+        cmdopt_show_desc(nncp_options);
+        exit(1);
+    }
+
     int err = 0;
     JSRuntime *rt = NULL;
     JSContext *ctx = NULL;
     size_t memory_limit = 0;
     size_t stack_size = 1024 * 1020;
-    size_t optind = 1;
-    RunJSType type = parse_args(argc, argv);
-    if (type == RunJsError) {
-        printf("ckb-js: args failed");
-        return -1;
-    }
     rt = JS_NewRuntime();
     if (!rt) {
         printf("qjs: cannot allocate JS runtime\n");
@@ -312,59 +314,72 @@ int main(int argc, const char **argv) {
     CHECK2(ctx != NULL, -1);
     /* loader for ES6 modules */
     JS_SetModuleLoaderFunc(rt, NULL, js_module_loader, NULL);
-    js_std_add_helpers(ctx, argc - optind, argv + optind);
+    js_std_add_helpers(ctx, argc - optind, &argv[optind]);
     err = js_init_module_ckb(ctx);
     CHECK(err);
 
-    switch (type) {
-        case RunJsWithCode:
-            err = eval_buf(ctx, argv[1], strlen(argv[1]), "<cmdline>", 0);
-            if (err == 0) {
-                js_std_loop(ctx);
-            }
-            break;
-        case RunJsWithFile:
-            err = run_from_cell_data(ctx, false);
-            if (err == 0) {
-                js_std_loop(ctx);
-            }
-            break;
-        case RunJsWithFileSystem:
-            err = run_from_cell_data(ctx, true);
-            if (err == 0) {
-                js_std_loop(ctx);
-            }
-            break;
-        case RunJsWithDbgFile:
-            err = run_from_local_file(ctx, false);
-            if (err == 0) {
-                js_std_loop(ctx);
-            }
-            break;
-        case RunJsWithDbgFileSystem:
-            err = run_from_local_file(ctx, true);
-            if (err == 0) {
-                js_std_loop(ctx);
-            }
-            break;
-        case CompileWithFile:
-            JS_SetModuleLoaderFunc(rt, NULL, js_module_dummy_loader, NULL);
-            err = compile_from_file(ctx);
-            break;
-        default:
-            printf("unknow type: %d", type);
-            return -1;
+    if (cmdopt_has(co, "c")) {
+        JS_SetModuleLoaderFunc(rt, NULL, js_module_dummy_loader, NULL);
+        err = compile_from_file(ctx);
+        goto exit;
     }
-    CHECK(err);
+    if (cmdopt_get(co, "e")) {
+        const char *data = cmdopt_get(co, "e");
+        err = eval_buf(ctx, data, strlen(data), "<cmdline>", 0);
+        if (err == 0) {
+            js_std_loop(ctx);
+        }
+        goto exit;
+    }
+    if (cmdopt_has(co, "r") && cmdopt_has(co, "f")) {
+        err = run_from_local_file(ctx, true);
+        if (err == 0) {
+            js_std_loop(ctx);
+        }
+        goto exit;
+    }
+    if (cmdopt_has(co, "r")) {
+        err = run_from_local_file(ctx, false);
+        if (err == 0) {
+            js_std_loop(ctx);
+        }
+        goto exit;
+    }
+    if (cmdopt_get(co, "t") && cmdopt_has(co, "f")) {
+        err = run_from_target(ctx, cmdopt_get(co, "t"), true);
+        if (err == 0) {
+            js_std_loop(ctx);
+        }
+        goto exit;
+    }
+    if (cmdopt_get(co, "t")) {
+        err = run_from_target(ctx, cmdopt_get(co, "t"), false);
+        if (err == 0) {
+            js_std_loop(ctx);
+        }
+        goto exit;
+    }
+    if (cmdopt_has(co, "f")) {
+        err = run_from_cell_data(ctx, true);
+        if (err == 0) {
+            js_std_loop(ctx);
+        }
+        goto exit;
+    }
 
+    err = run_from_cell_data(ctx, false);
+    if (err == 0) {
+        js_std_loop(ctx);
+    }
+    goto exit;
+
+exit:
 #ifdef MEMORY_USAGE
     size_t heap_usage = malloc_usage();
     printf("Total bytes used by allocator(malloc/realloc) is %d K", heap_usage / 1024);
     size_t stack_usage = JS_GetStackPeak();
     printf("Total bytes used by stack(peak value) is %d K", (4 * 1024 * 1024 - stack_usage) / 1024);
 #endif
-
-exit:
     // No cleanup is needed.
     // js_std_free_handlers(rt);
     // JS_FreeContext(ctx);
