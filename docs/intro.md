@@ -90,11 +90,14 @@ args: <ckb-js-vm args, 2 bytes> <code_hash to JavaScript code cell, 32 bytes> <h
 The tailing bytes are JavaScript code arguments which can be used by JavaScript.
 Note: 2 bytes ckb-js-vm args are reserved for further use. 
 
-## Performance
+## Performance and Memory Usage
 The JavaScript code implementation for a ["hello,
 world"](../tests/examples/hello.js) costs an approximate expense of 2.9 M
-cycles. The utilization of a
+cycles. The utilization of the
 [SimpleUDT](../tests/ckb_js_tests/test_data/simple_udt.js) consumes around 5.1 M
 cycles(3.4 M for bytecode), while the
 [ckb-lua-vm](https://github.com/nervosnetwork/ckb-lua-vm) takes a cost of
 roughly 2.0 M(1.3 M for bytecode) cycles.
+
+The memory usage of the [SimpleUDT](../tests/ckb_js_tests/test_data/simple_udt.js)
+is about 139K(130K in heap and 9K in stack).
