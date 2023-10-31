@@ -59,6 +59,12 @@ void malloc_config(uintptr_t min, uintptr_t max) {
     s_program_break = 0;
 }
 
+size_t malloc_usage() {
+    size_t high = (size_t)s_program_break;
+    size_t low = (size_t)s_brk_min;
+    return high - low;
+}
+
 void *_sbrk(uintptr_t incr) {
     if (!s_program_break) {
         s_program_break = s_brk_min;
@@ -384,4 +390,9 @@ void free(void *p) {
     if (!p) return;
     struct chunk *self = CKB_MEM_TO_CHUNK(p);
     __bin_chunk(self);
+}
+
+size_t malloc_usable_size(void *ptr) {
+    struct chunk *c = CKB_MEM_TO_CHUNK(ptr);
+    return CKB_CHUNK_PSIZE(c);
 }

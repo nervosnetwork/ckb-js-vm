@@ -30,7 +30,9 @@ CFLAGS += -Wno-incompatible-library-redeclaration -Wno-implicit-const-int-float-
 
 CFLAGS += -DCKB_DECLARATION_ONLY
 CFLAGS += -D__BYTE_ORDER=1234 -D__LITTLE_ENDIAN=1234 -D__ISO_C_VISIBLE=1999 -D__GNU_VISIBLE
-CFLAGS += -DCKB_MALLOC_DECLARATION_ONLY -DCKB_PRINTF_DECLARATION_ONLY -DCONFIG_BIGNUM
+CFLAGS += -DCKB_MALLOC_DECLARATION_ONLY -DCKB_PRINTF_DECLARATION_ONLY -DCONFIG_BIGNUM -DCONFIG_STACK_CHECK 
+# uncomment to dump memory usage
+# CFLAGS += -DMEMORY_USAGE
 
 LDFLAGS := -static --gc-sections
 LDFLAGS += -Ldeps/compiler-rt-builtins-riscv/build -lcompiler-rt

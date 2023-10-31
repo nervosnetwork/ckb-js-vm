@@ -111,4 +111,7 @@ function main() {
     return 0;
 }
 
-ckb.exit(main());
+let exit_code = main();
+if (exit_code != 0) {
+    ckb.exit(exit_code);
+}
