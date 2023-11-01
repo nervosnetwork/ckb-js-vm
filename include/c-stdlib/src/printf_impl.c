@@ -1011,3 +1011,10 @@ int ckb_printf(const char *format, ...) {
     ckb_debug(buf);
     return ret;
 }
+
+int ckb_vprintf(const char *format, va_list va) {
+    static char buf[CKB_C_STDLIB_PRINTF_BUFFER_SIZE];
+    int ret = vsnprintf(buf, CKB_C_STDLIB_PRINTF_BUFFER_SIZE, format, va);
+    ckb_debug(buf);
+    return ret;
+}
