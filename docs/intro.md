@@ -101,3 +101,36 @@ roughly 2.0 M(1.3 M for bytecode) cycles.
 
 The memory usage of the [SimpleUDT](../tests/ckb_js_tests/test_data/simple_udt.js)
 is about 139K(130K in heap and 9K in stack).
+
+
+## Integration 
+
+There are four approaches to integrating ckb-js-vm:
+
+- `spawn`
+- `exec`
+- Static library
+- Dynamic library
+
+Among these options, `spawn` is the recommended method for integrating
+ckb-js-vm. It's straightforward and easy to use. `exec` is similar to `spawn`,
+but it lacks the ability to maintain the execution context and is no longer
+recommended following the availability of `spawn`.
+
+Static linking is not practical due to the substantial binary size of ckb-js-vm
+(around 500K). The limitation on binary size is approximately 600K, leaving less
+than 100K for additional code.
+
+For dynamic library integration, it also presents memory usage challenges, as it
+involves three components of memory usage:
+
+1. ckb-js-vm binary, approximately 500K.
+2. Heap memory utilized by `malloc`, which depends on the JavaScript code; typically, 500K is suggested.
+3. Stack memory, which varies but usually 100K is sufficient for most cases.
+
+Overall, 1M bytes will be allocated for the dynamic library, leaving a total
+usable memory of 4M. This leaves only 3M bytes for the host script. It's
+important to note that in certain critical scenarios, the peak memory usage can
+exceed the mentioned limits. Dynamic libraries also face security concerns, as
+detailed in [security.md](./security.md).
+
