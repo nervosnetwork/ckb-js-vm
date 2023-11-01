@@ -211,17 +211,21 @@ static int run_from_cell_data(JSContext *ctx, bool enable_fs) {
         return err;
     }
 
-    char buf[buf_size + 1];
+    char *buf = malloc(buf_size + 1);
     err = load_cell_code(buf_size, index, (uint8_t *)buf);
     if (err) {
         return err;
     }
 
     if (enable_fs) {
-        return run_from_file_system_buf(ctx, buf, buf_size);
+        err = run_from_file_system_buf(ctx, buf, buf_size);
+        free(buf);
+        return err;
     } else {
         buf[buf_size] = 0;
-        return eval_buf(ctx, buf, buf_size, "<run_from_file>", 0);
+        err = eval_buf(ctx, buf, buf_size, "<run_from_file>", 0);
+        free(buf);
+        return err;
     }
 }
 
@@ -245,16 +249,21 @@ static int run_from_target(JSContext *ctx, const char *target, bool enable_fs) {
         return err;
     }
 
-    char buf[buf_size + 1];
+    char *buf = malloc(buf_size + 1);
     err = load_cell_code(buf_size, index, (uint8_t *)buf);
     if (err) {
         return err;
     }
+
     if (enable_fs) {
-        return run_from_file_system_buf(ctx, buf, buf_size);
+        err = run_from_file_system_buf(ctx, buf, buf_size);
+        free(buf);
+        return err;
     } else {
         buf[buf_size] = 0;
-        return eval_buf(ctx, buf, buf_size, "<run_from_file>", 0);
+        err = eval_buf(ctx, buf, buf_size, "<run_from_file>", 0);
+        free(buf);
+        return err;
     }
 }
 
