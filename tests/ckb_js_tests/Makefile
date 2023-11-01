@@ -44,7 +44,11 @@ fs_mount:
 
 simple_udt:
 	cargo run --bin simple_udt | $(CKB_DEBUGGER) --tx-file=- --script-group-type type --cell-type output --cell-index 0
-	
+
+cell_target:
+	echo "blake2b(../../basic/test_loop.js) == 91bc1d1fc8c19289e72d15004dd506b76246bfead13391a5b35179cf7c8f37ef"
+	cargo run --bin default_by_cell | $(CKB_DEBUGGER) -s lock --tx-file=- -- -t 91bc1d1fc8c19289e72d15004dd506b76246bfead13391a5b35179cf7c8f37ef01
+
 install-lua:
 	sudo apt install lua5.4
 

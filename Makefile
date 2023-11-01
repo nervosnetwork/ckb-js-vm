@@ -40,7 +40,8 @@ LDFLAGS += -Ldeps/compiler-rt-builtins-riscv/build -lcompiler-rt
 OBJDIR=build
 
 QJS_OBJS=$(OBJDIR)/qjs.o $(OBJDIR)/quickjs.o $(OBJDIR)/libregexp.o $(OBJDIR)/libunicode.o \
-		$(OBJDIR)/cutils.o $(OBJDIR)/mocked.o $(OBJDIR)/std_module.o $(OBJDIR)/ckb_module.o $(OBJDIR)/ckb_cell_fs.o $(OBJDIR)/libbf.o
+		$(OBJDIR)/cutils.o $(OBJDIR)/mocked.o $(OBJDIR)/std_module.o $(OBJDIR)/ckb_module.o $(OBJDIR)/ckb_cell_fs.o \
+		$(OBJDIR)/libbf.o $(OBJDIR)/cmdopt.o
 
 STD_OBJS=$(OBJDIR)/string_impl.o $(OBJDIR)/malloc_impl.o $(OBJDIR)/math_impl.o \
 		$(OBJDIR)/math_log_impl.o $(OBJDIR)/math_pow_impl.o $(OBJDIR)/printf_impl.o $(OBJDIR)/stdio_impl.o \
@@ -81,7 +82,7 @@ test:
 
 benchmark:
 	make -f tests/benchmark/Makefile
-	
+
 clean:
 	rm -f build/*.o
 	rm -f build/ckb-js-vm

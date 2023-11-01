@@ -577,6 +577,20 @@ int js_init_module_ckb(JSContext *ctx) {
 #define JS_LOADER_ARGS_SIZE 2
 #define BLAKE2B_BLOCK_SIZE 32
 
+int load_cell_code_info_explicit(size_t *buf_size, size_t *index, const uint8_t* code_hash, uint8_t hash_type) {
+    int err = 0;
+    *index = 0;
+    err = ckb_look_for_dep_with_hash2(code_hash, hash_type, index);
+    CHECK(err);
+
+    *buf_size = 0;
+    err = ckb_load_cell_data(NULL, buf_size, 0, *index, CKB_SOURCE_CELL_DEP);
+    CHECK(err);
+    CHECK2(*buf_size > 0, -1);
+exit:
+    return err;
+}
+
 int load_cell_code_info(size_t *buf_size, size_t *index) {
     int err = 0;
     unsigned char script[SCRIPT_SIZE];
