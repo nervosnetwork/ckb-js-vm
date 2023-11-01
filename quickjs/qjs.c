@@ -30,6 +30,7 @@
 #include <string.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "my_malloc.h"
 #include "cutils.h"
 #include "std_module.h"
 #include "ckb_module.h"
@@ -290,7 +291,7 @@ int main(int argc, const char **argv) {
     JSRuntime *rt = NULL;
     JSContext *ctx = NULL;
     size_t memory_limit = 0;
-    size_t stack_size = 0;
+    size_t stack_size = 1024 * 1020;
     size_t optind = 1;
     RunJSType type = parse_args(argc, argv);
     if (type == RunJsError) {
@@ -355,6 +356,14 @@ int main(int argc, const char **argv) {
             return -1;
     }
     CHECK(err);
+
+#ifdef MEMORY_USAGE
+    size_t heap_usage = malloc_usage();
+    printf("Total bytes used by allocator(malloc/realloc) is %d K", heap_usage / 1024);
+    size_t stack_usage = JS_GetStackPeak();
+    printf("Total bytes used by stack(peak value) is %d K", (4 * 1024 * 1024 - stack_usage) / 1024);
+#endif
+
 exit:
     // No cleanup is needed.
     // js_std_free_handlers(rt);

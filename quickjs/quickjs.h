@@ -1051,6 +1051,7 @@ int JS_SetModuleExport(JSContext *ctx, JSModuleDef *m, const char *export_name,
                        JSValue val);
 int JS_SetModuleExportList(JSContext *ctx, JSModuleDef *m,
                            const JSCFunctionListEntry *tab, int len);
+uintptr_t JS_GetStackPeak();
 
 #undef js_unlikely
 #undef js_force_inline

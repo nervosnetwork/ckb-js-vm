@@ -1589,6 +1589,7 @@ static inline BOOL js_check_stack_overflow(JSRuntime *rt, size_t alloca_size)
     return FALSE;
 }
 #else
+uintptr_t s_stack_peak = 4*1024*1024;
 /* Note: OS and CPU dependent */
 static inline uintptr_t js_get_stack_pointer(void)
 {
@@ -1598,9 +1599,18 @@ static inline uintptr_t js_get_stack_pointer(void)
 static inline BOOL js_check_stack_overflow(JSRuntime *rt, size_t alloca_size)
 {
     uintptr_t sp;
-    sp = js_get_stack_pointer() - alloca_size;
+    uintptr_t stack = js_get_stack_pointer();
+    if (stack < s_stack_peak) {
+        s_stack_peak = stack;
+    }
+    sp = stack - alloca_size;
     return unlikely(sp < rt->stack_limit);
 }
+
+uintptr_t JS_GetStackPeak() {
+    return s_stack_peak;
+}
+
 #endif
 
 JSRuntime *JS_NewRuntime2(const JSMallocFunctions *mf, void *opaque)
