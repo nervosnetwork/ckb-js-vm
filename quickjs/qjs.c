@@ -247,7 +247,7 @@ static int run_from_target(JSContext *ctx, const char *target, bool enable_fs) {
 
     char buf[buf_size + 1];
     err = load_cell_code(buf_size, index, (uint8_t *)buf);
-    if (err != 0) {
+    if (err) {
         return err;
     }
     if (enable_fs) {
@@ -270,7 +270,7 @@ static JSContext *JS_NewCustomContext(JSRuntime *rt) {
     return ctx;
 }
 
-static const CMDOptDesc nncp_options[] = {
+static const CMDOptDesc js_vm_options[] = {
     { "h,help", 0, "show the help" },
     { "c", 0, "compile javascript to bytecode" },
     { "e", CMD_HAS_ARG, "run javascript from argument value" },
@@ -284,14 +284,14 @@ int main(int argc, const char **argv) {
     int optind;
     CMDOption *co;
     co = cmdopt_init("ckb-js-vm");
-    cmdopt_add_desc(co, nncp_options);
+    cmdopt_add_desc(co, js_vm_options);
     optind = cmdopt_parse(co, argc, argv);
     if (optind > argc) {
-        cmdopt_show_desc(nncp_options);
+        cmdopt_show_desc(js_vm_options);
         exit(1);
     }
     if (cmdopt_has(co, "help")) {
-        cmdopt_show_desc(nncp_options);
+        cmdopt_show_desc(js_vm_options);
         exit(1);
     }
 
@@ -318,68 +318,68 @@ int main(int argc, const char **argv) {
     err = js_init_module_ckb(ctx);
     CHECK(err);
 
-    if (cmdopt_has(co, "c")) {
+    bool c_bool = cmdopt_has(co, "c");
+    const char *e_data = cmdopt_get(co, "e");
+    bool r_bool = cmdopt_has(co, "r");
+    bool f_bool = cmdopt_has(co, "f");
+    const char *t_data = cmdopt_get(co, "t");
+
+    if (c_bool) {
         JS_SetModuleLoaderFunc(rt, NULL, js_module_dummy_loader, NULL);
         err = compile_from_file(ctx);
-        goto exit;
-    }
-    if (cmdopt_get(co, "e")) {
-        const char *data = cmdopt_get(co, "e");
-        err = eval_buf(ctx, data, strlen(data), "<cmdline>", 0);
+        CHECK(err);
+    } else if (e_data) {
+        err = eval_buf(ctx, e_data, strlen(e_data), "<cmdline>", 0);
         if (err == 0) {
             js_std_loop(ctx);
         }
-        goto exit;
-    }
-    if (cmdopt_has(co, "r") && cmdopt_has(co, "f")) {
+        CHECK(err);
+    } else if (r_bool && f_bool) {
         err = run_from_local_file(ctx, true);
         if (err == 0) {
             js_std_loop(ctx);
         }
-        goto exit;
-    }
-    if (cmdopt_has(co, "r")) {
+        CHECK(err);
+    } else if (r_bool) {
         err = run_from_local_file(ctx, false);
         if (err == 0) {
             js_std_loop(ctx);
         }
-        goto exit;
-    }
-    if (cmdopt_get(co, "t") && cmdopt_has(co, "f")) {
-        err = run_from_target(ctx, cmdopt_get(co, "t"), true);
+        CHECK(err);
+    } else if (t_data && f_bool) {
+        err = run_from_target(ctx, t_data, true);
         if (err == 0) {
             js_std_loop(ctx);
         }
-        goto exit;
-    }
-    if (cmdopt_get(co, "t")) {
-        err = run_from_target(ctx, cmdopt_get(co, "t"), false);
+        CHECK(err);
+    } else if (t_data) {
+        err = run_from_target(ctx, t_data, false);
         if (err == 0) {
             js_std_loop(ctx);
         }
-        goto exit;
-    }
-    if (cmdopt_has(co, "f")) {
+        CHECK(err);
+    } else if (f_bool) {
         err = run_from_cell_data(ctx, true);
         if (err == 0) {
             js_std_loop(ctx);
         }
-        goto exit;
+        CHECK(err);
+    } else {
+        err = run_from_cell_data(ctx, false);
+        if (err == 0) {
+            js_std_loop(ctx);
+        }
+        CHECK(err);
     }
 
-    err = run_from_cell_data(ctx, false);
-    if (err == 0) {
-        js_std_loop(ctx);
-    }
-    goto exit;
-
-exit:
 #ifdef MEMORY_USAGE
     size_t heap_usage = malloc_usage();
     printf("Total bytes used by allocator(malloc/realloc) is %d K", heap_usage / 1024);
     size_t stack_usage = JS_GetStackPeak();
     printf("Total bytes used by stack(peak value) is %d K", (4 * 1024 * 1024 - stack_usage) / 1024);
 #endif
+
+exit:
     // No cleanup is needed.
     // js_std_free_handlers(rt);
     // JS_FreeContext(ctx);
