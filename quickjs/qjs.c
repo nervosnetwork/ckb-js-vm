@@ -336,50 +336,25 @@ int main(int argc, const char **argv) {
     if (c_bool) {
         JS_SetModuleLoaderFunc(rt, NULL, js_module_dummy_loader, NULL);
         err = compile_from_file(ctx);
-        CHECK(err);
     } else if (e_data) {
         err = eval_buf(ctx, e_data, strlen(e_data), "<cmdline>", 0);
-        if (err == 0) {
-            js_std_loop(ctx);
-        }
-        CHECK(err);
     } else if (r_bool && f_bool) {
         err = run_from_local_file(ctx, true);
-        if (err == 0) {
-            js_std_loop(ctx);
-        }
-        CHECK(err);
     } else if (r_bool) {
         err = run_from_local_file(ctx, false);
-        if (err == 0) {
-            js_std_loop(ctx);
-        }
-        CHECK(err);
     } else if (t_data && f_bool) {
         err = run_from_target(ctx, t_data, true);
-        if (err == 0) {
-            js_std_loop(ctx);
-        }
-        CHECK(err);
     } else if (t_data) {
         err = run_from_target(ctx, t_data, false);
-        if (err == 0) {
-            js_std_loop(ctx);
-        }
-        CHECK(err);
     } else if (f_bool) {
         err = run_from_cell_data(ctx, true);
-        if (err == 0) {
-            js_std_loop(ctx);
-        }
-        CHECK(err);
     } else {
         err = run_from_cell_data(ctx, false);
-        if (err == 0) {
-            js_std_loop(ctx);
-        }
-        CHECK(err);
     }
+    if (err == 0) {
+        js_std_loop(ctx);
+    }
+    CHECK(err);
 
 #ifdef MEMORY_USAGE
     size_t heap_usage = malloc_usage();
