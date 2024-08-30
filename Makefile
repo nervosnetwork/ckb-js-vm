@@ -1,9 +1,8 @@
-
-CC := clang-16
-LD := ld.lld-16
-OBJCOPY := llvm-objcopy-16
-AR := llvm-ar-16
-RANLIB := llvm-ranlib-16
+CC := clang-18
+LD := ld.lld-18
+OBJCOPY := llvm-objcopy-18
+AR := llvm-ar-18
+RANLIB := llvm-ranlib-18
 
 UNAME := $(shell uname)
 ifeq ($(UNAME), Darwin)
@@ -30,7 +29,7 @@ CFLAGS += -Wno-incompatible-library-redeclaration -Wno-implicit-const-int-float-
 
 CFLAGS += -DCKB_DECLARATION_ONLY
 CFLAGS += -D__BYTE_ORDER=1234 -D__LITTLE_ENDIAN=1234 -D__ISO_C_VISIBLE=1999 -D__GNU_VISIBLE
-CFLAGS += -DCKB_MALLOC_DECLARATION_ONLY -DCKB_PRINTF_DECLARATION_ONLY -DCONFIG_BIGNUM -DCONFIG_STACK_CHECK 
+CFLAGS += -DCKB_MALLOC_DECLARATION_ONLY -DCKB_PRINTF_DECLARATION_ONLY -DCONFIG_BIGNUM -DCONFIG_STACK_CHECK
 # uncomment to dump memory usage
 # CFLAGS += -DMEMORY_USAGE
 
@@ -91,7 +90,7 @@ clean:
 	make -C deps/compiler-rt-builtins-riscv clean
 
 install:
-	wget 'https://github.com/nervosnetwork/ckb-standalone-debugger/releases/download/v0.111.0/ckb-debugger-linux-x64.tar.gz'
+	wget 'https://github.com/nervosnetwork/ckb-standalone-debugger/releases/download/v0.118.0-rc1/ckb-debugger-linux-x64.tar.gz'
 	tar zxvf ckb-debugger-linux-x64.tar.gz
 	mv ckb-debugger ~/.cargo/bin/ckb-debugger
 	make -f tests/ckb_js_tests/Makefile install-lua

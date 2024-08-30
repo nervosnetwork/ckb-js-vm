@@ -109,28 +109,6 @@ function test_misc() {
     console.log('test_misc done');
 }
 
-function test_spawn() {
-    console.log('test_spawn ...');
-    const js_code = `
-    let c = new Uint8Array([0,1,2,3,4,5,6,7]);
-    ckb.set_content(c);
-    ckb.exit(0);
-    `;
-    let code_hash = new Uint8Array([
-        0xdf, 0x97, 0x77, 0x78, 0x08, 0x9b, 0xf3, 0x3f, 0xc5, 0x1f, 0x22, 0x45, 0xfa, 0x6d, 0xb7, 0xfa,
-        0x18, 0x19, 0xd5, 0x03, 0x11, 0x31, 0xa8, 0x3d, 0x4e, 0xcb, 0xcb, 0x6c, 0xba, 0x07, 0xce, 0x91
-    ]);
-    let spawn_args = {content_length: 8};
-    let ret = ckb.spawn_cell(code_hash, ckb.SCRIPT_HASH_TYPE_TYPE, spawn_args, '-e', js_code);
-    console.assert(ret.exit_code == 0, 'exit_code != 0');
-    console.assert(ret.content.byteLength == 8, 'content.byteLength != 8');
-    let content = new Uint8Array(ret.content);
-    for (let i = 0; i < 8; i++) {
-        console.assert(content[i] == i, `content is incorrect at index ${i}`);
-    }
-    console.log('test_spawn done');
-}
-
 test_misc();
 test_partial_loading(ckb.load_witness);
 test_partial_loading(ckb.load_cell_data);
@@ -141,6 +119,5 @@ test_partial_loading_without_comparing(ckb.load_script);
 test_partial_loading_without_comparing(ckb.load_cell);
 test_partial_loading_field_without_comparing(ckb.load_cell_by_field, ckb.CELL_FIELD_CAPACITY);
 test_partial_loading_field_without_comparing(ckb.load_input_by_field, ckb.INPUT_FIELD_OUT_POINT);
-test_spawn();
 
 ckb.exit(0);

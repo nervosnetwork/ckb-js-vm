@@ -1,7 +1,7 @@
-
 [submodule "deps/ckb-c-stdlib"]
 	path = deps/ckb-c-stdlib
 	url = https://github.com/nervosnetwork/ckb-c-stdlib.git
 [submodule "deps/compiler-rt-builtins-riscv"]
 	path = deps/compiler-rt-builtins-riscv
-	url = https://github.com/nervosnetwork/compiler-rt-builtins-riscv.git
+	url = https://github.com/libraries/compiler-rt-builtins-riscv
+	branch = update

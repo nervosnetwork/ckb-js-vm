@@ -15,7 +15,7 @@ cargo_test:
 	cargo test
 
 spawn_caller:
-	clang-16 --target=riscv64 -march=rv64imc_zba_zbb_zbc_zbs \
+	clang-18 --target=riscv64 -march=rv64imc_zba_zbb_zbc_zbs \
 		-I ../../deps/ckb-c-stdlib/libc -I ../../deps/ckb-c-stdlib \
 		-nostdinc -nostdlib -o ../../build/spawn_caller test_data/spawn_caller.c
 
@@ -27,8 +27,8 @@ build/testdata_fs_modules.bin: test_data/fs_module/main.js test_data/fs_module/f
 
 fs_bytecode:
 	mkdir -p ../../build/bytecode
-	$(CKB_DEBUGGER) --read-file test_data/fs_module/main.js --bin $(BIN_PATH) -- -c | awk '/Run result: 0/{exit} {print}' | xxd -r -p > ../../build/bytecode/main.bc
-	$(CKB_DEBUGGER) --read-file test_data/fs_module/fib_module.js --bin $(BIN_PATH) -- -c | awk '/Run result: 0/{exit} {print}' | xxd -r -p > ../../build/bytecode/fib_module.bc
+	$(CKB_DEBUGGER) --read-file test_data/fs_module/main.js --bin $(BIN_PATH) -- -c | lua $(ROOT_DIR)/../../tools/compile.lua | xxd -r -p > ../../build/bytecode/main.bc
+	$(CKB_DEBUGGER) --read-file test_data/fs_module/fib_module.js --bin $(BIN_PATH) -- -c | lua $(ROOT_DIR)/../../tools/compile.lua | xxd -r -p > ../../build/bytecode/fib_module.bc
 	cd ../../build/bytecode && lua ../../tools/fs.lua pack ../../build/testdata_fs_modules_bc.bin main.bc fib_module.bc
 	$(CKB_DEBUGGER) --max-cycles $(MAX_CYCLES) --read-file ../../build/testdata_fs_modules_bc.bin --bin $(BIN_PATH) -- -f -r 2>&1 | fgrep 'Run result: 0'
 

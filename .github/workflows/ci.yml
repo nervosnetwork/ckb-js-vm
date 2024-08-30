@@ -10,8 +10,13 @@ jobs:
     - uses: actions/checkout@v3
       with:
         submodules: recursive
-    - name: Install llvm 16
-      run: sudo apt-get purge --auto-remove llvm python3-lldb-14 llvm-14 && wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && sudo ./llvm.sh 16
+    - name: Install llvm 18
+      run: |
+        sudo apt-get purge --auto-remove llvm python3-lldb-14 llvm-14
+        wget https://apt.llvm.org/llvm.sh
+        chmod +x llvm.sh
+        sudo ./llvm.sh 18
+        rm llvm.sh
     - name: Build
       run: make all
     - name: Install tools
@@ -20,7 +25,7 @@ jobs:
       run: make test
     - name: Benchmark
       run: make benchmark
-  
+
   macos:
     runs-on: macos-latest
 
@@ -29,6 +34,6 @@ jobs:
       with:
         submodules: recursive
     - name: Install LLVM and Clang
-      run: brew install llvm@16
+      run: brew install llvm@18
     - name: Build
-      run: export PATH="/usr/local/opt/llvm@16/bin:$PATH" && make all
+      run: export PATH="/usr/local/opt/llvm@18/bin:$PATH" && make all
