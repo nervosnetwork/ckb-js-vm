@@ -52,6 +52,10 @@ all: build/ckb-js-vm
 deps/compiler-rt-builtins-riscv/build/libcompiler-rt.a:
 	cd deps/compiler-rt-builtins-riscv && make
 
+deps/musl/release:
+	cd deps/musl && \
+	CLANG=$(CC) ./ckb/build.sh
+
 build/ckb-js-vm: $(STD_OBJS) $(QJS_OBJS) $(OBJDIR)/impl.o deps/compiler-rt-builtins-riscv/build/libcompiler-rt.a
 	$(LD) $(LDFLAGS) -o $@ $^
 	cp $@ $@.debug
