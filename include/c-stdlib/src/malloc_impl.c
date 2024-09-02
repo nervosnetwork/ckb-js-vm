@@ -6,7 +6,7 @@
 
 #ifndef CKB_BRK_MIN
 extern char _end[]; /* _end is set in the linker */
-#define CKB_BRK_MIN ((uintptr_t)&_end)
+#define CKB_BRK_MIN ((uintptr_t) & _end)
 #endif
 #ifndef CKB_BRK_MAX
 #define CKB_BRK_MAX 0x00300000
@@ -32,9 +32,9 @@ struct bin {
 
 #define CKB_CHUNK_SIZE(c) ((c)->csize & -2)
 #define CKB_CHUNK_PSIZE(c) ((c)->psize & -2)
-#define CKB_PREV_CHUNK(c) ((struct chunk *)((char *)(c)-CKB_CHUNK_PSIZE(c)))
+#define CKB_PREV_CHUNK(c) ((struct chunk *)((char *)(c) - CKB_CHUNK_PSIZE(c)))
 #define CKB_NEXT_CHUNK(c) ((struct chunk *)((char *)(c) + CKB_CHUNK_SIZE(c)))
-#define CKB_MEM_TO_CHUNK(p) (struct chunk *)((char *)(p)-CKB_OVERHEAD)
+#define CKB_MEM_TO_CHUNK(p) (struct chunk *)((char *)(p) - CKB_OVERHEAD)
 #define CKB_CHUNK_TO_MEM(c) (void *)((char *)(c) + CKB_OVERHEAD)
 #define CKB_BIN_TO_CHUNK(i) (CKB_MEM_TO_CHUNK(&mal.bins[i].head))
 #define CKB_C_INUSE ((size_t)1)

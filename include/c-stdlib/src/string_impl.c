@@ -12,27 +12,24 @@ int ckb_exit(int8_t code);
 
 #define CKB_SS (sizeof(size_t))
 #define CKB_ALIGN (sizeof(size_t) - 1)
-#define CKB_ONES ((size_t)-1 / UCHAR_MAX)
+#define CKB_ONES ((size_t) - 1 / UCHAR_MAX)
 #define CKB_HIGHS (CKB_ONES * (UCHAR_MAX / 2 + 1))
-#define CKB_HASZERO(x) (((x)-CKB_ONES) & ~(x)&CKB_HIGHS)
+#define CKB_HASZERO(x) (((x) - CKB_ONES) & ~(x) & CKB_HIGHS)
 
 void *memchr(const void *src, int c, size_t n) {
     const unsigned char *s = src;
     c = (unsigned char)c;
 #ifdef __GNUC__
-    for (; ((uintptr_t)s & CKB_ALIGN) && n && *s != c; s++, n--)
-        ;
+    for (; ((uintptr_t)s & CKB_ALIGN) && n && *s != c; s++, n--);
     if (n && *s != c) {
         typedef size_t __attribute__((__may_alias__)) word;
         const word *w;
         size_t k = CKB_ONES * c;
-        for (w = (const void *)s; n >= CKB_SS && !CKB_HASZERO(*w ^ k); w++, n -= CKB_SS)
-            ;
+        for (w = (const void *)s; n >= CKB_SS && !CKB_HASZERO(*w ^ k); w++, n -= CKB_SS);
         s = (const void *)w;
     }
 #endif
-    for (; n && *s != c; s++, n--)
-        ;
+    for (; n && *s != c; s++, n--);
     return n ? (void *)s : 0;
 }
 
@@ -42,8 +39,7 @@ char *__strchrnul(const char *s, int c) {
     c = (unsigned char)c;
     if (!c) return (char *)s + strlen(s);
 
-    for (; *s && *(unsigned char *)s != c; s++)
-        ;
+    for (; *s && *(unsigned char *)s != c; s++);
     return (char *)s;
 }
 
@@ -55,8 +51,7 @@ char *strchr(const char *s, int c) {
 int strncmp(const char *_l, const char *_r, size_t n) {
     const unsigned char *l = (void *)_l, *r = (void *)_r;
     if (!n--) return 0;
-    for (; *l && *r && n && *l == *r; l++, r++, n--)
-        ;
+    for (; *l && *r && n && *l == *r; l++, r++, n--);
     return *l - *r;
 }
 
@@ -66,15 +61,12 @@ size_t strspn(const char *s, const char *c) {
 
     if (!c[0]) return 0;
     if (!c[1]) {
-        for (; *s == *c; s++)
-            ;
+        for (; *s == *c; s++);
         return s - a;
     }
 
-    for (; *c && BITOP(byteset, *(unsigned char *)c, |=); c++)
-        ;
-    for (; *s && BITOP(byteset, *(unsigned char *)s, &); s++)
-        ;
+    for (; *c && BITOP(byteset, *(unsigned char *)c, |=); c++);
+    for (; *s && BITOP(byteset, *(unsigned char *)s, &); s++);
     return s - a;
 }
 
@@ -85,10 +77,8 @@ size_t strcspn(const char *s, const char *c) {
     if (!c[0] || !c[1]) return __strchrnul(s, *c) - a;
 
     memset(byteset, 0, sizeof byteset);
-    for (; *c && BITOP(byteset, *(unsigned char *)c, |=); c++)
-        ;
-    for (; *s && !BITOP(byteset, *(unsigned char *)s, &); s++)
-        ;
+    for (; *c && BITOP(byteset, *(unsigned char *)c, |=); c++);
+    for (; *s && !BITOP(byteset, *(unsigned char *)s, &); s++);
     return s - a;
 }
 
@@ -99,24 +89,21 @@ char *strpbrk(const char *s, const char *b) {
 
 static char *twobyte_strstr(const unsigned char *h, const unsigned char *n) {
     uint16_t nw = n[0] << 8 | n[1], hw = h[0] << 8 | h[1];
-    for (h++; *h && hw != nw; hw = hw << 8 | *++h)
-        ;
+    for (h++; *h && hw != nw; hw = hw << 8 | *++h);
     return *h ? (char *)h - 1 : 0;
 }
 
 static char *threebyte_strstr(const unsigned char *h, const unsigned char *n) {
     uint32_t nw = (uint32_t)n[0] << 24 | n[1] << 16 | n[2] << 8;
     uint32_t hw = (uint32_t)h[0] << 24 | h[1] << 16 | h[2] << 8;
-    for (h += 2; *h && hw != nw; hw = (hw | *++h) << 8)
-        ;
+    for (h += 2; *h && hw != nw; hw = (hw | *++h) << 8);
     return *h ? (char *)h - 2 : 0;
 }
 
 static char *fourbyte_strstr(const unsigned char *h, const unsigned char *n) {
     uint32_t nw = (uint32_t)n[0] << 24 | n[1] << 16 | n[2] << 8 | n[3];
     uint32_t hw = (uint32_t)h[0] << 24 | h[1] << 16 | h[2] << 8 | h[3];
-    for (h += 3; *h && hw != nw; hw = hw << 8 | *++h)
-        ;
+    for (h += 3; *h && hw != nw; hw = hw << 8 | *++h);
     return *h ? (char *)h - 3 : 0;
 }
 
@@ -224,16 +211,14 @@ static char *twoway_strstr(const unsigned char *h, const unsigned char *n) {
         }
 
         /* Compare right half */
-        for (k = MAX(ms + 1, mem); n[k] && n[k] == h[k]; k++)
-            ;
+        for (k = MAX(ms + 1, mem); n[k] && n[k] == h[k]; k++);
         if (n[k]) {
             h += k - ms;
             mem = 0;
             continue;
         }
         /* Compare left half */
-        for (k = ms + 1; k > mem && n[k - 1] == h[k - 1]; k--)
-            ;
+        for (k = ms + 1; k > mem && n[k - 1] == h[k - 1]; k--);
         if (k <= mem) return (char *)h;
         h += p;
         mem = mem0;
@@ -352,7 +337,7 @@ int toupper(int c) {
     return c;
 }
 
-#define X(x) (((x) / 256 | (x)*256) % 65536)
+#define X(x) (((x) / 256 | (x) * 256) % 65536)
 
 const unsigned short **__ctype_b_loc(void) {
     static const unsigned short table[] = {

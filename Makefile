@@ -15,16 +15,16 @@ CFLAGS := --target=riscv64 -march=rv64imc_zba_zbb_zbc_zbs
 CFLAGS += -g -Os \
 		-Wall -Werror -Wno-nonnull -Wno-unused-function \
 		-fno-builtin-printf -fno-builtin-memcmp \
-		-nostdinc -nostdlib\
+		-nostdinc -nostdlib \
 		-fdata-sections -ffunction-sections
 
 CFLAGS += -I deps/ckb-c-stdlib/libc -I deps/ckb-c-stdlib
 CFLAGS += -I include -I include/c-stdlib
 CFLAGS += -I deps/compiler-rt-builtins-riscv/compiler-rt/lib/builtins
 
-CFLAGS += -Wextra -Wno-sign-compare -Wno-missing-field-initializers -Wundef -Wuninitialized\
--Wunused -Wno-unused-parameter -Wchar-subscripts -funsigned-char -Wno-unused-function \
--DCONFIG_VERSION=\"2021-03-27-CKB\"
+CFLAGS += -Wextra -Wno-sign-compare -Wno-missing-field-initializers -Wundef -Wuninitialized \
+          -Wunused -Wno-unused-parameter -Wchar-subscripts -funsigned-char -Wno-unused-function \
+          -DCONFIG_VERSION=\"2021-03-27-CKB\"
 CFLAGS += -Wno-incompatible-library-redeclaration -Wno-implicit-const-int-float-conversion -Wno-invalid-noreturn
 
 CFLAGS += -DCKB_DECLARATION_ONLY

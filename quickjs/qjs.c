@@ -280,13 +280,13 @@ static JSContext *JS_NewCustomContext(JSRuntime *rt) {
 }
 
 static const CMDOptDesc js_vm_options[] = {
-    { "h,help", 0, "show the help" },
-    { "c", 0, "compile javascript to bytecode" },
-    { "e", CMD_HAS_ARG, "run javascript from argument value" },
-    { "r", 0, "read from file" },
-    { "t", CMD_HAS_ARG, "specify target code_hash and hash_type in hex" },
-    { "f", 0, "use file system" },
-    { NULL },
+    {"h,help", 0, "show the help"},
+    {"c", 0, "compile javascript to bytecode"},
+    {"e", CMD_HAS_ARG, "run javascript from argument value"},
+    {"r", 0, "read from file"},
+    {"t", CMD_HAS_ARG, "specify target code_hash and hash_type in hex"},
+    {"f", 0, "use file system"},
+    {NULL},
 };
 
 int main(int argc, const char **argv) {

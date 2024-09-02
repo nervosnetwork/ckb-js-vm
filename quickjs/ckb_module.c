@@ -13,7 +13,7 @@
 // argument 3: length (optional, default to full length)
 // argument 4: offset (optional, default to 0)
 //
-#define NO_VALUE ((size_t)-1)
+#define NO_VALUE ((size_t) - 1)
 
 enum SyscallErrorCode {
     SyscallErrorUnknown = 80,
@@ -455,7 +455,7 @@ int js_init_module_ckb(JSContext *ctx) {
 #define JS_LOADER_ARGS_SIZE 2
 #define BLAKE2B_BLOCK_SIZE 32
 
-int load_cell_code_info_explicit(size_t *buf_size, size_t *index, const uint8_t* code_hash, uint8_t hash_type) {
+int load_cell_code_info_explicit(size_t *buf_size, size_t *index, const uint8_t *code_hash, uint8_t hash_type) {
     int err = 0;
     *index = 0;
     err = ckb_look_for_dep_with_hash2(code_hash, hash_type, index);

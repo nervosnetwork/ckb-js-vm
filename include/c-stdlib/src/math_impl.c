@@ -217,16 +217,14 @@ double fmod(double x, double y) {
 
     /* normalize x and y */
     if (!ex) {
-        for (i = uxi << 12; i >> 63 == 0; ex--, i <<= 1)
-            ;
+        for (i = uxi << 12; i >> 63 == 0; ex--, i <<= 1);
         uxi <<= -ex + 1;
     } else {
         uxi &= -1ULL >> 12;
         uxi |= 1ULL << 52;
     }
     if (!ey) {
-        for (i = uy.i << 12; i >> 63 == 0; ey--, i <<= 1)
-            ;
+        for (i = uy.i << 12; i >> 63 == 0; ey--, i <<= 1);
         uy.i <<= -ey + 1;
     } else {
         uy.i &= -1ULL >> 12;
@@ -247,8 +245,7 @@ double fmod(double x, double y) {
         if (i == 0) return 0 * x;
         uxi = i;
     }
-    for (; uxi >> 52 == 0; uxi <<= 1, ex--)
-        ;
+    for (; uxi >> 52 == 0; uxi <<= 1, ex--);
 
     /* scale result */
     if (ex > 0) {
