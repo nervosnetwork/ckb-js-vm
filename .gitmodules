@@ -5,3 +5,6 @@
 	path = deps/compiler-rt-builtins-riscv
 	url = https://github.com/libraries/compiler-rt-builtins-riscv
 	branch = update
+[submodule "deps/musl"]
+	path = deps/musl
+	url = https://github.com/xxuejie/musl
