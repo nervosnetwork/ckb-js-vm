@@ -1,12 +1,14 @@
 CC := clang-18
 LD := ld.lld-18
-OBJCOPY := llvm-objcopy-18
 AR := llvm-ar-18
+OBJCOPY := llvm-objcopy-18
 RANLIB := llvm-ranlib-18
 
 UNAME := $(shell uname)
 ifeq ($(UNAME), Darwin)
+	CC := clang
 	LD := ld.lld
+	AR := llvm-ar
 	OBJCOPY := llvm-objcopy
 	RANLIB := llvm-ranlib
 endif
@@ -46,7 +48,7 @@ QJS_OBJS=$(OBJDIR)/qjs.o $(OBJDIR)/quickjs.o $(OBJDIR)/libregexp.o $(OBJDIR)/lib
 		$(OBJDIR)/cutils.o $(OBJDIR)/mocked.o $(OBJDIR)/std_module.o $(OBJDIR)/ckb_module.o $(OBJDIR)/ckb_cell_fs.o \
 		$(OBJDIR)/libbf.o $(OBJDIR)/cmdopt.o
 
-all: build/ckb-js-vm
+all: deps/musl/release build/ckb-js-vm
 
 deps/compiler-rt-builtins-riscv/build/libcompiler-rt.a:
 	cd deps/compiler-rt-builtins-riscv && make
