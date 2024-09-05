@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include "my_stdlib.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
@@ -9,7 +8,6 @@
 #include "cutils.h"
 #include "std_module.h"
 #include "ckb_syscall_apis.h"
-#include "my_string.h"
 #include "ckb_cell_fs.h"
 
 /* console.log */

@@ -1,6 +1,8 @@
 for line in io.lines() do
     if line:find("^Script log: ") ~= nil then
-        local cleaned_line = line:gsub("^Script log: ", "")
-        print(cleaned_line)
+        local line_data = line:gsub("^Script log: ", "")
+        if line_data ~= "" then
+            print(line_data)
+        end
     end
 end
