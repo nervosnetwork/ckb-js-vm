@@ -87,7 +87,7 @@ clean:
 	make -C deps/compiler-rt-builtins-riscv clean
 
 install:
-	wget 'https://github.com/nervosnetwork/ckb-standalone-debugger/releases/download/v0.118.0-rc1/ckb-debugger-linux-x64.tar.gz'
+	wget 'https://github.com/nervosnetwork/ckb-standalone-debugger/releases/download/v0.118.0-rc2/ckb-debugger-linux-x64.tar.gz'
 	tar zxvf ckb-debugger-linux-x64.tar.gz
 	mv ckb-debugger ~/.cargo/bin/ckb-debugger
 	make -f tests/ckb_js_tests/Makefile install-lua
