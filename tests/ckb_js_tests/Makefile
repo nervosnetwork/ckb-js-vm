@@ -27,8 +27,8 @@ build/testdata_fs_modules.bin: test_data/fs_module/main.js test_data/fs_module/f
 
 fs_bytecode:
 	mkdir -p ../../build/bytecode
-	$(CKB_DEBUGGER) --read-file test_data/fs_module/main.js --bin $(BIN_PATH) -- -c | lua $(ROOT_DIR)/../../tools/compile.lua | xxd -r -p > ../../build/bytecode/main.bc
-	$(CKB_DEBUGGER) --read-file test_data/fs_module/fib_module.js --bin $(BIN_PATH) -- -c | lua $(ROOT_DIR)/../../tools/compile.lua | xxd -r -p > ../../build/bytecode/fib_module.bc
+	$(CKB_DEBUGGER) --read-file test_data/fs_module/main.js --bin $(BIN_PATH) -- -c | awk -f $(ROOT_DIR)/../../tools/compile.awk | xxd -r -p > ../../build/bytecode/main.bc
+	$(CKB_DEBUGGER) --read-file test_data/fs_module/fib_module.js --bin $(BIN_PATH) -- -c | awk -f $(ROOT_DIR)/../../tools/compile.awk | xxd -r -p > ../../build/bytecode/fib_module.bc
 	cd ../../build/bytecode && lua ../../tools/fs.lua pack ../../build/testdata_fs_modules_bc.bin main.bc fib_module.bc
 	$(CKB_DEBUGGER) --max-cycles $(MAX_CYCLES) --read-file ../../build/testdata_fs_modules_bc.bin --bin $(BIN_PATH) -- -f -r 2>&1 | fgrep 'Run result: 0'
 

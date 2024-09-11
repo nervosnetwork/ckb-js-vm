@@ -14,7 +14,7 @@ define debug
 endef
 
 define compile-run
-	$(CKB-DEBUGGER) --read-file $(ROOT_DIR)/$(1) --bin $(BIN_PATH) -- -c | lua $(ROOT_DIR)/../../tools/compile.lua | xxd -r -p > $(ROOT_DIR)/../../build/$(1).bc
+	$(CKB-DEBUGGER) --read-file $(ROOT_DIR)/$(1) --bin $(BIN_PATH) -- -c | awk -f $(ROOT_DIR)/../../tools/compile.awk | xxd -r -p > $(ROOT_DIR)/../../build/$(1).bc
 	$(CKB-DEBUGGER) --read-file $(ROOT_DIR)/../../build/$(1).bc --bin $(BIN_PATH) -- -r | tee $(ROOT_DIR)/benchmark.txt
 endef
 
