@@ -23,19 +23,19 @@
  * THE SOFTWARE.
  */
 #include <stdlib.h>
-#include "my_stdlib.h"
 #include <stdio.h>
-#include "my_stdio.h"
 #include <stdarg.h>
 #include <string.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "my_malloc.h"
+#include <malloc.h>
 #include "cutils.h"
 #include "std_module.h"
 #include "ckb_module.h"
 #include "ckb_exec.h"
 #include "cmdopt.h"
+#include "ckb_cell_fs.h"
+#include "mocked.h"
 
 #define MAIN_FILE_NAME "main.js"
 #define MAIN_FILE_NAME_BC "main.bc"
@@ -90,7 +90,6 @@ void js_std_loop(JSContext *ctx) {
 }
 
 int compile_from_file(JSContext *ctx) {
-    enable_local_access(1);
     char buf[1024 * 512];
     int buf_len = read_local_file(buf, sizeof(buf));
     if (buf_len < 0 || buf_len == sizeof(buf)) {
@@ -117,7 +116,7 @@ int compile_from_file(JSContext *ctx) {
         uint32_t size = i + 32 > out_buf_len ? out_buf_len - i : 32;
         _exec_bin2hex(&out_buf[i], size, msg_buf, 65, &size, true);
         msg_buf[size - 1] = 0;
-        printf("%s", msg_buf);
+        printf("%s\n", msg_buf);
     }
     return 0;
 }
@@ -182,8 +181,7 @@ exit:
 }
 
 static int run_from_local_file(JSContext *ctx, bool enable_fs) {
-    printf("Run from file, local access enabled. For Testing only.");
-    enable_local_access(1);
+    printf("Run from file, local access enabled. For Testing only.\n");
     char buf[1024 * 512];
     int count = read_local_file(buf, sizeof(buf));
     if (count < 0 || count == sizeof(buf)) {
@@ -280,13 +278,13 @@ static JSContext *JS_NewCustomContext(JSRuntime *rt) {
 }
 
 static const CMDOptDesc js_vm_options[] = {
-    { "h,help", 0, "show the help" },
-    { "c", 0, "compile javascript to bytecode" },
-    { "e", CMD_HAS_ARG, "run javascript from argument value" },
-    { "r", 0, "read from file" },
-    { "t", CMD_HAS_ARG, "specify target code_hash and hash_type in hex" },
-    { "f", 0, "use file system" },
-    { NULL },
+    {"h,help", 0, "show the help"},
+    {"c", 0, "compile javascript to bytecode"},
+    {"e", CMD_HAS_ARG, "run javascript from argument value"},
+    {"r", 0, "read from file"},
+    {"t", CMD_HAS_ARG, "specify target code_hash and hash_type in hex"},
+    {"f", 0, "use file system"},
+    {NULL},
 };
 
 int main(int argc, const char **argv) {
@@ -358,9 +356,9 @@ int main(int argc, const char **argv) {
 
 #ifdef MEMORY_USAGE
     size_t heap_usage = malloc_usage();
-    printf("Total bytes used by allocator(malloc/realloc) is %d K", heap_usage / 1024);
+    printf("Total bytes used by allocator(malloc/realloc) is %d K\n", heap_usage / 1024);
     size_t stack_usage = JS_GetStackPeak();
-    printf("Total bytes used by stack(peak value) is %d K", (4 * 1024 * 1024 - stack_usage) / 1024);
+    printf("Total bytes used by stack(peak value) is %d K\n", (4 * 1024 * 1024 - stack_usage) / 1024);
 #endif
 
 exit:

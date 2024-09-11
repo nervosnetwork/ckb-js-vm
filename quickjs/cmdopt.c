@@ -26,13 +26,10 @@
  * THE SOFTWARE.
  */
 #include <stdlib.h>
-#include "my_stdlib.h"
 #include <stdio.h>
-#include "my_stdio.h"
 #include <stdarg.h>
 #include <string.h>
-#include "my_string.h"
-#include "my_assert.h"
+#include <assert.h>
 #include "cmdopt.h"
 
 typedef struct {
@@ -51,14 +48,13 @@ struct CMDOption {
 
 static const char *cmd_prog_name;
 
-int ckb_vprintf(const char *format, va_list va);
 void cmd_error(const char *fmt, ...)
 {
     va_list ap;
 
     va_start(ap, fmt);
     printf("%s:", cmd_prog_name);
-    ckb_vprintf(fmt, ap);
+    vprintf(fmt, ap);
     exit(1);
 }
 

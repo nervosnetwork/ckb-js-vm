@@ -1,6 +1,6 @@
 /*
  * C utilities
- * 
+ *
  * Copyright (c) 2017 Fabrice Bellard
  * Copyright (c) 2018 Charlie Gordon
  *
@@ -26,7 +26,7 @@
 #define CUTILS_H
 
 #include <stdlib.h>
-// #include <inttypes.h>
+#include <inttypes.h>
 
 /* set if CPU is big endian */
 #undef WORDS_BIGENDIAN
@@ -220,13 +220,13 @@ static inline uint32_t bswap32(uint32_t v)
 
 static inline uint64_t bswap64(uint64_t v)
 {
-    return ((v & ((uint64_t)0xff << (7 * 8))) >> (7 * 8)) | 
-        ((v & ((uint64_t)0xff << (6 * 8))) >> (5 * 8)) | 
-        ((v & ((uint64_t)0xff << (5 * 8))) >> (3 * 8)) | 
-        ((v & ((uint64_t)0xff << (4 * 8))) >> (1 * 8)) | 
-        ((v & ((uint64_t)0xff << (3 * 8))) << (1 * 8)) | 
-        ((v & ((uint64_t)0xff << (2 * 8))) << (3 * 8)) | 
-        ((v & ((uint64_t)0xff << (1 * 8))) << (5 * 8)) | 
+    return ((v & ((uint64_t)0xff << (7 * 8))) >> (7 * 8)) |
+        ((v & ((uint64_t)0xff << (6 * 8))) >> (5 * 8)) |
+        ((v & ((uint64_t)0xff << (5 * 8))) >> (3 * 8)) |
+        ((v & ((uint64_t)0xff << (4 * 8))) >> (1 * 8)) |
+        ((v & ((uint64_t)0xff << (3 * 8))) << (1 * 8)) |
+        ((v & ((uint64_t)0xff << (2 * 8))) << (3 * 8)) |
+        ((v & ((uint64_t)0xff << (1 * 8))) << (5 * 8)) |
         ((v & ((uint64_t)0xff << (0 * 8))) << (7 * 8));
 }
 
@@ -298,7 +298,7 @@ void rqsort(void *base, size_t nmemb, size_t size,
   do {                     \
     if (!(cond)) {         \
       err = code;          \
-      printf("checking failed on %s:%d, code = %d", __FILE__, __LINE__, code); \
+      printf("checking failed on %s:%d, code = %d\n", __FILE__, __LINE__, code); \
       goto exit;           \
     }                      \
   } while (0)
@@ -308,7 +308,7 @@ void rqsort(void *base, size_t nmemb, size_t size,
     int code = (_code); \
     if (code != 0) {    \
       err = code;       \
-      printf("checking failed on %s:%d, code = %d", __FILE__, __LINE__, code); \
+      printf("checking failed on %s:%d, code = %d\n", __FILE__, __LINE__, code); \
       goto exit;        \
     }                   \
   } while (0)

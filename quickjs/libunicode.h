@@ -1,6 +1,6 @@
 /*
  * Unicode utilities
- * 
+ *
  * Copyright (c) 2017-2018 Fabrice Bellard
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,7 +24,7 @@
 #ifndef LIBUNICODE_H
 #define LIBUNICODE_H
 
-// #include <inttypes.h>
+#include <inttypes.h>
 
 #define LRE_BOOL  int       /* for documentation purposes */
 

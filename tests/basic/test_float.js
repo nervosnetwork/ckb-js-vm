@@ -20,7 +20,7 @@ function assert(actual, expected, message) {
 function test_to_string() {
     assert(1.1.toString(), "1.1")
     assert((-1.1).toString(), "-1.1")
-    assert(3.14159265354.toString(), "3.1415926540000000")
+    assert(3.14159265354.toString(), "3.14159265354")
 }
 
 test_to_string()

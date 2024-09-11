@@ -4,7 +4,7 @@ adapting [quickjs](https://bellard.org/quickjs/).
 
 
 ## Build
-The clang version 16 is required.
+The clang version 18 is required.
 
 ```shell
 git submodule update --init
