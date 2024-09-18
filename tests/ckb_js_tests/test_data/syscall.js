@@ -122,6 +122,10 @@ function test_spawn() {
         0x18, 0x19, 0xd5, 0x03, 0x11, 0x31, 0xa8, 0x3d, 0x4e, 0xcb, 0xcb, 0x6c, 0xba, 0x07, 0xce, 0x91
     ]);
     let fds = ckb.pipe();
+    // Unlike the C version, we only need to pass in two parameters: argv and inherited_fds.
+    // * There is no need to use the argc parameter.
+    // * There is no need to add 0 to the end of inherited_fds as a terminator.
+    // * There is no need to pass in the pid address.
     let spawn_args = {
         argv: ['-e', js_code],
         inherited_fds: [fds[1]],

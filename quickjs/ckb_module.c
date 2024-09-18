@@ -402,6 +402,7 @@ static JSValue syscall_spawn_cell(JSContext *ctx, JSValueConst this_value, int a
             const char *str = JS_ToCString(ctx, elem);
             spgs_argc += 1;
             spgs_argv[i] = str;
+            JS_FreeValue(ctx, elem);
         }
     }
     JS_FreeValue(ctx, val);
@@ -418,6 +419,7 @@ static JSValue syscall_spawn_cell(JSContext *ctx, JSValueConst this_value, int a
             err = JS_ToUint32(ctx, &temp, elem);
             CHECK(err);
             spgs_fds[i] = temp;
+            JS_FreeValue(ctx, elem);
         }
     }
     JS_FreeValue(ctx, val);
@@ -445,7 +447,6 @@ static JSValue syscall_pipe(JSContext *ctx, JSValueConst this_value, int argc, J
     err = ckb_pipe(fds);
     CHECK(err);
     JSValue obj = JS_NewArray(ctx);
-    CHECK2(!JS_IsException(obj), SyscallErrorArgument);
     JS_SetPropertyUint32(ctx, obj, 0, JS_NewUint32(ctx, fds[0]));
     JS_SetPropertyUint32(ctx, obj, 1, JS_NewUint32(ctx, fds[1]));
 exit:
@@ -458,12 +459,11 @@ exit:
 
 static JSValue syscall_inherited_fds(JSContext *ctx, JSValueConst this_value, int argc, JSValueConst *argv) {
     int err = 0;
-    uint64_t fds[2];
+    uint64_t fds[32];
     uint64_t length;
     err = ckb_inherited_fds(fds, &length);
     CHECK(err);
     JSValue obj = JS_NewArray(ctx);
-    CHECK2(!JS_IsException(obj), SyscallErrorArgument);
     for (int i = 0; i < length; i++) {
         JS_SetPropertyUint32(ctx, obj, i, JS_NewUint32(ctx, (uint32_t)fds[i]));
     }
@@ -478,7 +478,6 @@ exit:
 static JSValue syscall_read(JSContext *ctx, JSValueConst this_value, int argc, JSValueConst *argv) {
     int err = 0;
     uint64_t fd = 0;
-    void *buffer = {};
     size_t length = 0;
     uint32_t u32 = 0;
     err = JS_ToUint32(ctx, &u32, argv[0]);
@@ -487,7 +486,7 @@ static JSValue syscall_read(JSContext *ctx, JSValueConst this_value, int argc, J
     err = JS_ToUint32(ctx, &u32, argv[1]);
     CHECK(err);
     length = u32;
-    CHECK2(length <= 1024, SyscallErrorArgument);
+    uint8_t *buffer = (uint8_t *)malloc(length);
     err = ckb_read(fd, buffer, &length);
     CHECK(err);
 exit:
@@ -537,11 +536,11 @@ exit:
 
 static JSValue syscall_wait(JSContext *ctx, JSValueConst this_value, int argc, JSValueConst *argv) {
     int err = 0;
-    uint32_t fd = 0;
+    uint32_t pid = 0;
     int8_t exit = 0;
-    err = JS_ToUint32(ctx, &fd, argv[0]);
+    err = JS_ToUint32(ctx, &pid, argv[0]);
     CHECK(err);
-    err = ckb_wait((uint64_t)fd, &exit);
+    err = ckb_wait((uint64_t)pid, &exit);
     CHECK(err);
 exit:
     if (err != 0) {
