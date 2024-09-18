@@ -1,19 +1,23 @@
 #include "ckb_syscalls.h"
 
 int main() {
+    int err = 0;
     const char *argv[] = {"-f"};
-    int8_t spawn_exit_code = -1;
+    uint64_t pid = 0;
+    uint64_t inherited_fds[1] = {0};
+    int8_t exit_code = 0;
     spawn_args_t spgs = {
-        .memory_limit = 8,
-        .exit_code = &spawn_exit_code,
-        .content = NULL,
-        .content_length = NULL,
+        .argc = 1,
+        .argv = argv,
+        .process_id = &pid,
+        .inherited_fds = inherited_fds,
     };
-    int success = ckb_spawn(1, 3, 0, 1, argv, &spgs);
-    if (success != 0) {
+    err = ckb_spawn(1, CKB_SOURCE_CELL_DEP, 0, 0, &spgs);
+    if (err != 0) {
         return 1;
     }
-    if (spawn_exit_code != 0) {
+    err = ckb_wait(pid, &exit_code);
+    if (err != 0) {
         return 1;
     }
     return 0;
