@@ -373,7 +373,7 @@ static JSValue syscall_spawn_cell(JSContext *ctx, JSValueConst this_value, int a
     uint32_t offset = 0;
     uint32_t length = 0;
     uint32_t spgs_argc = 0;
-    const char* spgs_argv[32] = {};
+    const char *spgs_argv[32] = {};
     uint64_t spgs_pid = 0;
     uint64_t spgs_fds[32] = {0};
 
@@ -478,7 +478,7 @@ exit:
 static JSValue syscall_read(JSContext *ctx, JSValueConst this_value, int argc, JSValueConst *argv) {
     int err = 0;
     uint64_t fd = 0;
-    void* buffer = {};
+    void *buffer = {};
     size_t length = 0;
     uint32_t u32 = 0;
     err = JS_ToUint32(ctx, &u32, argv[0]);
@@ -628,7 +628,8 @@ int js_init_module_ckb(JSContext *ctx) {
     JS_SetPropertyStr(ctx, ckb, "close", JS_NewCFunction(ctx, syscall_close, "close", 1));
     JS_SetPropertyStr(ctx, ckb, "wait", JS_NewCFunction(ctx, syscall_wait, "wait", 1));
     JS_SetPropertyStr(ctx, ckb, "process_id", JS_NewCFunction(ctx, syscall_process_id, "process_id", 0));
-    JS_SetPropertyStr(ctx, ckb, "load_block_extension", JS_NewCFunction(ctx, syscall_load_block_extension, "load_block_extension", 3));
+    JS_SetPropertyStr(ctx, ckb, "load_block_extension",
+                      JS_NewCFunction(ctx, syscall_load_block_extension, "load_block_extension", 3));
     JS_SetPropertyStr(ctx, ckb, "mount", JS_NewCFunction(ctx, mount, "mount", 2));
     JS_SetPropertyStr(ctx, ckb, "SOURCE_INPUT", JS_NewInt64(ctx, CKB_SOURCE_INPUT));
     JS_SetPropertyStr(ctx, ckb, "SOURCE_OUTPUT", JS_NewInt64(ctx, CKB_SOURCE_OUTPUT));
