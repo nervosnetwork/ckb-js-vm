@@ -460,7 +460,7 @@ exit:
 static JSValue syscall_inherited_fds(JSContext *ctx, JSValueConst this_value, int argc, JSValueConst *argv) {
     int err = 0;
     uint64_t fds[32];
-    uint64_t length;
+    uint64_t length = 32;
     err = ckb_inherited_fds(fds, &length);
     CHECK(err);
     JSValue obj = JS_NewArray(ctx);
