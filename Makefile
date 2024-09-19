@@ -67,10 +67,6 @@ $(OBJDIR)/%.o: quickjs/%.c
 	@echo build $<
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
-$(OBJDIR)/%.o: include/%.c
-	@echo build $<
-	@$(CC) $(CFLAGS) -c -o $@ $<
-
 test:
 	make -f tests/examples/Makefile
 	make -f tests/basic/Makefile
@@ -85,6 +81,20 @@ clean:
 	rm -f build/ckb-js-vm.debug
 	cd tests/ckb_js_tests && make clean
 	make -C deps/compiler-rt-builtins-riscv clean
+
+STYLE := "{BasedOnStyle: Google, TabWidth: 4, IndentWidth: 4, UseTab: Never, SortIncludes: false, ColumnLimit: 120}"
+
+fmt:
+	clang-format-18 -i -style=$(STYLE) \
+		quickjs/ckb_cell_fs.c \
+		quickjs/ckb_cell_fs.h \
+		quickjs/ckb_module.c \
+		quickjs/ckb_module.h \
+		quickjs/mocked.c \
+		quickjs/mocked.h \
+		quickjs/qjs.c \
+		quickjs/std_module.c \
+		quickjs/std_module.h
 
 install:
 	wget 'https://github.com/nervosnetwork/ckb-standalone-debugger/releases/download/v0.118.0-rc2/ckb-debugger-linux-x64.tar.gz'

@@ -9,7 +9,8 @@ all: \
 	syscall \
 	fs_bytecode\
 	simple_udt\
-	fs_mount
+	fs_mount \
+	module
 
 cargo_test:
 	cargo test
