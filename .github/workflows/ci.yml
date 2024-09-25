@@ -34,6 +34,8 @@ jobs:
       with:
         submodules: recursive
     - name: Install LLVM and Clang
-      run: brew install llvm@18
+      run: |
+        brew install coreutils
+        brew install llvm@18
     - name: Build
       run: export PATH="/opt/homebrew/opt/llvm/bin:$PATH" && make all
