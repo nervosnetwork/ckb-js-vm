@@ -9,7 +9,7 @@ machines are ported to CKB, JavaScript can also be run on CKB.
 implementation by Fabrice Bellard. This project aims to port it to CKB, enabling
 JavaScript capabilities in CKB programming.
 
-## Basic 
+## Basic
 The project is finally compiled into a single binary: ckb-js-vm which can be
 found in `build` folder after executing:
 ```
@@ -69,7 +69,7 @@ folder.
 When `-c` is provided, it can compile a JavaScript source file into JavaScript bytecode with
 output as hexadecimal. Below is a recipe about how to compile JavaScript source file:
 ```shell
-ckb-debugger --read-file hello.js --bin build/ckb-js-vm -- -c | awk '/Run result: 0/{exit} {print}' | xxd -r -p > hello.bc
+ckb-debugger --read-file hello.js --bin build/ckb-js-vm -- -c | awk -f $(ROOT_DIR)/../../tools/compile.awk | xxd -r -p > hello.bc
 ```
 It reads `hello.js` and then compiles the JavaScript source file into bytecode in hex
 formatting. Then, using the power of `awk` and `xxd`, it can be converted into
@@ -88,7 +88,7 @@ args: <ckb-js-vm args, 2 bytes> <code_hash to JavaScript code cell, 32 bytes> <h
 ```
 
 The tailing bytes are JavaScript code arguments which can be used by JavaScript.
-Note: 2 bytes ckb-js-vm args are reserved for further use. 
+Note: 2 bytes ckb-js-vm args are reserved for further use.
 
 ## Performance and Memory Usage
 The JavaScript code implementation for a ["hello,
@@ -103,7 +103,7 @@ The memory usage of the [SimpleUDT](../tests/ckb_js_tests/test_data/simple_udt.j
 is about 139K(130K in heap and 9K in stack).
 
 
-## Integration 
+## Integration
 
 There are four approaches to integrating ckb-js-vm:
 
@@ -133,4 +133,3 @@ usable memory of 4M. This leaves only 3M bytes for the host script. It's
 important to note that in certain critical scenarios, the peak memory usage can
 exceed the mentioned limits. Dynamic libraries also face security concerns, as
 detailed in [security.md](./security.md).
-

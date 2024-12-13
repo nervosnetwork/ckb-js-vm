@@ -1,36 +1,37 @@
-
-CC := clang-16
-LD := ld.lld-16
-OBJCOPY := llvm-objcopy-16
-AR := llvm-ar-16
-RANLIB := llvm-ranlib-16
+CC := clang-18
+LD := ld.lld-18
+OBJCOPY := llvm-objcopy-18
+AR := llvm-ar-18
+RANLIB := llvm-ranlib-18
 
 UNAME := $(shell uname)
 ifeq ($(UNAME), Darwin)
+	CC := clang
 	LD := ld.lld
+	AR := llvm-ar
 	OBJCOPY := llvm-objcopy
 	RANLIB := llvm-ranlib
 endif
 
 CFLAGS := --target=riscv64 -march=rv64imc_zba_zbb_zbc_zbs
-CFLAGS += -g -Os \
+CFLAGS += -g -Oz \
 		-Wall -Werror -Wno-nonnull -Wno-unused-function \
 		-fno-builtin-printf -fno-builtin-memcmp \
-		-nostdinc -nostdlib\
+		-nostdinc -nostdlib \
 		-fdata-sections -ffunction-sections
 
 CFLAGS += -I deps/ckb-c-stdlib/libc -I deps/ckb-c-stdlib
 CFLAGS += -I include -I include/c-stdlib
 CFLAGS += -I deps/compiler-rt-builtins-riscv/compiler-rt/lib/builtins
 
-CFLAGS += -Wextra -Wno-sign-compare -Wno-missing-field-initializers -Wundef -Wuninitialized\
--Wunused -Wno-unused-parameter -Wchar-subscripts -funsigned-char -Wno-unused-function \
--DCONFIG_VERSION=\"2021-03-27-CKB\"
+CFLAGS += -Wextra -Wno-sign-compare -Wno-missing-field-initializers -Wundef -Wuninitialized \
+		  -Wunused -Wno-unused-parameter -Wchar-subscripts -funsigned-char -Wno-unused-function \
+		  -DCONFIG_VERSION=\"2021-03-27-CKB\"
 CFLAGS += -Wno-incompatible-library-redeclaration -Wno-implicit-const-int-float-conversion -Wno-invalid-noreturn
 
 CFLAGS += -DCKB_DECLARATION_ONLY
 CFLAGS += -D__BYTE_ORDER=1234 -D__LITTLE_ENDIAN=1234 -D__ISO_C_VISIBLE=1999 -D__GNU_VISIBLE
-CFLAGS += -DCKB_MALLOC_DECLARATION_ONLY -DCKB_PRINTF_DECLARATION_ONLY -DCONFIG_BIGNUM -DCONFIG_STACK_CHECK 
+CFLAGS += -DCKB_MALLOC_DECLARATION_ONLY -DCKB_PRINTF_DECLARATION_ONLY -DCONFIG_BIGNUM -DCONFIG_STACK_CHECK
 # uncomment to dump memory usage
 # CFLAGS += -DMEMORY_USAGE
 
@@ -90,8 +91,19 @@ clean:
 	cd tests/ckb_js_tests && make clean
 	make -C deps/compiler-rt-builtins-riscv clean
 
+STYLE := "{BasedOnStyle: Google, TabWidth: 4, IndentWidth: 4, UseTab: Never, SortIncludes: false, ColumnLimit: 120}"
+fmt:
+	clang-format-18 -i -style=$(STYLE) \
+		quickjs/ckb_module.c \
+		quickjs/ckb_module.h \
+		quickjs/mocked.c \
+		quickjs/mocked.h \
+		quickjs/qjs.c \
+		quickjs/std_module.c \
+		quickjs/std_module.h
+
 install:
-	wget 'https://github.com/nervosnetwork/ckb-standalone-debugger/releases/download/v0.111.0/ckb-debugger-linux-x64.tar.gz'
+	wget 'https://github.com/nervosnetwork/ckb-standalone-debugger/releases/download/v0.119.0/ckb-debugger-linux-x64.tar.gz'
 	tar zxvf ckb-debugger-linux-x64.tar.gz
 	mv ckb-debugger ~/.cargo/bin/ckb-debugger
 	make -f tests/ckb_js_tests/Makefile install-lua

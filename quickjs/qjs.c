@@ -117,7 +117,7 @@ int compile_from_file(JSContext *ctx) {
         uint32_t size = i + 32 > out_buf_len ? out_buf_len - i : 32;
         _exec_bin2hex(&out_buf[i], size, msg_buf, 65, &size, true);
         msg_buf[size - 1] = 0;
-        printf("%s", msg_buf);
+        printf("%s\n", msg_buf);
     }
     return 0;
 }
@@ -182,7 +182,7 @@ exit:
 }
 
 static int run_from_local_file(JSContext *ctx, bool enable_fs) {
-    printf("Run from file, local access enabled. For Testing only.");
+    printf("Run from file, local access enabled. For Testing only.\n");
     enable_local_access(1);
     char buf[1024 * 512];
     int count = read_local_file(buf, sizeof(buf));
@@ -280,13 +280,13 @@ static JSContext *JS_NewCustomContext(JSRuntime *rt) {
 }
 
 static const CMDOptDesc js_vm_options[] = {
-    { "h,help", 0, "show the help" },
-    { "c", 0, "compile javascript to bytecode" },
-    { "e", CMD_HAS_ARG, "run javascript from argument value" },
-    { "r", 0, "read from file" },
-    { "t", CMD_HAS_ARG, "specify target code_hash and hash_type in hex" },
-    { "f", 0, "use file system" },
-    { NULL },
+    {"h,help", 0, "show the help"},
+    {"c", 0, "compile javascript to bytecode"},
+    {"e", CMD_HAS_ARG, "run javascript from argument value"},
+    {"r", 0, "read from file"},
+    {"t", CMD_HAS_ARG, "specify target code_hash and hash_type in hex"},
+    {"f", 0, "use file system"},
+    {NULL},
 };
 
 int main(int argc, const char **argv) {
@@ -358,9 +358,9 @@ int main(int argc, const char **argv) {
 
 #ifdef MEMORY_USAGE
     size_t heap_usage = malloc_usage();
-    printf("Total bytes used by allocator(malloc/realloc) is %d K", heap_usage / 1024);
+    printf("Total bytes used by allocator(malloc/realloc) is %d K\n", heap_usage / 1024);
     size_t stack_usage = JS_GetStackPeak();
-    printf("Total bytes used by stack(peak value) is %d K", (4 * 1024 * 1024 - stack_usage) / 1024);
+    printf("Total bytes used by stack(peak value) is %d K\n", (4 * 1024 * 1024 - stack_usage) / 1024);
 #endif
 
 exit:

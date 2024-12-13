@@ -13,7 +13,7 @@
 // argument 3: length (optional, default to full length)
 // argument 4: offset (optional, default to 0)
 //
-#define NO_VALUE ((size_t)-1)
+#define NO_VALUE ((size_t) - 1)
 
 enum SyscallErrorCode {
     SyscallErrorUnknown = 80,
@@ -364,105 +364,142 @@ static int get_property(JSContext *ctx, JSValueConst *obj, const char *prop, int
 exit:
     return err;
 }
-/*
-ckb.spawn_cell
-argument 1: code_hash, ArrayBuffer
-argument 2: hash_type, int
-argument 3: spawn_args, including:
-    content_length, optional, int
-    memory_limit, optional, int
-    offset, optional, int
-    length, optional, int
-    argument 4~n: arguments
-return: object with
-    exit_code, int
-    content, ArrayBuffer
-Example usage:
-```javascript
-let code_hash = new ArrayBuffer(32);
-code_hash[0] = 0x01;
-...
-...
-let hash_type = ckb.SCRIPT_HASH_TYPE_TYPE;
-let spawn_args = {
-    content_length: 1024,
-    memory_limit: 8,
-    offset: 0,
-    length: 0,
-};
-let arg1 = "hello";
-let arg2 = "world";
-let ret = ckb.spawn_cell(code_hash, hash_type, spawn_args, arg1, arg2, arg3);
-let exit_code = ret.exit_code;
-let content = ret.content;
-```
-*/
+
 static JSValue syscall_spawn_cell(JSContext *ctx, JSValueConst this_value, int argc, JSValueConst *argv) {
     int err = 0;
-    JSValue ret = JS_UNDEFINED;
-    const size_t argv_offset = 3;
     size_t code_hash_len = 0;
-    uint32_t hash_type = 0;
-    int64_t content_length = 0;
-    int64_t memory_limit = 8;  // default value
-    int64_t offset = 0;
-    int64_t length = 0;
-    const char *passed_argv[256] = {0};
-    int8_t exit_code = 0;
     uint8_t code_hash[32];
-
+    uint32_t hash_type = 0;
+    uint32_t offset = 0;
+    uint32_t length = 0;
+    uint32_t spgs_argc = 0;
+    const char *spgs_argv[32] = {};
+    uint64_t spgs_pid = 0;
+    uint64_t spgs_fds[32] = {0};
     JSValue buffer = JS_GetTypedArrayBuffer(ctx, argv[0], NULL, NULL, NULL);
     CHECK2(!JS_IsException(buffer), SyscallErrorArgument);
     uint8_t *p = JS_GetArrayBuffer(ctx, &code_hash_len, buffer);
     CHECK2(code_hash_len == 32 && p != NULL, -1);
     memcpy(code_hash, p, 32);
-
     err = JS_ToUint32(ctx, &hash_type, argv[1]);
     CHECK(err);
-    err = get_property(ctx, &argv[2], "content_length", &content_length);
+    err = JS_ToUint32(ctx, &offset, argv[2]);
     CHECK(err);
-    err = get_property(ctx, &argv[2], "memory_limit", &memory_limit);
+    err = JS_ToUint32(ctx, &length, argv[3]);
     CHECK(err);
-    err = get_property(ctx, &argv[2], "offset", &offset);
-    CHECK(err);
-    err = get_property(ctx, &argv[2], "length", &length);
-    CHECK(err);
-
-    for (int i = argv_offset; i < argc; i++) {
-        passed_argv[i - argv_offset] = JS_ToCString(ctx, argv[i]);
+    JSValue val;
+    val = JS_GetPropertyStr(ctx, argv[4], "argv");
+    CHECK2(!JS_IsException(val), SyscallErrorArgument);
+    if (!JS_IsUndefined(val)) {
+        for (int i = 0; i < 32; i++) {
+            const JSValue elem = JS_GetPropertyUint32(ctx, val, i);
+            if (JS_IsUndefined(elem)) {
+                break;
+            }
+            const char *str = JS_ToCString(ctx, elem);
+            spgs_argc += 1;
+            spgs_argv[i] = str;
+            JS_FreeValue(ctx, elem);
+        }
     }
-    void *content = malloc(content_length);
-    CHECK2(content != NULL, SyscallErrorArgument);
+    JS_FreeValue(ctx, val);
+    val = JS_GetPropertyStr(ctx, argv[4], "inherited_fds");
+    CHECK2(!JS_IsException(val), SyscallErrorArgument);
+    if (!JS_IsUndefined(val)) {
+        uint32_t temp;
+        for (int i = 0; i < 32; i++) {
+            const JSValue elem = JS_GetPropertyUint32(ctx, val, i);
+            if (JS_IsUndefined(elem)) {
+                break;
+            }
+            err = JS_ToUint32(ctx, &temp, elem);
+            CHECK(err);
+            spgs_fds[i] = temp;
+            JS_FreeValue(ctx, elem);
+        }
+    }
+    JS_FreeValue(ctx, val);
     spawn_args_t spgs = {
-        .memory_limit = memory_limit,
-        .exit_code = &exit_code,
-        .content = content,
-        .content_length = (uint64_t *)&content_length,
+        .argc = spgs_argc,
+        .argv = spgs_argv,
+        .process_id = &spgs_pid,
+        .inherited_fds = &spgs_fds[0],
     };
-    err = ckb_spawn_cell(code_hash, (uint8_t)hash_type, offset, length, argc - argv_offset, passed_argv, &spgs);
+    err = ckb_spawn_cell(code_hash, hash_type, offset, length, &spgs);
     CHECK(err);
-    ret = JS_NewObject(ctx);
-    CHECK2(!JS_IsException(ret), SyscallErrorMemory);
-    JS_DefinePropertyValueStr(ctx, ret, "exit_code", JS_NewUint32(ctx, (uint32_t)exit_code), JS_PROP_C_W_E);
-    JSValue content2 = JS_NewArrayBuffer(ctx, spgs.content, *spgs.content_length, my_free, spgs.content, false);
-    JS_DefinePropertyValueStr(ctx, ret, "content", content2, JS_PROP_C_W_E);
 exit:
     if (err != 0) {
         return JS_EXCEPTION;
     } else {
-        return ret;
+        return JS_NewInt64(ctx, spgs_pid);
     }
 }
-
-static JSValue syscall_set_content(JSContext *ctx, JSValueConst this_value, int argc, JSValueConst *argv) {
+static JSValue syscall_pipe(JSContext *ctx, JSValueConst this_value, int argc, JSValueConst *argv) {
     int err = 0;
-    size_t content_length = 0;
-    JSValue buffer = JS_GetTypedArrayBuffer(ctx, argv[0], NULL, NULL, NULL);
+    uint64_t fds[2];
+    err = ckb_pipe(fds);
+    CHECK(err);
+    JSValue obj = JS_NewArray(ctx);
+    JS_SetPropertyUint32(ctx, obj, 0, JS_NewUint32(ctx, fds[0]));
+    JS_SetPropertyUint32(ctx, obj, 1, JS_NewUint32(ctx, fds[1]));
+exit:
+    if (err != 0) {
+        return JS_EXCEPTION;
+    } else {
+        return obj;
+    }
+}
+static JSValue syscall_inherited_fds(JSContext *ctx, JSValueConst this_value, int argc, JSValueConst *argv) {
+    int err = 0;
+    uint64_t fds[64];
+    uint64_t length = 64;
+    err = ckb_inherited_fds(fds, &length);
+    CHECK(err);
+    JSValue obj = JS_NewArray(ctx);
+    for (int i = 0; i < length; i++) {
+        JS_SetPropertyUint32(ctx, obj, i, JS_NewUint32(ctx, (uint32_t)fds[i]));
+    }
+exit:
+    if (err != 0) {
+        return JS_EXCEPTION;
+    } else {
+        return obj;
+    }
+}
+static JSValue syscall_read(JSContext *ctx, JSValueConst this_value, int argc, JSValueConst *argv) {
+    int err = 0;
+    uint64_t fd = 0;
+    size_t length = 0;
+    uint32_t u32 = 0;
+    err = JS_ToUint32(ctx, &u32, argv[0]);
+    CHECK(err);
+    fd = u32;
+    err = JS_ToUint32(ctx, &u32, argv[1]);
+    CHECK(err);
+    length = u32;
+    uint8_t *buffer = (uint8_t *)malloc(length);
+    err = ckb_read(fd, buffer, &length);
+    CHECK(err);
+exit:
+    if (err != 0) {
+        return JS_EXCEPTION;
+    } else {
+        return JS_NewArrayBuffer(ctx, buffer, length, my_free, buffer, false);
+    }
+}
+static JSValue syscall_write(JSContext *ctx, JSValueConst this_value, int argc, JSValueConst *argv) {
+    int err = 0;
+    uint64_t fd = 0;
+    uint32_t u32 = 0;
+    err = JS_ToUint32(ctx, &u32, argv[0]);
+    CHECK(err);
+    fd = (uint64_t)u32;
+    size_t length = 0;
+    JSValue buffer = JS_GetTypedArrayBuffer(ctx, argv[1], NULL, NULL, NULL);
     CHECK2(!JS_IsException(buffer), SyscallErrorArgument);
-    uint8_t *content = JS_GetArrayBuffer(ctx, &content_length, buffer);
+    uint8_t *content = JS_GetArrayBuffer(ctx, &length, buffer);
     CHECK2(content != NULL, SyscallErrorUnknown);
-    uint64_t content_length2 = (uint64_t)content_length;
-    err = ckb_set_content(content, &content_length2);
+    err = ckb_write(fd, content, &length);
     CHECK(err);
 exit:
     if (err != 0) {
@@ -471,15 +508,49 @@ exit:
         return JS_UNDEFINED;
     }
 }
-
-static JSValue syscall_get_memory_limit(JSContext *ctx, JSValueConst this_value, int argc, JSValueConst *argv) {
-    int memory_limit = ckb_get_memory_limit();
-    return JS_NewUint32(ctx, (uint32_t)memory_limit);
+static JSValue syscall_close(JSContext *ctx, JSValueConst this_value, int argc, JSValueConst *argv) {
+    int err = 0;
+    uint32_t fd = 0;
+    err = JS_ToUint32(ctx, &fd, argv[0]);
+    CHECK(err);
+    err = ckb_close((uint64_t)fd);
+    CHECK(err);
+exit:
+    if (err != 0) {
+        return JS_EXCEPTION;
+    } else {
+        return JS_UNDEFINED;
+    }
 }
-
-static JSValue syscall_current_memory(JSContext *ctx, JSValueConst this_value, int argc, JSValueConst *argv) {
-    int size = ckb_current_memory();
-    return JS_NewUint32(ctx, (uint32_t)size);
+static JSValue syscall_wait(JSContext *ctx, JSValueConst this_value, int argc, JSValueConst *argv) {
+    int err = 0;
+    uint32_t pid = 0;
+    int8_t exit = 0;
+    err = JS_ToUint32(ctx, &pid, argv[0]);
+    CHECK(err);
+    err = ckb_wait((uint64_t)pid, &exit);
+    CHECK(err);
+exit:
+    if (err != 0) {
+        return JS_EXCEPTION;
+    } else {
+        return JS_NewInt32(ctx, exit);
+    }
+}
+static JSValue syscall_process_id(JSContext *ctx, JSValueConst this_value, int argc, JSValueConst *argv) {
+    uint64_t pid = ckb_process_id();
+    return JS_NewUint32(ctx, (uint32_t)pid);
+}
+static int _load_block_extension(void *addr, uint64_t *len, LoadData *data) {
+    return ckb_load_block_extension(addr, len, data->offset, data->index, data->source);
+}
+static JSValue syscall_load_block_extension(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv) {
+    LoadData data = {0};
+    JSValue ret = parse_args(ctx, &data, false, argc, argv, _load_block_extension);
+    if (JS_IsException(ret)) {
+        return ret;
+    }
+    return syscall_load(ctx, &data);
 }
 
 static JSValue mount(JSContext *ctx, JSValueConst this_value, int argc, JSValueConst *argv) {
@@ -533,11 +604,16 @@ int js_init_module_ckb(JSContext *ctx) {
     JS_SetPropertyStr(ctx, ckb, "vm_version", JS_NewCFunction(ctx, syscall_vm_version, "vm_version", 0));
     JS_SetPropertyStr(ctx, ckb, "current_cycles", JS_NewCFunction(ctx, syscall_current_cycles, "current_cycles", 0));
     JS_SetPropertyStr(ctx, ckb, "exec_cell", JS_NewCFunction(ctx, syscall_exec_cell, "exec_cell", 4));
-    JS_SetPropertyStr(ctx, ckb, "spawn_cell", JS_NewCFunction(ctx, syscall_spawn_cell, "spawn_cell", 3));
-    JS_SetPropertyStr(ctx, ckb, "set_content", JS_NewCFunction(ctx, syscall_set_content, "set_content", 1));
-    JS_SetPropertyStr(ctx, ckb, "get_memory_limit",
-                      JS_NewCFunction(ctx, syscall_get_memory_limit, "get_memory_limit", 0));
-    JS_SetPropertyStr(ctx, ckb, "current_memory", JS_NewCFunction(ctx, syscall_current_memory, "current_memory", 0));
+    JS_SetPropertyStr(ctx, ckb, "spawn_cell", JS_NewCFunction(ctx, syscall_spawn_cell, "spawn_cell", 5));
+    JS_SetPropertyStr(ctx, ckb, "pipe", JS_NewCFunction(ctx, syscall_pipe, "pipe", 0));
+    JS_SetPropertyStr(ctx, ckb, "inherited_fds", JS_NewCFunction(ctx, syscall_inherited_fds, "inherited_fds", 0));
+    JS_SetPropertyStr(ctx, ckb, "read", JS_NewCFunction(ctx, syscall_read, "read", 2));
+    JS_SetPropertyStr(ctx, ckb, "write", JS_NewCFunction(ctx, syscall_write, "write", 2));
+    JS_SetPropertyStr(ctx, ckb, "close", JS_NewCFunction(ctx, syscall_close, "close", 1));
+    JS_SetPropertyStr(ctx, ckb, "wait", JS_NewCFunction(ctx, syscall_wait, "wait", 1));
+    JS_SetPropertyStr(ctx, ckb, "process_id", JS_NewCFunction(ctx, syscall_process_id, "process_id", 0));
+    JS_SetPropertyStr(ctx, ckb, "load_block_extension",
+                      JS_NewCFunction(ctx, syscall_load_block_extension, "load_block_extension", 3));
     JS_SetPropertyStr(ctx, ckb, "mount", JS_NewCFunction(ctx, mount, "mount", 2));
     JS_SetPropertyStr(ctx, ckb, "SOURCE_INPUT", JS_NewInt64(ctx, CKB_SOURCE_INPUT));
     JS_SetPropertyStr(ctx, ckb, "SOURCE_OUTPUT", JS_NewInt64(ctx, CKB_SOURCE_OUTPUT));
@@ -577,7 +653,7 @@ int js_init_module_ckb(JSContext *ctx) {
 #define JS_LOADER_ARGS_SIZE 2
 #define BLAKE2B_BLOCK_SIZE 32
 
-int load_cell_code_info_explicit(size_t *buf_size, size_t *index, const uint8_t* code_hash, uint8_t hash_type) {
+int load_cell_code_info_explicit(size_t *buf_size, size_t *index, const uint8_t *code_hash, uint8_t hash_type) {
     int err = 0;
     *index = 0;
     err = ckb_look_for_dep_with_hash2(code_hash, hash_type, index);
