@@ -334,75 +334,149 @@ context, without changing previous executable.
 Example:
 ```js
 let spawn_args = {
-    content_length: 1024,
-    memory_limit: 8,
-    offset: 0,
-    length: 0,
+    argv: ["arg1", "arg2"],
+    inherited_fds: [2, 3],
 };
-let value = ckb.spawn_cell(code_hash, hash_type, spawn_args, arg1, arg2, arg3);
-let content = value.content;
-let exit_code = value.exit_code;
+let pid = ckb.spawn_cell(code_hash, hash_type, offset, length, spawn_args);
 ```
 
 Arguments:
 - code_hash/hash_type(denote a cell to load JS code)
+- offset, JS code offset, typically 0.
+- length, JS code length, typically 0, means to read all.
 - spawn_args, extra spawn arguments
-    * content_length, optional, specify content length, default to 0
-    * memory_limit, optional, specify memory limit (1~8), default to 8
-    * offset, optional, JS code offset, default to 0
-    * length, optional, JS code length, default to read all
+    * argv, argv is a one-dimensional array of strings
+    * inherited_fds, an array representing the file descriptors passed to the
+      child process. There is no need to add 0 to the end of inherited_fds as
+      a terminator.
 
-- arg1,arg2,...(arguments passed to new executable)
+Return values(s): process id.
 
-Return values(s): exit code and content
-
-See also: [`ckb_spawn` syscall](https://github.com/nervosnetwork/rfcs/pull/418/files)
+See also: [`ckb_spawn` syscall](https://github.com/nervosnetwork/rfcs/pull/436/files)
 
 
 
-#### ckb.set_content
-Description: set content. It can be fetched by `spawn` syscall.
+#### ckb.pipe
+Description: create a pipe with read-write pair of file descriptions.
 
 Example:
 ```js
-let buf = Uint8Array([1,2,3]);
-ckb.set_content(buf);
-```
-
-Arguments: content(an ArrayBuffer contains content)
-
-Return value(s): none
-
-See also: [`set_content` syscall](https://github.com/nervosnetwork/rfcs/pull/418/files)
-
-#### ckb.get_memory_limit
-Description: Get the maximum available memory for the current script.
-
-Example:
-```js
-let size = ckb.get_memory_limit();
+let fds = ckb.pipe();
 ```
 
 Arguments: none
 
-Return value(s): memory size in bytes
+Return value(s): file descriptor with read permission is located at `fds[0]`,
+and the corresponding file descriptor with write permission is located
+at `fds[1]`.
 
-See also: [`ckb_get_memory_limit` syscall](https://github.com/nervosnetwork/rfcs/pull/418/files)
+See also: [`pipe` syscall](https://github.com/nervosnetwork/rfcs/pull/436/files)
 
-#### ckb.current_memory
-Description: Get the current memory usage. The result is the sum of the memory
-usage of the parent script and the child script.
+#### ckb.inherited_fds
+Description: Retrieves the file descriptors available to the current process.
 
 Example:
 ```js
-let size = ckb.current_memory();
+let fds = ckb.inherited_fds();
 ```
 
 Arguments: none
 
-Return value(s): memory size in bytes
+Return value(s): File descriptors.
 
-See also: [`ckb_current_memory` syscall](https://github.com/nervosnetwork/rfcs/pull/418/files)
+See also: [`inherited_fds` syscall](https://github.com/nervosnetwork/rfcs/pull/436/files)
+
+#### ckb.read
+Description: Reads data from a pipe via a file descriptor.
+
+Example:
+```js
+let txt = new Uint8Array(ckb.read(fds[0], 4));
+```
+
+Arguments:
+- fd: file descriptor.
+- size: the size of the data to be read.
+
+Return value(s): an ArrayBuffer.
+
+See also: [`read` syscall](https://github.com/nervosnetwork/rfcs/pull/436/files)
+
+#### ckb.write
+Description: writes data to a pipe via a file descriptor.
+
+Example:
+```js
+ckb.write(fds[1], new Uint8Array([0, 1, 2, 3]));
+```
+
+Arguments:
+- fd: file descriptor.
+- data: data to write.
+
+Return value(s): none.
+
+See also: [`write` syscall](https://github.com/nervosnetwork/rfcs/pull/436/files)
+
+#### ckb.close
+Description: manually closes a file descriptor.
+
+Example:
+```js
+ckb.close(fds[0]);
+```
+
+Arguments:
+- fd: file descriptor.
+
+Return value(s): none.
+
+See also: [`close` syscall](https://github.com/nervosnetwork/rfcs/pull/436/files)
+
+#### ckb.wait
+Description: pauses until the execution of a process specified by pid has ended.
+
+Example:
+```js
+let ret = ckb.wait(pid);
+```
+
+Arguments:
+- pid: process id.
+
+Return value(s): exit code.
+
+See also: [`wait` syscall](https://github.com/nervosnetwork/rfcs/pull/436/files)
+
+#### ckb.process_id
+Description: get the current process id.
+
+Example:
+```js
+let pid = ckb.process_id();
+```
+
+Arguments: none
+
+Return value(s): process id.
+
+See also: [`process_id` syscall](https://github.com/nervosnetwork/rfcs/pull/436/files)
+
+#### ckb.load_block_extension
+Description: locate the extension field associated either with an input cell, a dep cell, or a header dep based on source and index value, then use the same step as documented in Partial Loading section to feed the serialized value into VM.
+
+Example:
+```js
+let buf = ckb.load_block_extension(index, source)
+```
+
+Arguments: index (the index of the cell), source (the source of the cell)
+
+Partial loading supported: yes
+
+Return value(s): buf (An ArrayBuffer that contains block extension)
+
+See also: [`load_block_extension` syscall](https://github.com/nervosnetwork/rfcs/pull/436/files)
 
 ## Exported Constants
 
