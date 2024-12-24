@@ -38,4 +38,4 @@ jobs:
         brew install coreutils
         brew install llvm@18
     - name: Build
-      run: export PATH="/opt/homebrew/opt/llvm/bin:$PATH" && make all
+      run: export PATH="/opt/homebrew/opt/llvm@18/bin:$PATH" && make all
