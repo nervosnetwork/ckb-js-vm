@@ -1,4 +1,3 @@
-
 CKB-DEBUGGER := ckb-debugger
 ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 BIN_PATH = $(ROOT_DIR)/../../build/ckb-js-vm

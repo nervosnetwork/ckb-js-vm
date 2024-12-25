@@ -13,68 +13,117 @@ ifeq ($(UNAME), Darwin)
 	RANLIB := llvm-ranlib
 endif
 
-CFLAGS := --target=riscv64 -march=rv64imc_zba_zbb_zbc_zbs
-CFLAGS += -g -Oz \
-		-Wall -Werror -Wno-nonnull -Wno-unused-function \
-		-fno-builtin-printf -fno-builtin-memcmp \
-		-nostdinc -nostdlib \
-		-fdata-sections -ffunction-sections
-
-CFLAGS += -I deps/ckb-c-stdlib/libc -I deps/ckb-c-stdlib
-CFLAGS += -I include -I include/c-stdlib
-CFLAGS += -I deps/compiler-rt-builtins-riscv/compiler-rt/lib/builtins
-
-CFLAGS += -Wextra -Wno-sign-compare -Wno-missing-field-initializers -Wundef -Wuninitialized \
-		  -Wunused -Wno-unused-parameter -Wchar-subscripts -funsigned-char -Wno-unused-function \
-		  -DCONFIG_VERSION=\"2021-03-27-CKB\"
-CFLAGS += -Wno-incompatible-library-redeclaration -Wno-implicit-const-int-float-conversion -Wno-invalid-noreturn
-
-CFLAGS += -DCKB_DECLARATION_ONLY
-CFLAGS += -D__BYTE_ORDER=1234 -D__LITTLE_ENDIAN=1234 -D__ISO_C_VISIBLE=1999 -D__GNU_VISIBLE
-CFLAGS += -DCKB_MALLOC_DECLARATION_ONLY -DCKB_PRINTF_DECLARATION_ONLY -DCONFIG_BIGNUM -DCONFIG_STACK_CHECK
-# uncomment to dump memory usage
-# CFLAGS += -DMEMORY_USAGE
+CFLAGS_TARGET = --target=riscv64 -march=rv64imc_zba_zbb_zbc_zbs
+CFLAGS_OPTIMIZE = -g -Oz -fdata-sections -ffunction-sections
+CFLAGS_WARNNING = -Wno-incompatible-library-redeclaration -Wno-invalid-noreturn -Wno-implicit-const-int-float-conversion
+CFLAGS_BASE = $(CFLAGS_TARGET) $(CFLAGS_OPTIMIZE) $(CFLAGS_WARNNING)
+CFLAGS_BASE_CKB_C_STDLIB = $(CFLAGS_BASE) \
+	-I deps/ckb-c-stdlib/libc \
+	-I deps/ckb-c-stdlib \
+	-DCKB_MALLOC_DECLARATION_ONLY \
+	-DCKB_PRINTF_DECLARATION_ONLY
+CFLAGS_BASE_LIBC = $(CFLAGS_BASE) \
+	-I libc \
+	-I deps/ckb-c-stdlib/libc \
+	-I deps/ckb-c-stdlib \
+	-DCKB_MALLOC_DECLARATION_ONLY \
+	-DCKB_PRINTF_DECLARATION_ONLY
+CFLAGS_BASE_NNCP = $(CFLAGS_BASE) \
+	-I libc \
+	-I deps/ckb-c-stdlib/libc \
+	-I deps/ckb-c-stdlib \
+	-DCKB_MALLOC_DECLARATION_ONLY \
+	-DCKB_PRINTF_DECLARATION_ONLY \
+	-DCKB_DECLARATION_ONLY
+CFLAGS_BASE_SRC = $(CFLAGS_BASE) \
+	-I libc \
+	-I deps/nncp \
+	-I deps/quickjs \
+	-I deps/ckb-c-stdlib/libc \
+	-I deps/ckb-c-stdlib \
+	-DCKB_MALLOC_DECLARATION_ONLY \
+	-DCKB_PRINTF_DECLARATION_ONLY \
+	-DCKB_DECLARATION_ONLY \
+	-DCONFIG_BIGNUM \
+	-fno-builtin-printf
+CFLAGS_BASE_QUICKJS = $(CFLAGS_BASE) \
+	-I libc \
+	-I deps/ckb-c-stdlib/libc \
+	-I deps/ckb-c-stdlib \
+	-DCKB_MALLOC_DECLARATION_ONLY \
+	-DCKB_PRINTF_DECLARATION_ONLY \
+	-DCKB_DECLARATION_ONLY \
+	-DCONFIG_BIGNUM -DEMSCRIPTEN \
+	-DCONFIG_VERSION=\"2021-03-27-CKB\"
 
 LDFLAGS := -static --gc-sections
 LDFLAGS += -Ldeps/compiler-rt-builtins-riscv/build -lcompiler-rt
 
-OBJDIR=build
+all: out build/ckb-js-vm
 
-QJS_OBJS=$(OBJDIR)/qjs.o $(OBJDIR)/quickjs.o $(OBJDIR)/libregexp.o $(OBJDIR)/libunicode.o \
-		$(OBJDIR)/cutils.o $(OBJDIR)/mocked.o $(OBJDIR)/std_module.o $(OBJDIR)/ckb_module.o $(OBJDIR)/ckb_cell_fs.o \
-		$(OBJDIR)/libbf.o $(OBJDIR)/cmdopt.o
-
-STD_OBJS=$(OBJDIR)/string_impl.o $(OBJDIR)/malloc_impl.o $(OBJDIR)/math_impl.o \
-		$(OBJDIR)/math_log_impl.o $(OBJDIR)/math_pow_impl.o $(OBJDIR)/printf_impl.o $(OBJDIR)/stdio_impl.o \
-		$(OBJDIR)/locale_impl.o
-
-
-all: build/ckb-js-vm
+out:
+	mkdir -p build
+	mkdir -p build/bytecode
+	mkdir -p build/ckb-c-stdlib
+	mkdir -p build/libc
+	mkdir -p build/nncp
+	mkdir -p build/src
+	mkdir -p build/quickjs
 
 deps/compiler-rt-builtins-riscv/build/libcompiler-rt.a:
 	cd deps/compiler-rt-builtins-riscv && make
 
-build/ckb-js-vm: $(STD_OBJS) $(QJS_OBJS) $(OBJDIR)/impl.o deps/compiler-rt-builtins-riscv/build/libcompiler-rt.a
+build/ckb-js-vm: build/ckb-c-stdlib/impl.o \
+                 build/libc/ckb_cell_fs.o \
+                 build/libc/ctype.o \
+                 build/libc/fenv.o \
+                 build/libc/locale.o \
+                 build/libc/malloc.o \
+                 build/libc/math.o \
+                 build/libc/math_log.o \
+                 build/libc/math_pow.o \
+                 build/libc/printf.o \
+                 build/libc/stdio.o \
+                 build/libc/stdlib.o \
+                 build/libc/string.o \
+                 build/libc/sys_time.o \
+                 build/libc/time.o \
+                 build/nncp/cmdopt.o \
+                 build/quickjs/quickjs.o \
+                 build/quickjs/libregexp.o \
+                 build/quickjs/libunicode.o \
+                 build/quickjs/cutils.o \
+                 build/quickjs/libbf.o \
+                 build/quickjs/repl.o \
+                 build/quickjs/qjscalc.o \
+                 build/src/ckb_module.o \
+                 build/src/qjs.o \
+                 build/src/std_module.o \
+                 deps/compiler-rt-builtins-riscv/build/libcompiler-rt.a
 	$(LD) $(LDFLAGS) -o $@ $^
 	cp $@ $@.debug
 	$(OBJCOPY) --strip-debug --strip-all $@
 	ls -lh build/ckb-js-vm
 
-$(OBJDIR)/%.o: quickjs/%.c
+build/ckb-c-stdlib/%.o: deps/ckb-c-stdlib/libc/src/%.c
 	@echo build $<
-	@$(CC) $(CFLAGS) -c -o $@ $<
+	@$(CC) $(CFLAGS_BASE_CKB_C_STDLIB) -c -o $@ $<
 
-$(OBJDIR)/%.o: include/c-stdlib/src/%.c
+build/libc/%.o: libc/src/%.c
 	@echo build $<
-	@$(CC) $(CFLAGS) -c -o $@ $<
+	@$(CC) $(CFLAGS_BASE_LIBC) -DCKB_DECLARATION_ONLY -c -o $@ $<
 
-$(OBJDIR)/%.o: include/%.c
+build/nncp/%.o: deps/nncp/%.c
 	@echo build $<
-	@$(CC) $(CFLAGS) -c -o $@ $<
+	@$(CC) $(CFLAGS_BASE_NNCP) -c -o $@ $<
 
-$(OBJDIR)/impl.o: deps/ckb-c-stdlib/libc/src/impl.c
+build/src/%.o: src/%.c
 	@echo build $<
-	@$(CC) $(filter-out -DCKB_DECLARATION_ONLY, $(CFLAGS)) -c -o $@ $<
+	@$(CC) $(CFLAGS_BASE_SRC) -c -o $@ $<
+
+build/quickjs/%.o: deps/quickjs/%.c
+	@echo build $<
+	@$(CC) $(CFLAGS_BASE_QUICKJS) -c -o $@ $<
 
 test:
 	make -f tests/examples/Makefile
@@ -85,22 +134,13 @@ benchmark:
 	make -f tests/benchmark/Makefile
 
 clean:
-	rm -f build/*.o
-	rm -f build/ckb-js-vm
-	rm -f build/ckb-js-vm.debug
+	rm -rf build
 	cd tests/ckb_js_tests && make clean
 	make -C deps/compiler-rt-builtins-riscv clean
 
 STYLE := "{BasedOnStyle: Google, TabWidth: 4, IndentWidth: 4, UseTab: Never, SortIncludes: false, ColumnLimit: 120}"
 fmt:
-	clang-format-18 -i -style=$(STYLE) \
-		quickjs/ckb_module.c \
-		quickjs/ckb_module.h \
-		quickjs/mocked.c \
-		quickjs/mocked.h \
-		quickjs/qjs.c \
-		quickjs/std_module.c \
-		quickjs/std_module.h
+	clang-format-18 -i -style=$(STYLE) src/*
 
 install:
 	wget 'https://github.com/nervosnetwork/ckb-standalone-debugger/releases/download/v0.119.0/ckb-debugger-linux-x64.tar.gz'

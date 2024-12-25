@@ -49,7 +49,7 @@
             },
             "type": "{{ def_type fib_module }}"
           },
-          "data": "0x{{ data ../../../build/fib_module.bin }}"
+          "data": "0x{{ data ../../../build/bytecode/fib_module.fs }}"
         }
       ],
       "header_deps": []
