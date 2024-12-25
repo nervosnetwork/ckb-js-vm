@@ -119,6 +119,7 @@ static JSValue syscall_load(JSContext *ctx, LoadData *data) {
     }
     // no length specified, read to the end
     if (data->length == NO_VALUE) {
+        data->length = 0;
         err = data->func(0, &data->length, data);
         CHECK(err);
     }
