@@ -18,29 +18,28 @@ cargo_test:
 spawn_caller:
 	clang-18 --target=riscv64 -march=rv64imc_zba_zbb_zbc_zbs \
 		-I ../../deps/ckb-c-stdlib/libc -I ../../deps/ckb-c-stdlib \
-		-nostdinc -nostdlib -o ../../build/spawn_caller test_data/spawn_caller.c
+		-nostdinc -nostdlib -o ../../build/bytecode/spawn_caller test_data/spawn_caller.c
 
 module: spawn_caller
 	cargo run --bin module | ${CKB_DEBUGGER} --tx-file=- -s lock
 
-build/testdata_fs_modules.bin: test_data/fs_module/main.js test_data/fs_module/fib_module.js
+build/bytecode/fs_modules.fs: test_data/fs_module/main.js test_data/fs_module/fib_module.js
 	cd test_data/fs_module && lua ../../../../tools/fs.lua pack ../../../../$@ main.js fib_module.js
 
 fs_bytecode:
-	mkdir -p ../../build/bytecode
 	$(CKB_DEBUGGER) --read-file test_data/fs_module/main.js --bin $(BIN_PATH) -- -c | awk -f $(ROOT_DIR)/../../tools/compile.awk | xxd -r -p > ../../build/bytecode/main.bc
 	$(CKB_DEBUGGER) --read-file test_data/fs_module/fib_module.js --bin $(BIN_PATH) -- -c | awk -f $(ROOT_DIR)/../../tools/compile.awk | xxd -r -p > ../../build/bytecode/fib_module.bc
-	cd ../../build/bytecode && lua ../../tools/fs.lua pack ../../build/testdata_fs_modules_bc.bin main.bc fib_module.bc
-	$(CKB_DEBUGGER) --max-cycles $(MAX_CYCLES) --read-file ../../build/testdata_fs_modules_bc.bin --bin $(BIN_PATH) -- -f -r 2>&1 | fgrep 'Run result: 0'
+	cd ../../build/bytecode && lua ../../tools/fs.lua pack ../../build/bytecode/fs_modules_bc.fs main.bc fib_module.bc
+	$(CKB_DEBUGGER) --max-cycles $(MAX_CYCLES) --read-file ../../build/bytecode/fs_modules_bc.fs --bin $(BIN_PATH) -- -f -r 2>&1 | fgrep 'Run result: 0'
 
-file_system: build/testdata_fs_modules.bin
+file_system: build/bytecode/fs_modules.fs
 	cargo run --bin default_by_cell | $(CKB_DEBUGGER) -s lock --tx-file=- --read-file ../../$^ -- -f -r  2>&1 | fgrep 'Run result: 0'
 
 syscall:
 	cargo run --bin syscall | $(CKB_DEBUGGER) --tx-file=- -s lock
 
 fs_mount:
-	cd test_data/fs_module_mount && lua ../../../../tools/fs.lua pack ../../../../build/fib_module.bin fib_module.js
+	cd test_data/fs_module_mount && lua ../../../../tools/fs.lua pack ../../../../build/bytecode/fib_module.fs fib_module.js
 	cargo run --bin module_mount | ${CKB_DEBUGGER} --tx-file=- -s lock
 
 simple_udt:

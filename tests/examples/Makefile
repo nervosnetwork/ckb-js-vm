@@ -1,4 +1,3 @@
-
 CKB-DEBUGGER := ckb-debugger
 ROOT_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 BIN_PATH := $(ROOT_DIR)/../../build/ckb-js-vm
@@ -15,8 +14,8 @@ define debug
 endef
 
 define compile-run
-	$(CKB-DEBUGGER) --read-file $(ROOT_DIR)/$(1) --bin $(BIN_PATH) -- -c | awk -f $(ROOT_DIR)/../../tools/compile.awk | xxd -r -p > $(ROOT_DIR)/../../build/$(1).bc
-	$(CKB-DEBUGGER) --read-file $(ROOT_DIR)/../../build/$(1).bc --bin $(BIN_PATH) -- -r | fgrep 'Run result: 0'
+	$(CKB-DEBUGGER) --read-file $(ROOT_DIR)/$(1) --bin $(BIN_PATH) -- -c | awk -f $(ROOT_DIR)/../../tools/compile.awk | xxd -r -p > $(ROOT_DIR)/../../build/bytecode/$(1).bc
+	$(CKB-DEBUGGER) --read-file $(ROOT_DIR)/../../build/bytecode/$(1).bc --bin $(BIN_PATH) -- -r | fgrep 'Run result: 0'
 endef
 
 all:
