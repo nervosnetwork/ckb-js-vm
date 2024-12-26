@@ -30,7 +30,8 @@ CFLAGS_BASE_CKB_C_STDLIB = $(CFLAGS_BASE) \
 CFLAGS_BASE_LIBC = $(CFLAGS_BASE) \
 	-I libc \
 	-I deps/ckb-c-stdlib/libc \
-	-I deps/ckb-c-stdlib
+	-I deps/ckb-c-stdlib \
+	-DCKB_DECLARATION_ONLY
 CFLAGS_BASE_NNCP = $(CFLAGS_BASE) \
 	-I libc \
 	-I deps/ckb-c-stdlib/libc \
@@ -109,7 +110,7 @@ build/ckb-c-stdlib/%.o: deps/ckb-c-stdlib/libc/src/%.c
 
 build/libc/%.o: libc/src/%.c
 	@echo build $<
-	@$(CC) $(CFLAGS_BASE_LIBC) -DCKB_DECLARATION_ONLY -c -o $@ $<
+	@$(CC) $(CFLAGS_BASE_LIBC) -c -o $@ $<
 
 build/nncp/%.o: deps/nncp/%.c
 	@echo build $<
