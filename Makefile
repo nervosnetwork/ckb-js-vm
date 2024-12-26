@@ -16,44 +16,42 @@ endif
 CFLAGS_TARGET = --target=riscv64 -march=rv64imc_zba_zbb_zbc_zbs
 CFLAGS_OPTIMIZE = -g -Oz -fdata-sections -ffunction-sections
 CFLAGS_WARNNING = -Wno-incompatible-library-redeclaration -Wno-invalid-noreturn -Wno-implicit-const-int-float-conversion
-CFLAGS_BASE = $(CFLAGS_TARGET) $(CFLAGS_OPTIMIZE) $(CFLAGS_WARNNING)
-CFLAGS_BASE_CKB_C_STDLIB = $(CFLAGS_BASE) \
-	-I deps/ckb-c-stdlib/libc \
-	-I deps/ckb-c-stdlib \
+CFLAGS_NO_BUILTIN = -fno-builtin-printf -fno-builtin-memcmp
+CFLAGS_DEFINE = -D__BYTE_ORDER=1234 \
+	-D__LITTLE_ENDIAN=1234 \
+	-D__ISO_C_VISIBLE=1999 \
+	-D__GNU_VISIBLE \
 	-DCKB_MALLOC_DECLARATION_ONLY \
 	-DCKB_PRINTF_DECLARATION_ONLY
+CFLAGS_BASE = $(CFLAGS_TARGET) $(CFLAGS_OPTIMIZE) $(CFLAGS_WARNNING) $(CFLAGS_NO_BUILTIN) $(CFLAGS_DEFINE)
+CFLAGS_BASE_CKB_C_STDLIB = $(CFLAGS_BASE) \
+	-I deps/ckb-c-stdlib/libc \
+	-I deps/ckb-c-stdlib
 CFLAGS_BASE_LIBC = $(CFLAGS_BASE) \
 	-I libc \
 	-I deps/ckb-c-stdlib/libc \
-	-I deps/ckb-c-stdlib \
-	-DCKB_MALLOC_DECLARATION_ONLY \
-	-DCKB_PRINTF_DECLARATION_ONLY
+	-I deps/ckb-c-stdlib
 CFLAGS_BASE_NNCP = $(CFLAGS_BASE) \
 	-I libc \
 	-I deps/ckb-c-stdlib/libc \
 	-I deps/ckb-c-stdlib \
-	-DCKB_MALLOC_DECLARATION_ONLY \
-	-DCKB_PRINTF_DECLARATION_ONLY \
 	-DCKB_DECLARATION_ONLY
 CFLAGS_BASE_SRC = $(CFLAGS_BASE) \
 	-I libc \
-	-I deps/nncp \
-	-I deps/quickjs \
 	-I deps/ckb-c-stdlib/libc \
 	-I deps/ckb-c-stdlib \
-	-DCKB_MALLOC_DECLARATION_ONLY \
-	-DCKB_PRINTF_DECLARATION_ONLY \
+	-I deps/nncp \
+	-I deps/quickjs \
 	-DCKB_DECLARATION_ONLY \
-	-DCONFIG_BIGNUM \
-	-fno-builtin-printf
+	-DCONFIG_BIGNUM
 CFLAGS_BASE_QUICKJS = $(CFLAGS_BASE) \
 	-I libc \
 	-I deps/ckb-c-stdlib/libc \
 	-I deps/ckb-c-stdlib \
-	-DCKB_MALLOC_DECLARATION_ONLY \
-	-DCKB_PRINTF_DECLARATION_ONLY \
 	-DCKB_DECLARATION_ONLY \
-	-DCONFIG_BIGNUM -DEMSCRIPTEN \
+	-DCONFIG_BIGNUM \
+	-DEMSCRIPTEN \
+	-DCONFIG_STACK_CHECK \
 	-DCONFIG_VERSION=\"2024-01-13-CKB\"
 
 LDFLAGS := -static --gc-sections
