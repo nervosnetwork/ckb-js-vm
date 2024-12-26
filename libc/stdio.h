@@ -71,8 +71,8 @@ int ckb_debug(const char *s);
 #define _IONBF 2
 
 typedef struct FILE {
-  FSFile *file;
-  uint32_t offset;
+    FSFile *file;
+    uint32_t offset;
 } FILE;
 
 extern FILE *stdin;

@@ -140,7 +140,12 @@ clean:
 
 STYLE := "{BasedOnStyle: Google, TabWidth: 4, IndentWidth: 4, UseTab: Never, SortIncludes: false, ColumnLimit: 120}"
 fmt:
-	clang-format-18 -i -style=$(STYLE) src/*
+	clang-format-18 -i -style=$(STYLE) \
+		libc/*.h \
+		libc/internal/*.h \
+		libc/src/*.c \
+		libc/sys/*.h \
+		src/*
 
 install:
 	wget 'https://github.com/nervosnetwork/ckb-standalone-debugger/releases/download/v0.119.0/ckb-debugger-linux-x64.tar.gz'
