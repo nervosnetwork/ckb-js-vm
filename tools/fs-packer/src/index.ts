@@ -1,4 +1,5 @@
-import * as fs from "fs";
+import * as fs from "node:fs/promises";
+import * as fsSync from "node:fs";
 import * as path from "path";
 
 interface FileMetadata {
@@ -12,52 +13,55 @@ interface FileMap {
   [key: string]: string;
 }
 
-function getFileSize(filePath: string): number {
-  const stats = fs.statSync(filePath);
+async function getFileSize(filePath: string): Promise<number> {
+  const stats = await fs.stat(filePath);
   return stats.size;
 }
 
-function appendToStream(
+async function writeToFile(
   data: Buffer | string,
-  stream: fs.WriteStream,
+  writeStream: fsSync.WriteStream,
 ): Promise<void> {
   return new Promise((resolve, reject) => {
-    const canContinue = stream.write(data);
+    const canContinue = writeStream.write(data);
     if (canContinue) {
       resolve();
     } else {
-      stream.once("drain", resolve);
-      stream.once("error", reject);
+      writeStream.once("drain", resolve);
+      writeStream.once("error", reject);
     }
   });
 }
 
 async function appendFileToStream(
   filePath: string,
-  stream: fs.WriteStream,
+  stream: fsSync.WriteStream,
 ): Promise<void> {
-  const content = fs.readFileSync(filePath);
-  await appendToStream(content, stream);
+  const content = await fs.readFile(filePath);
+  await writeToFile(content, stream);
 }
 
 async function appendStringNullToStream(
   str: string,
-  stream: fs.WriteStream,
+  stream: fsSync.WriteStream,
 ): Promise<void> {
   const buffer = Buffer.from(str + "\0");
-  await appendToStream(buffer, stream);
+  await writeToFile(buffer, stream);
 }
 
 async function appendIntegerToStream(
   num: number,
-  stream: fs.WriteStream,
+  stream: fsSync.WriteStream,
 ): Promise<void> {
   const buffer = Buffer.alloc(4);
   buffer.writeInt32LE(num);
-  await appendToStream(buffer, stream);
+  await writeToFile(buffer, stream);
 }
 
-async function pack(files: FileMap, outputStream: fs.WriteStream): Promise<void> {
+async function pack(
+  files: FileMap,
+  outputStream: fsSync.WriteStream,
+): Promise<void> {
   const numFiles = Object.keys(files).length;
   await appendIntegerToStream(numFiles, outputStream);
 
@@ -68,11 +72,11 @@ async function pack(files: FileMap, outputStream: fs.WriteStream): Promise<void>
   for (const [name, filePath] of Object.entries(files)) {
     console.log(`packing file ${filePath} to ${name}`);
     await appendIntegerToStream(offset, outputStream);
-    length = Buffer.byteLength(name) + 1; // include null terminator
+    length = Buffer.byteLength(name) + 1;
     await appendIntegerToStream(length, outputStream);
     offset += length;
     await appendIntegerToStream(offset, outputStream);
-    length = getFileSize(filePath);
+    length = await getFileSize(filePath);
     await appendIntegerToStream(length, outputStream);
     offset += length;
   }
@@ -84,11 +88,11 @@ async function pack(files: FileMap, outputStream: fs.WriteStream): Promise<void>
   }
 }
 
-function createDirectory(dir: string): void {
-  fs.mkdirSync(dir, { recursive: true });
+async function createDirectory(dir: string): Promise<void> {
+  await fs.mkdir(dir, { recursive: true });
 }
 
-function unpack(directory: string, fileContent: Buffer): void {
+async function unpack(directory: string, fileContent: Buffer): Promise<void> {
   let position = 0;
 
   function readInteger(): number {
@@ -105,21 +109,21 @@ function unpack(directory: string, fileContent: Buffer): void {
     return value;
   }
 
-  function copyToFile(
+  async function copyToFile(
     directory: string,
     filename: string,
     offset: number,
     length: number,
-  ): void {
+  ): Promise<void> {
     const normalizedFilename = filename.replace(/\//g, path.sep);
     const filePath = path.join(directory, normalizedFilename);
     const dir = path.dirname(filePath);
 
-    createDirectory(dir);
+    await createDirectory(dir);
     console.log(`unpacking file ${filename} to ${filePath}`);
 
     const content = fileContent.slice(offset, offset + length);
-    fs.writeFileSync(filePath, content);
+    await fs.writeFile(filePath, content);
   }
 
   const numFiles = readInteger();
@@ -141,7 +145,12 @@ function unpack(directory: string, fileContent: Buffer): void {
     position = blobStart + metadatum.fileNameOffset;
     const filename = readStringNull(metadatum.fileNameLength);
     position = blobStart + metadatum.fileContentOffset;
-    copyToFile(directory, filename, position, metadatum.fileContentLength);
+    await copyToFile(
+      directory,
+      filename,
+      position,
+      metadatum.fileContentLength,
+    );
   }
 }
 
@@ -179,7 +188,7 @@ async function doPack(): Promise<void> {
   }
 
   const outfile = process.argv[3];
-  const stream = fs.createWriteStream(outfile);
+  const stream = fsSync.createWriteStream(outfile);
   const files: FileMap = {};
   let n = 0;
 
@@ -192,7 +201,11 @@ async function doPack(): Promise<void> {
     }
   } else {
     // Read files from stdin
-    const input = fs.readFileSync(0, "utf-8"); // 0 is stdin
+    const chunks: Buffer[] = [];
+    for await (const chunk of process.stdin) {
+      chunks.push(Buffer.from(chunk));
+    }
+    const input = Buffer.concat(chunks).toString("utf-8");
     for (const file of input.split("\n").filter(Boolean)) {
       n++;
       files[mustNormalizePath(file)] = file;
@@ -208,21 +221,23 @@ async function doPack(): Promise<void> {
   stream.end();
 }
 
-function doUnpack() {
+async function doUnpack(): Promise<void> {
   if (process.argv.length === 2) {
     usage("You must specify the input file when unpacking.");
     process.exit(1);
   }
 
   const infile = process.argv[3];
-  if (!fs.existsSync(infile)) {
+  try {
+    await fs.access(infile);
+  } catch {
     console.error(`Error: File '${infile}' does not exist`);
     process.exit(1);
   }
-  const fileContent = fs.readFileSync(infile);
 
+  const fileContent = await fs.readFile(infile);
   const directory = process.argv.length !== 3 ? process.argv[4] : ".";
-  unpack(directory, fileContent);
+  await unpack(directory, fileContent);
 }
 
 // Main program
@@ -238,7 +253,7 @@ async function main(): Promise<void> {
   if (process.argv[2] === "pack") {
     await doPack();
   } else {
-    doUnpack();
+    await doUnpack();
   }
 }
 
