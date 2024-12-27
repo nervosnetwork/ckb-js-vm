@@ -7,7 +7,8 @@
     "pretty": "prettier --write src/**/*.ts",
     "test:pack": "node dist/index.js pack test.pak dist/index.js src/index.ts",
     "test:unpack": "node dist/index.js unpack test.pak test-output",
-    "test:compare": "cmp dist/index.js test-output/dist/index.js && cmp src/index.ts test-output/src/index.ts && echo 'passed'"
+    "test:compare": "cmp dist/index.js test-output/dist/index.js && cmp src/index.ts test-output/src/index.ts && echo 'passed'",
+    "test": "npm run build && npm run test:pack && npm run test:unpack && npm run test:compare"
   },
   "author": "",
   "license": "ISC",

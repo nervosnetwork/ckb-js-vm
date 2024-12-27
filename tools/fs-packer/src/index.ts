@@ -17,29 +17,49 @@ function getFileSize(filePath: string): number {
   return stats.size;
 }
 
-function appendToStream(data: Buffer | string, stream: fs.WriteStream): void {
-  stream.write(data);
+function appendToStream(
+  data: Buffer | string,
+  stream: fs.WriteStream,
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const canContinue = stream.write(data);
+    if (canContinue) {
+      resolve();
+    } else {
+      stream.once("drain", resolve);
+      stream.once("error", reject);
+    }
+  });
 }
 
-function appendFileToStream(filePath: string, stream: fs.WriteStream): void {
+async function appendFileToStream(
+  filePath: string,
+  stream: fs.WriteStream,
+): Promise<void> {
   const content = fs.readFileSync(filePath);
-  appendToStream(content, stream);
+  await appendToStream(content, stream);
 }
 
-function appendStringNullToStream(str: string, stream: fs.WriteStream): void {
+async function appendStringNullToStream(
+  str: string,
+  stream: fs.WriteStream,
+): Promise<void> {
   const buffer = Buffer.from(str + "\0");
-  appendToStream(buffer, stream);
+  await appendToStream(buffer, stream);
 }
 
-function appendIntegerToStream(num: number, stream: fs.WriteStream): void {
+async function appendIntegerToStream(
+  num: number,
+  stream: fs.WriteStream,
+): Promise<void> {
   const buffer = Buffer.alloc(4);
   buffer.writeInt32LE(num);
-  appendToStream(buffer, stream);
+  await appendToStream(buffer, stream);
 }
 
-function pack(files: FileMap, outputStream: fs.WriteStream): void {
+async function pack(files: FileMap, outputStream: fs.WriteStream): Promise<void> {
   const numFiles = Object.keys(files).length;
-  appendIntegerToStream(numFiles, outputStream);
+  await appendIntegerToStream(numFiles, outputStream);
 
   let offset = 0;
   let length = 0;
@@ -47,20 +67,20 @@ function pack(files: FileMap, outputStream: fs.WriteStream): void {
   // Write metadata
   for (const [name, filePath] of Object.entries(files)) {
     console.log(`packing file ${filePath} to ${name}`);
-    appendIntegerToStream(offset, outputStream);
+    await appendIntegerToStream(offset, outputStream);
     length = Buffer.byteLength(name) + 1; // include null terminator
-    appendIntegerToStream(length, outputStream);
+    await appendIntegerToStream(length, outputStream);
     offset += length;
-    appendIntegerToStream(offset, outputStream);
+    await appendIntegerToStream(offset, outputStream);
     length = getFileSize(filePath);
-    appendIntegerToStream(length, outputStream);
+    await appendIntegerToStream(length, outputStream);
     offset += length;
   }
 
   // Write actual file data
   for (const [name, filePath] of Object.entries(files)) {
-    appendStringNullToStream(name, outputStream);
-    appendFileToStream(filePath, outputStream);
+    await appendStringNullToStream(name, outputStream);
+    await appendFileToStream(filePath, outputStream);
   }
 }
 
@@ -152,7 +172,7 @@ function usage(msg?: string): void {
   );
 }
 
-function doPack(): void {
+async function doPack(): Promise<void> {
   if (process.argv.length === 2) {
     usage("You must specify the output file.");
     process.exit(1);
@@ -184,11 +204,11 @@ function doPack(): void {
     process.exit(1);
   }
 
-  pack(files, stream);
+  await pack(files, stream);
   stream.end();
 }
 
-function doUnpack(): void {
+function doUnpack() {
   if (process.argv.length === 2) {
     usage("You must specify the input file when unpacking.");
     process.exit(1);
@@ -206,7 +226,7 @@ function doUnpack(): void {
 }
 
 // Main program
-function main(): void {
+async function main(): Promise<void> {
   if (
     process.argv.length <= 2 ||
     !["pack", "unpack"].includes(process.argv[2])
@@ -216,7 +236,7 @@ function main(): void {
   }
 
   if (process.argv[2] === "pack") {
-    doPack();
+    await doPack();
   } else {
     doUnpack();
   }
