@@ -8,7 +8,7 @@ one entry file named `main.js`, and ckb-js-vm will load this file system from
 any cell and execute `main.js` in it.
 
 A file system is represented as a binary file in the format described below. We
-may use the script [fs.lua](../tools/fs.lua) to create a file system from given
+may use the script [fs-packer](../tools/fs-packer) to create a file system from given
 files or unpack the file system into files.
 
 ## How to create a Simple File System
@@ -35,9 +35,9 @@ export function fib(n) {
 
 If we want ckb-js-vm to execute this code smoothly, we must package them into a
 file system first. To pack them within the current directory into `fib.fs`, you
-may run 
+may run
 ```shell
-find . -name *.js -type f | lua tools/fs.lua pack fib.fs
+find . -name *.js -type f | node tools/fs-packer/dist/index.js pack fib.fs
 ```
 
 ```
@@ -46,7 +46,7 @@ packing file ./fib_module.js to fib_module.js
 packing file ./main.js to main.js
 ```
 
-Note that all file paths piped into the `fs.lua` must be in the relative path
+Note that all file paths piped into the `fs-packer` must be in the relative path
 format. The absolute path of a file in the current system is usually meaningless
 in the Simple File System.
 
@@ -88,7 +88,7 @@ JavaScript files.
 
 ## Unpack Simple File System to Files
 
-To unpack the files contained within a fs, you may run `lua tools/fs.lua unpack fib.fs .`.
+To unpack the files contained within a fs, you may run `node tools/fs-packer/dist/index.js unpack fib.fs .`.
 
 ## Simple File System On-disk Representation
 
