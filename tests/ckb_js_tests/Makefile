@@ -24,12 +24,12 @@ module: spawn_caller
 	cargo run --bin module | ${CKB_DEBUGGER} --tx-file=- -s lock
 
 build/bytecode/fs_modules.fs: test_data/fs_module/main.js test_data/fs_module/fib_module.js
-	cd test_data/fs_module && lua ../../../../tools/fs.lua pack ../../../../$@ main.js fib_module.js
+	cd test_data/fs_module && node ../../../../tools/fs-packer/dist/index.js pack ../../../../$@ main.js fib_module.js
 
 fs_bytecode:
 	$(CKB_DEBUGGER) --read-file test_data/fs_module/main.js --bin $(BIN_PATH) -- -c | awk -f $(ROOT_DIR)/../../tools/compile.awk | xxd -r -p > ../../build/bytecode/main.bc
 	$(CKB_DEBUGGER) --read-file test_data/fs_module/fib_module.js --bin $(BIN_PATH) -- -c | awk -f $(ROOT_DIR)/../../tools/compile.awk | xxd -r -p > ../../build/bytecode/fib_module.bc
-	cd ../../build/bytecode && lua ../../tools/fs.lua pack ../../build/bytecode/fs_modules_bc.fs main.bc fib_module.bc
+	cd ../../build/bytecode && node ../../tools/fs-packer/dist/index.js pack ../../build/bytecode/fs_modules_bc.fs main.bc fib_module.bc
 	$(CKB_DEBUGGER) --max-cycles $(MAX_CYCLES) --read-file ../../build/bytecode/fs_modules_bc.fs --bin $(BIN_PATH) -- -f -r 2>&1 | fgrep 'Run result: 0'
 
 file_system: build/bytecode/fs_modules.fs
@@ -39,7 +39,7 @@ syscall:
 	cargo run --bin syscall | $(CKB_DEBUGGER) --tx-file=- -s lock
 
 fs_mount:
-	cd test_data/fs_module_mount && lua ../../../../tools/fs.lua pack ../../../../build/bytecode/fib_module.fs fib_module.js
+	cd test_data/fs_module_mount && node ../../../../tools/fs-packer/dist/index.js pack ../../../../build/bytecode/fib_module.fs fib_module.js
 	cargo run --bin module_mount | ${CKB_DEBUGGER} --tx-file=- -s lock
 
 simple_udt:

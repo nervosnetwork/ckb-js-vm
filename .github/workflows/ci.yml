@@ -17,6 +17,10 @@ jobs:
         chmod +x llvm.sh
         sudo ./llvm.sh 18
         rm llvm.sh
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
     - name: Build
       run: make all
     - name: Install tools
@@ -25,7 +29,6 @@ jobs:
       run: make test
     - name: Benchmark
       run: make benchmark
-
   macos:
     runs-on: macos-latest
 
