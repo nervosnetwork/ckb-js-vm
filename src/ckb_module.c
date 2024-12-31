@@ -57,7 +57,7 @@ static JSValue ThrowError(JSContext *ctx, int32_t error_code, const char *messag
     } else {
         JS_DefinePropertyValueStr(ctx, obj, "message", JS_NewString(ctx, message),
                                   JS_PROP_WRITABLE | JS_PROP_CONFIGURABLE);
-        JS_DefinePropertyValueStr(ctx, obj, "error_code", JS_NewInt32(ctx, error_code),
+        JS_DefinePropertyValueStr(ctx, obj, "errorCode", JS_NewInt32(ctx, error_code),
                                   JS_PROP_WRITABLE | JS_PROP_CONFIGURABLE);
     }
     // TODO

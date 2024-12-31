@@ -43,7 +43,7 @@ function* iterate_field(source, field) {
             yield ret;
             index++;
         } catch (e) {
-            if (e.error_code == CKB_INDEX_OUT_OF_BOUND) {
+            if (e.errorCode == CKB_INDEX_OUT_OF_BOUND) {
                 break;
             } else {
                 throw e;
@@ -60,7 +60,7 @@ function* iterate_cell_data(source) {
             yield ret;
             index++;
         } catch (e) {
-            if (e.error_code == CKB_INDEX_OUT_OF_BOUND) {
+            if (e.errorCode == CKB_INDEX_OUT_OF_BOUND) {
                 break;
             } else {
                 throw e;

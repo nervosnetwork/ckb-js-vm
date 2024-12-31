@@ -17,7 +17,7 @@ function must_throw_exception(f) {
         f();
     } catch (e) {
         has_exception = true;
-        error_code = e.error_code;
+        error_code = e.errorCode;
     }
     console.assert(has_exception, 'Error, no exception found');
     return error_code;
