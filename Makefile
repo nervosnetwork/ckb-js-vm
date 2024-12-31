@@ -61,13 +61,13 @@ LDFLAGS += -Ldeps/compiler-rt-builtins-riscv/build -lcompiler-rt
 all: out build/ckb-js-vm
 
 out:
-	mkdir -p build
-	mkdir -p build/bytecode
-	mkdir -p build/ckb-c-stdlib
-	mkdir -p build/libc
-	mkdir -p build/nncp
-	mkdir -p build/src
-	mkdir -p build/quickjs
+	@mkdir -p build
+	@mkdir -p build/bytecode
+	@mkdir -p build/ckb-c-stdlib
+	@mkdir -p build/libc
+	@mkdir -p build/nncp
+	@mkdir -p build/src
+	@mkdir -p build/quickjs
 
 deps/compiler-rt-builtins-riscv/build/libcompiler-rt.a:
 	cd deps/compiler-rt-builtins-riscv && make
@@ -145,6 +145,9 @@ fmt:
 		libc/src/*.c \
 		libc/sys/*.h \
 		src/*
+
+checksum: all
+	shasum -a 256 build/ckb-js-vm > checksums.txt
 
 install:
 	wget 'https://github.com/nervosnetwork/ckb-standalone-debugger/releases/download/v0.119.0/ckb-debugger-linux-x64.tar.gz'
