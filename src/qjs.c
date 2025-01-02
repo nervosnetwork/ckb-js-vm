@@ -125,6 +125,8 @@ static int eval_buf(JSContext *ctx, const void *buf, int buf_len, const char *fi
     JSValue val;
     int ret;
 
+    if (JS_DetectModule(buf, buf_len)) eval_flags |= JS_EVAL_TYPE_MODULE;
+
     if (((const char *)buf)[0] == (char)BC_VERSION) {
         val = JS_ReadObject(ctx, buf, buf_len, JS_READ_OBJ_BYTECODE);
         if (JS_IsException(val)) {
@@ -173,7 +175,7 @@ int run_from_file_system_buf(JSContext *ctx, char *buf, size_t buf_size) {
     }
     CHECK(err);
     CHECK2(main_file->size > 0, -1);
-    err = eval_buf(ctx, main_file->content, main_file->size, MAIN_FILE_NAME, JS_EVAL_TYPE_MODULE);
+    err = eval_buf(ctx, main_file->content, main_file->size, MAIN_FILE_NAME, 0);
     CHECK(err);
 
 exit:
