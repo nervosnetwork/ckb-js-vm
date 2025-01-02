@@ -54,7 +54,7 @@ function test_closure1()
     function f2()
     {
         var val = 1;
-
+        
         function set(a) {
             val = a;
         }
@@ -63,7 +63,7 @@ function test_closure1()
         }
         return { "set": set, "get": get };
     }
-
+    
     var obj = f2();
     obj.set(10);
     var r;
@@ -148,6 +148,31 @@ function test_arrow_function()
     assert(o2.f() === o2);
 }
 
+function test_with()
+{
+    var o1 = { x: "o1", y: "o1" };
+    var x = "local";
+    eval('var z="var_obj";');
+    assert(z === "var_obj");
+    with (o1) {
+        assert(x === "o1");
+        assert(eval("x") === "o1");
+        var f = function () {
+            o2 = { x: "o2" };
+            with (o2) {
+                assert(x === "o2");
+                assert(y === "o1");
+                assert(z === "var_obj");
+                assert(eval("x") === "o2");
+                assert(eval("y") === "o1");
+                assert(eval("z") === "var_obj");
+                assert(eval('eval("x")') === "o2");
+            }
+        };
+        f();
+    }
+}
+
 function test_eval_closure()
 {
     var tab;
@@ -191,5 +216,6 @@ test_closure1();
 test_closure2();
 test_closure3();
 test_arrow_function();
+test_with();
 test_eval_closure();
 test_eval_const();
