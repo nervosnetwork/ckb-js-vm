@@ -4,8 +4,8 @@ In addition to executing individual JavaScript files, ckb-js-vm also supports
 JavaScript modules by Simple File System, files within the file system may be
 made available for Javascript to read, import, and execute, e.g. import modules
 by `import { * } from "./module.js";`. Each Simple File System contains at least
-one entry file named `main.js`, and ckb-js-vm will load this file system from
-any cell and execute `main.js` in it.
+one entry file named `index.js`, and ckb-js-vm will load this file system from
+any cell and execute `index.js` in it.
 
 A file system is represented as a binary file in the format described below. We
 may use the script [fs-packer](../tools/fs-packer) to create a file system from given
@@ -16,7 +16,7 @@ files or unpack the file system into files.
 Consider the following two files:
 
 ```js
-// File main.js
+// File index.js
 import { fib } from "./fib_module.js";
 console.log("fib(10)=", fib(10));
 ```
@@ -43,7 +43,7 @@ find . -name *.js -type f | node tools/fs-packer/dist/index.js pack fib.fs
 ```
 // Output
 packing file ./fib_module.js to fib_module.js
-packing file ./main.js to main.js
+packing file ./index.js to index.js
 ```
 
 Note that all file paths piped into the `fs-packer` must be in the relative path
@@ -77,8 +77,8 @@ performance of ckb-js-vm, we can also choose to directly let ckb-js-vm execute
 bytecode.
 
 We define all JavaScript bytecode files to have a `.bc` extension. When
-ckb-js-vm obtains a file system, it will first look for the `main.js` file; if
-not, it continues to look for the `main.bc` file. When importing a module in
+ckb-js-vm obtains a file system, it will first look for the `index.js` file; if
+not, it continues to look for the `index.bc` file. When importing a module in
 JavaScript codes, e.g. `import { * } from "./module.js`, the steps are similar,
 ckb-js-vm will look for `./module.js` or `./module.bc`.
 
@@ -127,11 +127,11 @@ When serializing the file system into a file, all integers are encoded as a
 strings.
 
 Below is a binary dump of the file system created from a simple file called
-`main.js` with content `console.log('hello world!')`.
+`index.js` with content `console.log('hello world!')`.
 
 ```text
 00000000  01 00 00 00 00 00 00 00  08 00 00 00 08 00 00 00  |................|
-00000010  1c 00 00 00 6d 61 69 6e  2e 6a 73 00 63 6f 6e 73  |....main.js.cons|
+00000010  1c 00 00 00 6d 61 69 6e  2e 6a 73 00 63 6f 6e 73  |....index.js.cons|
 00000020  6f 6c 65 2e 6c 6f 67 28  27 68 65 6c 6c 6f 20 77  |ole.log('hello w|
 00000030  6f 72 6c 64 21 27 29 0a  00                       |orld!')..|
 ```

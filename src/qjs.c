@@ -36,8 +36,10 @@
 #include "cmdopt.h"
 #include "qjs.h"
 
-#define MAIN_FILE_NAME "main.js"
-#define MAIN_FILE_NAME_BC "main.bc"
+#define INIT_FILE_NAME "init.js"
+#define INIT_FILE_NAME_BC "init.bc"
+#define ENTRY_FILE_NAME "index.js"
+#define ENTRY_FILE_NAME_BC "index.bc"
 
 static void js_dump_obj(JSContext *ctx, JSValueConst val) {
     const char *str;
@@ -168,14 +170,25 @@ int run_from_file_system_buf(JSContext *ctx, char *buf, size_t buf_size) {
     int err = ckb_load_fs(buf, buf_size);
     CHECK(err);
 
-    FSFile *main_file = NULL;
-    err = ckb_get_file(MAIN_FILE_NAME, &main_file);
+    FSFile *init_file = NULL;
+    err = ckb_get_file(INIT_FILE_NAME, &init_file);
     if (err != 0) {
-        err = ckb_get_file(MAIN_FILE_NAME_BC, &main_file);
+        ckb_get_file(INIT_FILE_NAME_BC, &init_file);
+        // skip error checking
+    }
+    if (init_file) {
+        err = eval_buf(ctx, init_file->content, init_file->size, INIT_FILE_NAME, 0);
+        CHECK(err);
+    }
+
+    FSFile *main_file = NULL;
+    err = ckb_get_file(ENTRY_FILE_NAME, &main_file);
+    if (err != 0) {
+        err = ckb_get_file(ENTRY_FILE_NAME_BC, &main_file);
     }
     CHECK(err);
     CHECK2(main_file->size > 0, -1);
-    err = eval_buf(ctx, main_file->content, main_file->size, MAIN_FILE_NAME, 0);
+    err = eval_buf(ctx, main_file->content, main_file->size, ENTRY_FILE_NAME, 0);
     CHECK(err);
 
 exit:
@@ -207,7 +220,8 @@ static int run_from_cell_data(JSContext *ctx, bool enable_fs) {
     int err = 0;
     size_t buf_size = 0;
     size_t index = 0;
-    err = load_cell_code_info(&buf_size, &index);
+    bool use_filesystem = false;
+    err = load_cell_code_info(&buf_size, &index, &use_filesystem);
     if (err) {
         return err;
     }
@@ -217,8 +231,7 @@ static int run_from_cell_data(JSContext *ctx, bool enable_fs) {
     if (err) {
         return err;
     }
-
-    if (enable_fs) {
+    if (enable_fs || use_filesystem) {
         err = run_from_file_system_buf(ctx, buf, buf_size);
         free(buf);
         return err;
