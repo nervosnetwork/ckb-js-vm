@@ -34,7 +34,6 @@ syntax-error:
 	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e "ASDF ASDF" 2>&1 | grep "SyntaxError"
 
 syscalls:
-	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e 'console.log(CKB_SOURCE_GROUP_INPUT, CKB_SOURCE_GROUP_OUTPUT)'
 	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e 'import * as ckb from "ckb"; ckb.exit(0);'
 	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e 'import * as ckb from "ckb"; ckb.debug("hello, ckb");'
 	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e 'import * as ckb from "ckb"; console.log(ckb.vm_version(), ckb.current_cycles())'

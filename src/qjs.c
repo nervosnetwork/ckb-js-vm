@@ -125,6 +125,8 @@ static int eval_buf(JSContext *ctx, const void *buf, int buf_len, const char *fi
     JSValue val;
     int ret;
 
+    if (JS_DetectModule(buf, buf_len)) eval_flags |= JS_EVAL_TYPE_MODULE;
+
     if (((const char *)buf)[0] == (char)BC_VERSION) {
         val = JS_ReadObject(ctx, buf, buf_len, JS_READ_OBJ_BYTECODE);
         if (JS_IsException(val)) {
@@ -173,7 +175,7 @@ int run_from_file_system_buf(JSContext *ctx, char *buf, size_t buf_size) {
     }
     CHECK(err);
     CHECK2(main_file->size > 0, -1);
-    err = eval_buf(ctx, main_file->content, main_file->size, MAIN_FILE_NAME, JS_EVAL_TYPE_MODULE);
+    err = eval_buf(ctx, main_file->content, main_file->size, MAIN_FILE_NAME, 0);
     CHECK(err);
 
 exit:
@@ -197,7 +199,7 @@ static int run_from_local_file(JSContext *ctx, bool enable_fs) {
         return run_from_file_system_buf(ctx, buf, (size_t)count);
     } else {
         buf[count] = 0;
-        return eval_buf(ctx, buf, count, "<run_from_file>", JS_EVAL_TYPE_MODULE);
+        return eval_buf(ctx, buf, count, "<run_from_file>", 0);
     }
 }
 
@@ -222,7 +224,7 @@ static int run_from_cell_data(JSContext *ctx, bool enable_fs) {
         return err;
     } else {
         buf[buf_size] = 0;
-        err = eval_buf(ctx, buf, buf_size, "<run_from_file>", JS_EVAL_TYPE_MODULE);
+        err = eval_buf(ctx, buf, buf_size, "<run_from_file>", 0);
         free(buf);
         return err;
     }
@@ -260,7 +262,7 @@ static int run_from_target(JSContext *ctx, const char *target, bool enable_fs) {
         return err;
     } else {
         buf[buf_size] = 0;
-        err = eval_buf(ctx, buf, buf_size, "<run_from_file>", JS_EVAL_TYPE_MODULE);
+        err = eval_buf(ctx, buf, buf_size, "<run_from_file>", 0);
         free(buf);
         return err;
     }
@@ -341,7 +343,7 @@ int main(int argc, const char **argv) {
         JS_SetModuleLoaderFunc(rt, NULL, js_module_dummy_loader, NULL);
         err = compile_from_file(ctx);
     } else if (e_data) {
-        err = eval_buf(ctx, e_data, strlen(e_data), "<cmdline>", JS_EVAL_TYPE_MODULE);
+        err = eval_buf(ctx, e_data, strlen(e_data), "<cmdline>", 0);
     } else if (r_bool && f_bool) {
         err = run_from_local_file(ctx, true);
     } else if (r_bool) {

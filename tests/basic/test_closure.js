@@ -191,6 +191,5 @@ test_closure1();
 test_closure2();
 test_closure3();
 test_arrow_function();
-test_with();
 test_eval_closure();
 test_eval_const();

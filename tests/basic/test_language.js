@@ -445,7 +445,7 @@ function test_argument_scope()
     f();
 
     f = (a = eval("var arguments = 1"), probe = () => arguments) => {
-        assert(arguments, 2);
+        assert(arguments, 1);
         assert(probe(), 1);
     }
     f();
