@@ -181,14 +181,14 @@ int run_from_file_system_buf(JSContext *ctx, char *buf, size_t buf_size) {
         CHECK(err);
     }
 
-    FSFile *main_file = NULL;
-    err = ckb_get_file(ENTRY_FILE_NAME, &main_file);
+    FSFile *entry_file = NULL;
+    err = ckb_get_file(ENTRY_FILE_NAME, &entry_file);
     if (err != 0) {
-        err = ckb_get_file(ENTRY_FILE_NAME_BC, &main_file);
+        err = ckb_get_file(ENTRY_FILE_NAME_BC, &entry_file);
     }
     CHECK(err);
-    CHECK2(main_file->size > 0, -1);
-    err = eval_buf(ctx, main_file->content, main_file->size, ENTRY_FILE_NAME, 0);
+    CHECK2(entry_file->size > 0, -1);
+    err = eval_buf(ctx, entry_file->content, entry_file->size, ENTRY_FILE_NAME, 0);
     CHECK(err);
 
 exit:
