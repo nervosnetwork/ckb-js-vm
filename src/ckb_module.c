@@ -598,75 +598,77 @@ int ckb_dlopen2(const uint8_t* dep_cell_hash, uint8_t hash_type,
                 size_t* consumed_size);
 void* ckb_dlsym(void* handle, const char* symbol);
 */
+static const JSCFunctionListEntry js_ckb_funcs[] = {
+    JS_CFUNC_DEF("exit", 1, syscall_exit),
+    JS_CFUNC_DEF("load_tx_hash", 1, syscall_load_tx_hash),
+    JS_CFUNC_DEF("load_transaction", 1, syscall_load_transaction),
+    JS_CFUNC_DEF("load_script_hash", 1, syscall_load_script_hash),
+    JS_CFUNC_DEF("load_script", 1, syscall_load_script),
+    JS_CFUNC_DEF("debug", 1, syscall_debug),
+    JS_CFUNC_DEF("load_cell", 3, syscall_load_cell),
+    JS_CFUNC_DEF("load_input", 3, syscall_load_input),
+    JS_CFUNC_DEF("load_header", 3, syscall_load_header),
+    JS_CFUNC_DEF("load_witness", 3, syscall_load_witness),
+    JS_CFUNC_DEF("load_cell_data", 3, syscall_load_cell_data),
+    JS_CFUNC_DEF("load_cell_by_field", 4, syscall_load_cell_by_field),
+    JS_CFUNC_DEF("load_header_by_field", 4, syscall_load_header_by_field),
+    JS_CFUNC_DEF("load_input_by_field", 4, syscall_load_input_by_field),
+    JS_CFUNC_DEF("vm_version", 0, syscall_vm_version),
+    JS_CFUNC_DEF("current_cycles", 0, syscall_current_cycles),
+    JS_CFUNC_DEF("exec_cell", 4, syscall_exec_cell),
+    JS_CFUNC_DEF("spawn_cell", 5, syscall_spawn_cell),
+    JS_CFUNC_DEF("pipe", 0, syscall_pipe),
+    JS_CFUNC_DEF("inherited_fds", 0, syscall_inherited_fds),
+    JS_CFUNC_DEF("read", 2, syscall_read),
+    JS_CFUNC_DEF("write", 2, syscall_write),
+    JS_CFUNC_DEF("close", 1, syscall_close),
+    JS_CFUNC_DEF("wait", 1, syscall_wait),
+    JS_CFUNC_DEF("process_id", 0, syscall_process_id),
+    JS_CFUNC_DEF("load_block_extension", 3, syscall_load_block_extension),
+    JS_CFUNC_DEF("mount", 2, mount),
+
+    // Constants
+    JS_PROP_INT64_DEF("SOURCE_INPUT", CKB_SOURCE_INPUT, JS_PROP_ENUMERABLE),
+    JS_PROP_INT64_DEF("SOURCE_OUTPUT", CKB_SOURCE_OUTPUT, JS_PROP_ENUMERABLE),
+    JS_PROP_INT64_DEF("SOURCE_CELL_DEP", CKB_SOURCE_CELL_DEP, JS_PROP_ENUMERABLE),
+    JS_PROP_INT64_DEF("SOURCE_HEADER_DEP", CKB_SOURCE_HEADER_DEP, JS_PROP_ENUMERABLE),
+
+    JS_PROP_INT64_DEF("CELL_FIELD_CAPACITY", CKB_CELL_FIELD_CAPACITY, JS_PROP_ENUMERABLE),
+    JS_PROP_INT64_DEF("CELL_FIELD_DATA_HASH", CKB_CELL_FIELD_DATA_HASH, JS_PROP_ENUMERABLE),
+    JS_PROP_INT64_DEF("CELL_FIELD_LOCK", CKB_CELL_FIELD_LOCK, JS_PROP_ENUMERABLE),
+    JS_PROP_INT64_DEF("CELL_FIELD_LOCK_HASH", CKB_CELL_FIELD_LOCK_HASH, JS_PROP_ENUMERABLE),
+    JS_PROP_INT64_DEF("CELL_FIELD_TYPE", CKB_CELL_FIELD_TYPE, JS_PROP_ENUMERABLE),
+    JS_PROP_INT64_DEF("CELL_FIELD_TYPE_HASH", CKB_CELL_FIELD_TYPE_HASH, JS_PROP_ENUMERABLE),
+    JS_PROP_INT64_DEF("CELL_FIELD_OCCUPIED_CAPACITY", CKB_CELL_FIELD_OCCUPIED_CAPACITY, JS_PROP_ENUMERABLE),
+
+    JS_PROP_INT64_DEF("HEADER_FIELD_EPOCH_NUMBER", CKB_HEADER_FIELD_EPOCH_NUMBER, JS_PROP_ENUMERABLE),
+    JS_PROP_INT64_DEF("HEADER_FIELD_EPOCH_START_BLOCK_NUMBER", CKB_HEADER_FIELD_EPOCH_START_BLOCK_NUMBER,
+                      JS_PROP_ENUMERABLE),
+    JS_PROP_INT64_DEF("HEADER_FIELD_EPOCH_LENGTH", CKB_HEADER_FIELD_EPOCH_LENGTH, JS_PROP_ENUMERABLE),
+    JS_PROP_INT64_DEF("INPUT_FIELD_OUT_POINT", CKB_INPUT_FIELD_OUT_POINT, JS_PROP_ENUMERABLE),
+    JS_PROP_INT64_DEF("INPUT_FIELD_SINCE", CKB_INPUT_FIELD_SINCE, JS_PROP_ENUMERABLE),
+
+    JS_PROP_INT64_DEF("SCRIPT_HASH_TYPE_DATA", 0, JS_PROP_ENUMERABLE),
+    JS_PROP_INT64_DEF("SCRIPT_HASH_TYPE_TYPE", 1, JS_PROP_ENUMERABLE),
+    JS_PROP_INT64_DEF("SCRIPT_HASH_TYPE_DATA1", 2, JS_PROP_ENUMERABLE),
+    JS_PROP_INT64_DEF("SCRIPT_HASH_TYPE_DATA2", 4, JS_PROP_ENUMERABLE),
+};
+
+static int js_ckb_init(JSContext *ctx, JSModuleDef *m) {
+    JS_SetModuleExportList(ctx, m, js_ckb_funcs, countof(js_ckb_funcs));
+    JS_SetModuleExport(ctx, m, "SOURCE_GROUP_INPUT", JS_NewBigUint64(ctx, CKB_SOURCE_GROUP_INPUT));
+    JS_SetModuleExport(ctx, m, "SOURCE_GROUP_OUTPUT", JS_NewBigUint64(ctx, CKB_SOURCE_GROUP_OUTPUT));
+    return 0;
+}
+
 int js_init_module_ckb(JSContext *ctx) {
-    JSValue global_obj, ckb;
-    global_obj = JS_GetGlobalObject(ctx);
-    ckb = JS_NewObject(ctx);
-
-    JS_SetPropertyStr(ctx, ckb, "exit", JS_NewCFunction(ctx, syscall_exit, "exit", 1));
-    JS_SetPropertyStr(ctx, ckb, "load_tx_hash", JS_NewCFunction(ctx, syscall_load_tx_hash, "load_tx_hash", 1));
-    JS_SetPropertyStr(ctx, ckb, "load_transaction",
-                      JS_NewCFunction(ctx, syscall_load_transaction, "load_transaction", 1));
-    JS_SetPropertyStr(ctx, ckb, "load_script_hash",
-                      JS_NewCFunction(ctx, syscall_load_script_hash, "load_script_hash", 1));
-    JS_SetPropertyStr(ctx, ckb, "load_script", JS_NewCFunction(ctx, syscall_load_script, "load_script", 1));
-    JS_SetPropertyStr(ctx, ckb, "debug", JS_NewCFunction(ctx, syscall_debug, "debug", 1));
-    JS_SetPropertyStr(ctx, ckb, "load_cell", JS_NewCFunction(ctx, syscall_load_cell, "load_cell", 3));
-    JS_SetPropertyStr(ctx, ckb, "load_input", JS_NewCFunction(ctx, syscall_load_input, "load_input", 3));
-    JS_SetPropertyStr(ctx, ckb, "load_header", JS_NewCFunction(ctx, syscall_load_header, "load_header", 3));
-    JS_SetPropertyStr(ctx, ckb, "load_witness", JS_NewCFunction(ctx, syscall_load_witness, "load_witness", 3));
-    JS_SetPropertyStr(ctx, ckb, "load_cell_data", JS_NewCFunction(ctx, syscall_load_cell_data, "load_cell_data", 3));
-    JS_SetPropertyStr(ctx, ckb, "load_cell_by_field",
-                      JS_NewCFunction(ctx, syscall_load_cell_by_field, "load_cell_by_field", 4));
-    JS_SetPropertyStr(ctx, ckb, "load_header_by_field",
-                      JS_NewCFunction(ctx, syscall_load_header_by_field, "load_header_by_field", 4));
-    JS_SetPropertyStr(ctx, ckb, "load_input_by_field",
-                      JS_NewCFunction(ctx, syscall_load_input_by_field, "load_input_by_field", 4));
-    JS_SetPropertyStr(ctx, ckb, "vm_version", JS_NewCFunction(ctx, syscall_vm_version, "vm_version", 0));
-    JS_SetPropertyStr(ctx, ckb, "current_cycles", JS_NewCFunction(ctx, syscall_current_cycles, "current_cycles", 0));
-    JS_SetPropertyStr(ctx, ckb, "exec_cell", JS_NewCFunction(ctx, syscall_exec_cell, "exec_cell", 4));
-    JS_SetPropertyStr(ctx, ckb, "spawn_cell", JS_NewCFunction(ctx, syscall_spawn_cell, "spawn_cell", 5));
-    JS_SetPropertyStr(ctx, ckb, "pipe", JS_NewCFunction(ctx, syscall_pipe, "pipe", 0));
-    JS_SetPropertyStr(ctx, ckb, "inherited_fds", JS_NewCFunction(ctx, syscall_inherited_fds, "inherited_fds", 0));
-    JS_SetPropertyStr(ctx, ckb, "read", JS_NewCFunction(ctx, syscall_read, "read", 2));
-    JS_SetPropertyStr(ctx, ckb, "write", JS_NewCFunction(ctx, syscall_write, "write", 2));
-    JS_SetPropertyStr(ctx, ckb, "close", JS_NewCFunction(ctx, syscall_close, "close", 1));
-    JS_SetPropertyStr(ctx, ckb, "wait", JS_NewCFunction(ctx, syscall_wait, "wait", 1));
-    JS_SetPropertyStr(ctx, ckb, "process_id", JS_NewCFunction(ctx, syscall_process_id, "process_id", 0));
-    JS_SetPropertyStr(ctx, ckb, "load_block_extension",
-                      JS_NewCFunction(ctx, syscall_load_block_extension, "load_block_extension", 3));
-    JS_SetPropertyStr(ctx, ckb, "mount", JS_NewCFunction(ctx, mount, "mount", 2));
-    JS_SetPropertyStr(ctx, ckb, "SOURCE_INPUT", JS_NewInt64(ctx, CKB_SOURCE_INPUT));
-    JS_SetPropertyStr(ctx, ckb, "SOURCE_OUTPUT", JS_NewInt64(ctx, CKB_SOURCE_OUTPUT));
-    JS_SetPropertyStr(ctx, ckb, "SOURCE_CELL_DEP", JS_NewInt64(ctx, CKB_SOURCE_CELL_DEP));
-    JS_SetPropertyStr(ctx, ckb, "SOURCE_HEADER_DEP", JS_NewInt64(ctx, CKB_SOURCE_HEADER_DEP));
-    // Should use bigint. If Int64 is used, when it's too big(> 0xFFFFFFFF), it is stored as float number.
-    JS_SetPropertyStr(ctx, ckb, "SOURCE_GROUP_INPUT", JS_NewBigUint64(ctx, CKB_SOURCE_GROUP_INPUT));
-    JS_SetPropertyStr(ctx, ckb, "SOURCE_GROUP_OUTPUT", JS_NewBigUint64(ctx, CKB_SOURCE_GROUP_OUTPUT));
-
-    JS_SetPropertyStr(ctx, ckb, "CELL_FIELD_CAPACITY", JS_NewInt64(ctx, CKB_CELL_FIELD_CAPACITY));
-    JS_SetPropertyStr(ctx, ckb, "CELL_FIELD_DATA_HASH", JS_NewInt64(ctx, CKB_CELL_FIELD_DATA_HASH));
-    JS_SetPropertyStr(ctx, ckb, "CELL_FIELD_LOCK", JS_NewInt64(ctx, CKB_CELL_FIELD_LOCK));
-    JS_SetPropertyStr(ctx, ckb, "CELL_FIELD_LOCK_HASH", JS_NewInt64(ctx, CKB_CELL_FIELD_LOCK_HASH));
-    JS_SetPropertyStr(ctx, ckb, "CELL_FIELD_TYPE", JS_NewInt64(ctx, CKB_CELL_FIELD_TYPE));
-    JS_SetPropertyStr(ctx, ckb, "CELL_FIELD_TYPE_HASH", JS_NewInt64(ctx, CKB_CELL_FIELD_TYPE_HASH));
-    JS_SetPropertyStr(ctx, ckb, "CELL_FIELD_OCCUPIED_CAPACITY", JS_NewInt64(ctx, CKB_CELL_FIELD_OCCUPIED_CAPACITY));
-
-    JS_SetPropertyStr(ctx, ckb, "HEADER_FIELD_EPOCH_NUMBER", JS_NewInt64(ctx, CKB_HEADER_FIELD_EPOCH_NUMBER));
-    JS_SetPropertyStr(ctx, ckb, "HEADER_FIELD_EPOCH_START_BLOCK_NUMBER",
-                      JS_NewInt64(ctx, CKB_HEADER_FIELD_EPOCH_START_BLOCK_NUMBER));
-    JS_SetPropertyStr(ctx, ckb, "HEADER_FIELD_EPOCH_LENGTH", JS_NewInt64(ctx, CKB_HEADER_FIELD_EPOCH_LENGTH));
-    JS_SetPropertyStr(ctx, ckb, "INPUT_FIELD_OUT_POINT", JS_NewInt64(ctx, CKB_INPUT_FIELD_OUT_POINT));
-    JS_SetPropertyStr(ctx, ckb, "INPUT_FIELD_SINCE", JS_NewInt64(ctx, CKB_INPUT_FIELD_SINCE));
-
-    // https://github.com/nervosnetwork/ckb/blob/45104e08c18852260282f23858ce21afae4c9f34/util/gen-types/src/core.rs#L14
-    JS_SetPropertyStr(ctx, ckb, "SCRIPT_HASH_TYPE_DATA", JS_NewInt64(ctx, 0));
-    JS_SetPropertyStr(ctx, ckb, "SCRIPT_HASH_TYPE_TYPE", JS_NewInt64(ctx, 1));
-    JS_SetPropertyStr(ctx, ckb, "SCRIPT_HASH_TYPE_DATA1", JS_NewInt64(ctx, 2));
-    JS_SetPropertyStr(ctx, ckb, "SCRIPT_HASH_TYPE_DATA2", JS_NewInt64(ctx, 4));
-
-    JS_SetPropertyStr(ctx, global_obj, "ckb", ckb);
-    JS_FreeValue(ctx, global_obj);
+    JSModuleDef *m = JS_NewCModule(ctx, "ckb", js_ckb_init);
+    if (!m) {
+        return -1;
+    }
+    JS_AddModuleExportList(ctx, m, js_ckb_funcs, countof(js_ckb_funcs));
+    JS_AddModuleExport(ctx, m, "SOURCE_GROUP_INPUT");
+    JS_AddModuleExport(ctx, m, "SOURCE_GROUP_OUTPUT");
     return 0;
 }
 

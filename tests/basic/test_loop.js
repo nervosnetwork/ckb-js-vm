@@ -141,7 +141,7 @@ function test_for_in()
 
     /* variable assigment in the for in */
     tab = [];
-    for(var k = 2 in {x:1, y: 2}) {
+    for(var k in {x:1, y: 2}) {
         tab.push(k);
     }
     assert(tab.toString(), "x,y", "for_in");
@@ -333,7 +333,7 @@ function test_try_catch7()
 function test_try_catch8()
 {
     var i, s;
-    
+
     s = "";
     for(var i in {x:1, y:2}) {
         try {

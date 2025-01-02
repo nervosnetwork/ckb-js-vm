@@ -1,3 +1,4 @@
+import * as ckb from "ckb";
 
 const CKB_INDEX_OUT_OF_BOUND = 1;
 const ERROR_AMOUNT = -52;
