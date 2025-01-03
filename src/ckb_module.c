@@ -690,7 +690,7 @@ exit:
     return err;
 }
 
-int load_cell_code_info(size_t *buf_size, size_t *index) {
+int load_cell_code_info(size_t *buf_size, size_t *index, bool *use_filesystem) {
     int err = 0;
     unsigned char script[SCRIPT_SIZE];
     uint64_t len = SCRIPT_SIZE;
@@ -706,16 +706,18 @@ int load_cell_code_info(size_t *buf_size, size_t *index) {
     }
 
     // The script arguments are in the following format
-    // <lua loader args, 2 bytes> <data, variable length>
+    // <js loader args, 2 bytes> <data, variable length>
     mol_seg_t args_seg = MolReader_Script_get_args(&script_seg);
     mol_seg_t args_bytes_seg = MolReader_Bytes_raw_bytes(&args_seg);
     CHECK2(args_bytes_seg.size >= JS_LOADER_ARGS_SIZE, -1);
 
-    // Loading lua code from dependent cell with code hash and hash type
+    // Loading js code from dependent cell with code hash and hash type
     // The script arguments are in the following format
-    // <lua loader args, 2 bytes> <code hash of lua code, 32 bytes>
-    // <hash type of lua code, 1 byte>
+    // <js loader args, 2 bytes> <code hash of js code, 32 bytes>
+    // <hash type of js code, 1 byte>
     CHECK2(args_bytes_seg.size >= JS_LOADER_ARGS_SIZE + BLAKE2B_BLOCK_SIZE + 1, -1);
+    uint16_t js_loader_args = *(uint16_t *)args_bytes_seg.ptr;
+    *use_filesystem = js_loader_args & 0x1;
 
     uint8_t *code_hash = args_bytes_seg.ptr + JS_LOADER_ARGS_SIZE;
     uint8_t hash_type = *(args_bytes_seg.ptr + JS_LOADER_ARGS_SIZE + BLAKE2B_BLOCK_SIZE);

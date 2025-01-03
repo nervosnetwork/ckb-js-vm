@@ -23,13 +23,13 @@ spawn_caller:
 module: spawn_caller
 	cargo run --bin module | ${CKB_DEBUGGER} --tx-file=- -s lock
 
-build/bytecode/fs_modules.fs: test_data/fs_module/main.js test_data/fs_module/fib_module.js
-	cd test_data/fs_module && node ../../../../tools/fs-packer/dist/index.js pack ../../../../$@ main.js fib_module.js
+build/bytecode/fs_modules.fs: test_data/fs_module/index.js test_data/fs_module/fib_module.js
+	cd test_data/fs_module && node ../../../../tools/fs-packer/dist/index.js pack ../../../../$@ index.js fib_module.js
 
 fs_bytecode:
-	$(CKB_DEBUGGER) --read-file test_data/fs_module/main.js --bin $(BIN_PATH) -- -c | awk -f $(ROOT_DIR)/../../tools/compile.awk | xxd -r -p > ../../build/bytecode/main.bc
+	$(CKB_DEBUGGER) --read-file test_data/fs_module/index.js --bin $(BIN_PATH) -- -c | awk -f $(ROOT_DIR)/../../tools/compile.awk | xxd -r -p > ../../build/bytecode/index.bc
 	$(CKB_DEBUGGER) --read-file test_data/fs_module/fib_module.js --bin $(BIN_PATH) -- -c | awk -f $(ROOT_DIR)/../../tools/compile.awk | xxd -r -p > ../../build/bytecode/fib_module.bc
-	cd ../../build/bytecode && node ../../tools/fs-packer/dist/index.js pack ../../build/bytecode/fs_modules_bc.fs main.bc fib_module.bc
+	cd ../../build/bytecode && node ../../tools/fs-packer/dist/index.js pack ../../build/bytecode/fs_modules_bc.fs index.bc fib_module.bc
 	$(CKB_DEBUGGER) --max-cycles $(MAX_CYCLES) --read-file ../../build/bytecode/fs_modules_bc.fs --bin $(BIN_PATH) -- -f -r 2>&1 | fgrep 'Run result: 0'
 
 file_system: build/bytecode/fs_modules.fs
@@ -40,6 +40,8 @@ syscall:
 
 fs_mount:
 	cd test_data/fs_module_mount && node ../../../../tools/fs-packer/dist/index.js pack ../../../../build/bytecode/fib_module.fs fib_module.js
+	cd test_data/fs_module_mount && node ../../../../tools/fs-packer/dist/index.js pack ../../../../build/bytecode/fib_module_mount.fs index.js init.js
+
 	cargo run --bin module_mount | ${CKB_DEBUGGER} --tx-file=- -s lock
 
 simple_udt:
