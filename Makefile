@@ -93,8 +93,6 @@ build/ckb-js-vm: build/ckb-c-stdlib/impl.o \
                  build/quickjs/libunicode.o \
                  build/quickjs/cutils.o \
                  build/quickjs/libbf.o \
-                 build/quickjs/repl.o \
-                 build/quickjs/qjscalc.o \
                  build/src/ckb_module.o \
                  build/src/qjs.o \
                  build/src/std_module.o \
