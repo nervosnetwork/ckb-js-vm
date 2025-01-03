@@ -3,7 +3,6 @@ LD := ld.lld-18
 OBJCOPY := llvm-objcopy-18
 AR := llvm-ar-18
 RANLIB := llvm-ranlib-18
-TARGET := riscv64-unknown-linux-gnu
 
 UNAME := $(shell uname)
 ifeq ($(UNAME), Darwin)
@@ -147,7 +146,7 @@ build/dump_secp256k1_data: src/dump_secp256k1_data.c
 	make secp256k1-apply-patch
 	cd deps/secp256k1 && \
 		./autogen.sh && \
-		CC=$(CC) LD=$(LD) LDFLAGS="" ./configure --with-ecmult-window=6 --enable-module-recovery --host=$(TARGET) && \
+		CC=$(CC) LD=$(LD) LDFLAGS="" ./configure --with-ecmult-window=6 --enable-module-recovery --host=riscv64-unknown-linux-gnu && \
 		make src/precomputed_ecmult.c
 	$(CC) -I deps/secp256k1/src -I deps/secp256k1 -I deps/ckb-c-stdlib -o $@ $<
 
