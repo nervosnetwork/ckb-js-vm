@@ -4,3 +4,6 @@
 [submodule "deps/ckb-c-stdlib"]
 	path = deps/ckb-c-stdlib
 	url = https://github.com/nervosnetwork/ckb-c-stdlib
+[submodule "deps/secp256k1"]
+	path = deps/secp256k1
+	url = https://github.com/bitcoin-core/secp256k1.git

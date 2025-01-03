@@ -3,6 +3,7 @@ LD := ld.lld-18
 OBJCOPY := llvm-objcopy-18
 AR := llvm-ar-18
 RANLIB := llvm-ranlib-18
+TARGET := riscv64-unknown-linux-gnu
 
 UNAME := $(shell uname)
 ifeq ($(UNAME), Darwin)
@@ -57,6 +58,10 @@ CFLAGS_BASE_QUICKJS = $(CFLAGS_BASE) \
 
 LDFLAGS := -static --gc-sections
 LDFLAGS += -Ldeps/compiler-rt-builtins-riscv/build -lcompiler-rt
+
+# secp256k1
+SECP256K1_SRC := deps/secp256k1/src/precomputed_ecmult.c
+
 
 all: out build/ckb-js-vm
 
@@ -114,6 +119,12 @@ build/nncp/%.o: deps/nncp/%.c
 	@echo build $<
 	@$(CC) $(CFLAGS_BASE_NNCP) -c -o $@ $<
 
+# special rule for ckb_module.c
+build/src/ckb_module.o: src/ckb_module.c build/secp256k1_data_info.h
+	@echo build $<
+	@$(CC) $(CFLAGS_BASE_SRC) -c -o $@ $<
+
+# Generic rule for other src files
 build/src/%.o: src/%.c
 	@echo build $<
 	@$(CC) $(CFLAGS_BASE_SRC) -c -o $@ $<
@@ -129,6 +140,25 @@ test:
 
 benchmark:
 	make -f tests/benchmark/Makefile
+
+# secp256k1
+build/secp256k1_data_info.h: build/dump_secp256k1_data
+	make secp256k1-apply-patch
+	$<
+
+build/dump_secp256k1_data: src/dump_secp256k1_data.c $(SECP256K1_SRC)
+	@mkdir -p build
+	$(CC) -I deps/secp256k1/src -I deps/secp256k1 -I deps/ckb-c-stdlib -o $@ $<
+
+
+$(SECP256K1_SRC):
+	cd deps/secp256k1 && \
+		./autogen.sh && \
+		CC=$(CC) LD=$(LD) LDFLAGS="" ./configure --with-ecmult-window=6 --enable-module-recovery --host=$(TARGET) && \
+		make src/precomputed_ecmult.c
+
+secp256k1-apply-patch:
+	@cd deps/secp256k1 && git diff --quiet && rm -f src/precomputed_ecmult.c; git apply ../../tools/secp256k1-patch/patch.diff || echo "applying patch: ignore errors if applied."
 
 clean:
 	rm -rf build

@@ -1,0 +1,13 @@
+diff --git a/src/precompute_ecmult.c b/src/precompute_ecmult.c
+index 5ef198a..d0eaa57 100644
+--- a/src/precompute_ecmult.c
++++ b/src/precompute_ecmult.c
+@@ -55,7 +55,7 @@ static void print_two_tables(FILE *fp, int window_g) {
+ 
+ int main(void) {
+     /* Always compute all tables for window sizes up to 15. */
+-    int window_g = (ECMULT_WINDOW_SIZE < 15) ? 15 : ECMULT_WINDOW_SIZE;
++    int window_g = ECMULT_WINDOW_SIZE;
+     const char outfile[] = "src/precomputed_ecmult.c";
+     FILE* fp;
+ 
