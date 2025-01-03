@@ -143,15 +143,11 @@ build/secp256k1_data_info.h: build/dump_secp256k1_data
 
 build/dump_secp256k1_data: src/dump_secp256k1_data.c
 	@mkdir -p build
-	make secp256k1-apply-patch
 	cd deps/secp256k1 && \
 		./autogen.sh && \
 		CC=$(CC) LD=$(LD) LDFLAGS="" ./configure --with-ecmult-window=6 --enable-module-recovery --host=riscv64-unknown-linux-gnu && \
 		make src/precomputed_ecmult.c
-	$(CC) -I deps/secp256k1/src -I deps/secp256k1 -I deps/ckb-c-stdlib -o $@ $<
-
-secp256k1-apply-patch:
-	@cd deps/secp256k1 && git diff --quiet && (rm -f src/precomputed_ecmult.c; git apply ../../tools/secp256k1-patch/patch.diff) || echo "applying patch: ignore errors if applied."
+	$(CC) -DECMULT_WINDOW_SIZE=6 -I deps/secp256k1/src -I deps/secp256k1 -o $@ $<
 
 clean:
 	rm -rf build

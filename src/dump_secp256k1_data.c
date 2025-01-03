@@ -1,13 +1,5 @@
 #include <stdio.h>
-#include "blake2b.h"
-
-/*
- * We are including secp256k1 implementation directly so gcc can strip
- * unused functions. For some unknown reasons, if we link in libsecp256k1.a
- * directly, the final binary will include all functions rather than those used.
- */
 #define HAVE_CONFIG_H 1
-#define ECMULT_WINDOW_SIZE 6
 #include <precomputed_ecmult.c>
 
 #define ERROR_IO -1
