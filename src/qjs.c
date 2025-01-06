@@ -71,24 +71,26 @@ static void js_std_dump_error1(JSContext *ctx, JSValueConst exception_val) {
 
 void js_std_dump_error(JSContext *ctx) {
     JSValue exception_val;
-
     exception_val = JS_GetException(ctx);
     js_std_dump_error1(ctx, exception_val);
     JS_FreeValue(ctx, exception_val);
 }
 
-void js_std_loop(JSContext *ctx) {
+int js_std_loop(JSContext *ctx) {
     JSContext *ctx1;
+    int ret = 0;
     int err;
     for (;;) {
         err = JS_ExecutePendingJob(JS_GetRuntime(ctx), &ctx1);
         if (err <= 0) {
             if (err < 0) {
                 js_std_dump_error(ctx1);
+                ret = -1;
             }
             break;
         }
     }
+    return ret;
 }
 
 int compile_from_file(JSContext *ctx) {
@@ -373,9 +375,8 @@ int main(int argc, const char **argv) {
     } else {
         err = run_from_cell_data(ctx, false);
     }
-    if (err == 0) {
-        js_std_loop(ctx);
-    }
+    CHECK(err);
+    err = js_std_loop(ctx);
     CHECK(err);
 
 #ifdef MEMORY_USAGE

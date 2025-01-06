@@ -43,6 +43,8 @@ CFLAGS_BASE_SRC = $(CFLAGS_BASE) \
 	-I deps/ckb-c-stdlib \
 	-I deps/nncp \
 	-I deps/quickjs \
+	-I deps/secp256k1/include \
+	-I deps/secp256k1/src \
 	-DCKB_DECLARATION_ONLY \
 	-DCONFIG_BIGNUM
 CFLAGS_BASE_QUICKJS = $(CFLAGS_BASE) \
@@ -60,7 +62,6 @@ CFLAGS_BASE_SECP256k1 = $(CFLAGS_BASE) \
 	-I deps/ckb-c-stdlib \
 	-I deps/secp256k1/src \
 	-I deps/secp256k1/include \
-	-I deps/quickjs \
 	-DCKB_DECLARATION_ONLY \
 	-DECMULT_WINDOW_SIZE=6 \
 	-DENABLE_MODULE_RECOVERY
@@ -104,8 +105,8 @@ build/ckb-js-vm: build/ckb-c-stdlib/impl.o \
                  build/quickjs/libunicode.o \
                  build/quickjs/cutils.o \
                  build/quickjs/libbf.o \
-				 build/secp256k1/secp256k1.o \
-				 build/secp256k1/precomputed_ecmult.o \
+                 build/secp256k1/secp256k1.o \
+                 build/secp256k1/precomputed_ecmult.o \
                  build/src/ckb_module.o \
 				 build/src/secp256k1_module.o \
                  build/src/qjs.o \
@@ -128,11 +129,6 @@ build/nncp/%.o: deps/nncp/%.c
 	@echo build $<
 	@$(CC) $(CFLAGS_BASE_NNCP) -c -o $@ $<
 
-# special rule for secp256k1_module.c
-build/src/secp256k1_module.o: src/secp256k1_module.c
-	@echo build $<
-	@$(CC) $(CFLAGS_BASE_SECP256k1) -c -o $@ $<
-
 build/src/%.o: src/%.c
 	@echo build $<
 	@$(CC) $(CFLAGS_BASE_SRC) -c -o $@ $<
@@ -144,6 +140,7 @@ build/quickjs/%.o: deps/quickjs/%.c
 test:
 	make -f tests/examples/Makefile
 	make -f tests/basic/Makefile
+	make -f tests/module/Makefile
 	cd tests/ckb_js_tests && make all
 
 benchmark:

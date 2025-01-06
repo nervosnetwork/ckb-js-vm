@@ -39,7 +39,6 @@ jobs:
     - name: Install LLVM and Clang
       run: |
         brew install coreutils
-        brew install autoconf automake libtool
         brew install llvm@18
     - name: Build
       run: export PATH="/opt/homebrew/opt/llvm@18/bin:$PATH" && make all

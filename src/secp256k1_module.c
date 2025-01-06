@@ -167,11 +167,12 @@ static int js_secp256k1_init(JSContext *ctx, JSModuleDef *m) {
     return 0;
 }
 
-int js_init_module_secp256k1(JSContext *js_context) {
+int js_init_module_secp256k1(JSContext *js_ctx) {
     g_secp256k1_context = secp256k1_context_create(SECP256K1_CONTEXT_VERIFY);
-    JSModuleDef *m = JS_NewCModule(js_context, "secp256k1", js_secp256k1_init);
+    JSModuleDef *m = JS_NewCModule(js_ctx, "secp256k1", js_secp256k1_init);
     if (!m) {
         return -1;
     }
+    JS_AddModuleExportList(js_ctx, m, js_secp256k1_funcs, countof(js_secp256k1_funcs));
     return 0;
 }
