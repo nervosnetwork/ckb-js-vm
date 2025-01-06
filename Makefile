@@ -68,8 +68,6 @@ CFLAGS_BASE_SECP256k1 = $(CFLAGS_BASE) \
 LDFLAGS := -static --gc-sections
 LDFLAGS += -Ldeps/compiler-rt-builtins-riscv/build -lcompiler-rt
 
-SECP256K1_SRC := deps/secp256k1/src/precomputed_ecmult.c
-
 all: out build/ckb-js-vm
 
 out:
