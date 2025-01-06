@@ -32,6 +32,7 @@
 #include "cutils.h"
 #include "std_module.h"
 #include "ckb_module.h"
+#include "secp256k1_module.h"
 #include "ckb_exec.h"
 #include "cmdopt.h"
 #include "qjs.h"
@@ -344,6 +345,8 @@ int main(int argc, const char **argv) {
     JS_SetModuleLoaderFunc(rt, NULL, js_module_loader, NULL);
     js_std_add_helpers(ctx, argc - optind, &argv[optind]);
     err = js_init_module_ckb(ctx);
+    CHECK(err);
+    err = js_init_module_secp256k1(ctx);
     CHECK(err);
 
     bool c_bool = cmdopt_has(co, "c");

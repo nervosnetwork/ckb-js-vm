@@ -54,6 +54,16 @@ CFLAGS_BASE_QUICKJS = $(CFLAGS_BASE) \
 	-DEMSCRIPTEN \
 	-DCONFIG_STACK_CHECK \
 	-DCONFIG_VERSION=\"2024-01-13-CKB\"
+CFLAGS_BASE_SECP256k1 = $(CFLAGS_BASE) \
+	-I libc \
+	-I deps/ckb-c-stdlib/libc \
+	-I deps/ckb-c-stdlib \
+	-I deps/secp256k1/src \
+	-I deps/secp256k1/include \
+	-I deps/quickjs \
+	-DCKB_DECLARATION_ONLY \
+	-DECMULT_WINDOW_SIZE=6 \
+	-DENABLE_MODULE_RECOVERY
 
 LDFLAGS := -static --gc-sections
 LDFLAGS += -Ldeps/compiler-rt-builtins-riscv/build -lcompiler-rt
@@ -70,6 +80,7 @@ out:
 	@mkdir -p build/nncp
 	@mkdir -p build/src
 	@mkdir -p build/quickjs
+	@mkdir -p build/secp256k1
 
 deps/compiler-rt-builtins-riscv/build/libcompiler-rt.a:
 	cd deps/compiler-rt-builtins-riscv && make
@@ -95,7 +106,10 @@ build/ckb-js-vm: build/ckb-c-stdlib/impl.o \
                  build/quickjs/libunicode.o \
                  build/quickjs/cutils.o \
                  build/quickjs/libbf.o \
+				 build/secp256k1/secp256k1.o \
+				 build/secp256k1/precomputed_ecmult.o \
                  build/src/ckb_module.o \
+				 build/src/secp256k1_module.o \
                  build/src/qjs.o \
                  build/src/std_module.o \
                  deps/compiler-rt-builtins-riscv/build/libcompiler-rt.a
@@ -116,10 +130,10 @@ build/nncp/%.o: deps/nncp/%.c
 	@echo build $<
 	@$(CC) $(CFLAGS_BASE_NNCP) -c -o $@ $<
 
-# special rule for ckb_module.c
-build/src/ckb_module.o: src/ckb_module.c build/secp256k1_data_info.h
+# special rule for secp256k1_module.c
+build/src/secp256k1_module.o: src/secp256k1_module.c
 	@echo build $<
-	@$(CC) $(CFLAGS_BASE_SRC) -c -o $@ $<
+	@$(CC) $(CFLAGS_BASE_SECP256k1) -c -o $@ $<
 
 build/src/%.o: src/%.c
 	@echo build $<
@@ -138,16 +152,13 @@ benchmark:
 	make -f tests/benchmark/Makefile
 
 # secp256k1
-build/secp256k1_data_info.h: build/dump_secp256k1_data
-	$<
+build/secp256k1/secp256k1.o: deps/secp256k1/src/secp256k1.c
+	@echo build $<
+	$(CC) $(CFLAGS_BASE_SECP256k1) -c -o $@ $<
 
-build/dump_secp256k1_data: src/dump_secp256k1_data.c
-	@mkdir -p build
-	cd deps/secp256k1 && \
-		./autogen.sh && \
-		CC=$(CC) LD=$(LD) LDFLAGS="" ./configure --with-ecmult-window=6 --enable-module-recovery --host=riscv64-unknown-linux-gnu && \
-		make src/precomputed_ecmult.c
-	$(CC) -DECMULT_WINDOW_SIZE=6 -I deps/secp256k1/src -I deps/secp256k1 -o $@ $<
+build/secp256k1/precomputed_ecmult.o: deps/secp256k1/src/precomputed_ecmult.c
+	@echo build $<
+	$(CC) $(CFLAGS_BASE_SECP256k1) -c -o $@ $<
 
 clean:
 	rm -rf build
