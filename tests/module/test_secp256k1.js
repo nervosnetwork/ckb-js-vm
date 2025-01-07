@@ -1,4 +1,5 @@
 import * as secp256k1 from 'secp256k1';
+import * as ckb from 'ckb';
 
 function hexStringToUint8Array(hexString) {
     // Remove any non-hex characters (like spaces and commas)
@@ -26,14 +27,20 @@ function test_recovery() {
         'ce2d0d49d55e810312f7c22702e0548a' +
         '3969ce72940a34632f93ebd1b8d591c3' +
         '775428f035c6577e4adf8068b04819f0');
+    const s = ckb.current_cycles();
     const expected_pubkey = hexStringToUint8Array(
         'aca98c5822b997c15f8c974386a11b14' +
         'a0d009a4d5156e145644573e82ef7e7b' +
         '226b9eb6173d6b4504606eb8d9558bde' +
         '98d12100836e92d306a40f337ed8a0f3');
+    const e = ckb.current_cycles();
+    console.log(`hexStringToUint8Array: ${e - s}`);
 
     // Verify the signature
+    const start = ckb.current_cycles();
     const pubkey = secp256k1.recover(sig.buffer, recid, msg.buffer);
+    const end = ckb.current_cycles();
+    console.log(`recover cycles: ${end - start}`);
     console.assert(
         arrayBufferToHexString(pubkey) ===
             arrayBufferToHexString(expected_pubkey),
@@ -55,8 +62,10 @@ function test_verify() {
         'a0d009a4d5156e145644573e82ef7e7b' +
         '226b9eb6173d6b4504606eb8d9558bde' +
         '98d12100836e92d306a40f337ed8a0f3');
-
+    const start = ckb.current_cycles();
     const success = secp256k1.verify(sig.buffer, msg.buffer, pubkey.buffer);
+    const end = ckb.current_cycles();
+    console.log(`verify cycles: ${end - start}`);
     console.assert(success, 'test_verify failed');
 
     console.log('test_verify ok');
@@ -66,7 +75,10 @@ function test_parse_pubkey() {
     const pubkey = hexStringToUint8Array(
         '0375fbccbf29be9408ed96ca232fb941' +
         'b358e6158ace9fbfe8214c994d38bd9ff9');
+    const start = ckb.current_cycles();
     const out_pubkey = secp256k1.parsePubkey(pubkey.buffer);
+    const end = ckb.current_cycles();
+    console.log(`parsePubkey cycles: ${end - start}`);
     console.assert(
         arrayBufferToHexString(out_pubkey) ===
         "f99fbd384d994c21e8bf9fce8a15e658" +
@@ -83,7 +95,10 @@ function test_serialize_pubkey() {
         'b341b92f23ca96ed0894be29bfccfb75' +
         '3d797a1b2ce723964030b3ef1e31656b' +
         '04a9c3fadcf100a613b385fec85620d1');
+    const start = ckb.current_cycles();
     const out_pubkey = secp256k1.serializePubkey(pubkey.buffer, true);
+    const end = ckb.current_cycles();
+    console.log(`serializePubkey: ${end - start}`);
     console.assert(
         arrayBufferToHexString(out_pubkey) ===
         '0375fbccbf29be9408ed96ca232fb941' +
