@@ -136,18 +136,17 @@ static JSValue verify(JSContext *ctx, JSValueConst this_val, int argc, JSValueCo
         return JS_ThrowTypeError(ctx, "invalid signature");
     }
 
-    // Get public key from second argument
-    pubkey_data = JS_GetArrayBuffer(ctx, &pubkey_len, argv[1]);
+    // Get message hash from second argument
+    msg = JS_GetArrayBuffer(ctx, &msg_len, argv[1]);
+    if (!msg || msg_len != 32) return JS_ThrowTypeError(ctx, "message must be 32 bytes");
+
+    // Get public key from third argument
+    pubkey_data = JS_GetArrayBuffer(ctx, &pubkey_len, argv[2]);
     if (!pubkey_data || pubkey_len != sizeof(secp256k1_pubkey)) {
         return JS_ThrowTypeError(ctx, "invalid public key format");
     }
-
     // Copy the public key data
     memcpy(&pubkey, pubkey_data, sizeof(secp256k1_pubkey));
-
-    // Get message hash from third argument
-    msg = JS_GetArrayBuffer(ctx, &msg_len, argv[2]);
-    if (!msg || msg_len != 32) return JS_ThrowTypeError(ctx, "message must be 32 bytes");
 
     // Perform the verification
     int result = secp256k1_ecdsa_verify(g_secp256k1_context, &signature, msg, &pubkey);
