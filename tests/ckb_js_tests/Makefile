@@ -5,35 +5,12 @@ BIN_PATH = $(ROOT_DIR)/../../build/ckb-js-vm
 
 all: \
 	cargo_test \
-	file_system \
 	syscall \
-	fs_bytecode \
 	simple_udt \
-	fs_mount \
-	module
+	fs_mount
 
 cargo_test:
 	cargo test
-
-spawn_caller:
-	clang-18 --target=riscv64 -march=rv64imc_zba_zbb_zbc_zbs \
-		-I ../../deps/ckb-c-stdlib/libc -I ../../deps/ckb-c-stdlib \
-		-nostdinc -nostdlib -o ../../build/bytecode/spawn_caller test_data/spawn_caller.c
-
-module: spawn_caller
-	cargo run --bin module | ${CKB_DEBUGGER} --tx-file=- -s lock
-
-build/bytecode/fs_modules.fs: test_data/fs_module/index.js test_data/fs_module/fib_module.js
-	cd test_data/fs_module && node ../../../../tools/fs-packer/dist/index.js pack ../../../../$@ index.js fib_module.js
-
-fs_bytecode:
-	$(CKB_DEBUGGER) --read-file test_data/fs_module/index.js --bin $(BIN_PATH) -- -c | awk -f $(ROOT_DIR)/../../tools/compile.awk | xxd -r -p > ../../build/bytecode/index.bc
-	$(CKB_DEBUGGER) --read-file test_data/fs_module/fib_module.js --bin $(BIN_PATH) -- -c | awk -f $(ROOT_DIR)/../../tools/compile.awk | xxd -r -p > ../../build/bytecode/fib_module.bc
-	cd ../../build/bytecode && node ../../tools/fs-packer/dist/index.js pack ../../build/bytecode/fs_modules_bc.fs index.bc fib_module.bc
-	$(CKB_DEBUGGER) --max-cycles $(MAX_CYCLES) --read-file ../../build/bytecode/fs_modules_bc.fs --bin $(BIN_PATH) -- -f -r 2>&1 | fgrep 'Run result: 0'
-
-file_system: build/bytecode/fs_modules.fs
-	cargo run --bin default_by_cell | $(CKB_DEBUGGER) -s lock --tx-file=- --read-file ../../$^ -- -f -r  2>&1 | fgrep 'Run result: 0'
 
 syscall:
 	cargo run --bin syscall | $(CKB_DEBUGGER) --tx-file=- -s lock

@@ -112,6 +112,7 @@ function test_misc() {
 function test_spawn() {
     console.log('test_spawn ...');
     const js_code = `
+    import * as ckb from 'ckb';
     let fds = ckb.inherited_fds();
     ckb.write(fds[0], new Uint8Array([0, 1, 2, 3]));
     ckb.close(fds[0]);
@@ -152,5 +153,3 @@ test_partial_loading_without_comparing(ckb.load_cell);
 test_partial_loading_field_without_comparing(ckb.load_cell_by_field, ckb.CELL_FIELD_CAPACITY);
 test_partial_loading_field_without_comparing(ckb.load_input_by_field, ckb.INPUT_FIELD_OUT_POINT);
 test_spawn()
-
-ckb.exit(0);
