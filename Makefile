@@ -43,6 +43,8 @@ CFLAGS_BASE_SRC = $(CFLAGS_BASE) \
 	-I deps/ckb-c-stdlib \
 	-I deps/nncp \
 	-I deps/quickjs \
+	-I deps/secp256k1/include \
+	-I deps/secp256k1/src \
 	-DCKB_DECLARATION_ONLY \
 	-DCONFIG_BIGNUM
 CFLAGS_BASE_QUICKJS = $(CFLAGS_BASE) \
@@ -54,6 +56,15 @@ CFLAGS_BASE_QUICKJS = $(CFLAGS_BASE) \
 	-DEMSCRIPTEN \
 	-DCONFIG_STACK_CHECK \
 	-DCONFIG_VERSION=\"2024-01-13-CKB\"
+CFLAGS_BASE_SECP256k1 = $(CFLAGS_BASE) \
+	-I libc \
+	-I deps/ckb-c-stdlib/libc \
+	-I deps/ckb-c-stdlib \
+	-I deps/secp256k1/src \
+	-I deps/secp256k1/include \
+	-DCKB_DECLARATION_ONLY \
+	-DECMULT_WINDOW_SIZE=6 \
+	-DENABLE_MODULE_RECOVERY
 
 LDFLAGS := -static --gc-sections
 LDFLAGS += -Ldeps/compiler-rt-builtins-riscv/build -lcompiler-rt
@@ -68,6 +79,7 @@ out:
 	@mkdir -p build/nncp
 	@mkdir -p build/src
 	@mkdir -p build/quickjs
+	@mkdir -p build/secp256k1
 
 deps/compiler-rt-builtins-riscv/build/libcompiler-rt.a:
 	cd deps/compiler-rt-builtins-riscv && make
@@ -93,7 +105,10 @@ build/ckb-js-vm: build/ckb-c-stdlib/impl.o \
                  build/quickjs/libunicode.o \
                  build/quickjs/cutils.o \
                  build/quickjs/libbf.o \
+                 build/secp256k1/secp256k1.o \
+                 build/secp256k1/precomputed_ecmult.o \
                  build/src/ckb_module.o \
+                 build/src/secp256k1_module.o \
                  build/src/qjs.o \
                  build/src/std_module.o \
                  deps/compiler-rt-builtins-riscv/build/libcompiler-rt.a
@@ -125,10 +140,20 @@ build/quickjs/%.o: deps/quickjs/%.c
 test:
 	make -f tests/examples/Makefile
 	make -f tests/basic/Makefile
+	make -f tests/module/Makefile
 	cd tests/ckb_js_tests && make all
 
 benchmark:
 	make -f tests/benchmark/Makefile
+
+# secp256k1
+build/secp256k1/secp256k1.o: deps/secp256k1/src/secp256k1.c
+	@echo build $<
+	$(CC) $(CFLAGS_BASE_SECP256k1) -c -o $@ $<
+
+build/secp256k1/precomputed_ecmult.o: deps/secp256k1/src/precomputed_ecmult.c
+	@echo build $<
+	$(CC) $(CFLAGS_BASE_SECP256k1) -c -o $@ $<
 
 clean:
 	rm -rf build

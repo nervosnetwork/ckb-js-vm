@@ -28,3 +28,6 @@
 #else
 #define BC_VERSION BC_BASE_VERSION
 #endif
+
+// TODO
+// add more error codes here.

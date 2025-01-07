@@ -32,6 +32,7 @@
 #include "cutils.h"
 #include "std_module.h"
 #include "ckb_module.h"
+#include "secp256k1_module.h"
 #include "ckb_exec.h"
 #include "cmdopt.h"
 #include "qjs.h"
@@ -70,24 +71,26 @@ static void js_std_dump_error1(JSContext *ctx, JSValueConst exception_val) {
 
 void js_std_dump_error(JSContext *ctx) {
     JSValue exception_val;
-
     exception_val = JS_GetException(ctx);
     js_std_dump_error1(ctx, exception_val);
     JS_FreeValue(ctx, exception_val);
 }
 
-void js_std_loop(JSContext *ctx) {
+int js_std_loop(JSContext *ctx) {
     JSContext *ctx1;
+    int ret = 0;
     int err;
     for (;;) {
         err = JS_ExecutePendingJob(JS_GetRuntime(ctx), &ctx1);
         if (err <= 0) {
             if (err < 0) {
                 js_std_dump_error(ctx1);
+                ret = -1;
             }
             break;
         }
     }
+    return ret;
 }
 
 int compile_from_file(JSContext *ctx) {
@@ -345,6 +348,8 @@ int main(int argc, const char **argv) {
     js_std_add_helpers(ctx, argc - optind, &argv[optind]);
     err = js_init_module_ckb(ctx);
     CHECK(err);
+    err = js_init_module_secp256k1(ctx);
+    CHECK(err);
 
     bool c_bool = cmdopt_has(co, "c");
     const char *e_data = cmdopt_get(co, "e");
@@ -370,9 +375,8 @@ int main(int argc, const char **argv) {
     } else {
         err = run_from_cell_data(ctx, false);
     }
-    if (err == 0) {
-        js_std_loop(ctx);
-    }
+    CHECK(err);
+    err = js_std_loop(ctx);
     CHECK(err);
 
 #ifdef MEMORY_USAGE
