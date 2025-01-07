@@ -153,3 +153,5 @@ test_partial_loading_without_comparing(ckb.load_cell);
 test_partial_loading_field_without_comparing(ckb.load_cell_by_field, ckb.CELL_FIELD_CAPACITY);
 test_partial_loading_field_without_comparing(ckb.load_input_by_field, ckb.INPUT_FIELD_OUT_POINT);
 test_spawn()
+
+ckb.exit(0);

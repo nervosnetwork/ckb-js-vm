@@ -168,7 +168,7 @@ static int eval_buf(JSContext *ctx, const void *buf, int buf_len, const char *fi
             printf("JS_Eval return a rejected promise");
             JSValue result = JS_PromiseResult(ctx, val);
             printf("This promise returns JSValue with tag: %d", JS_VALUE_GET_TAG(result));
-            ret = -2;
+            ret = 0;
         } else {
             ret = 0;
         }
