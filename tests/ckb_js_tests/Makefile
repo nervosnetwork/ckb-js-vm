@@ -2,7 +2,7 @@ CKB_DEBUGGER ?= ckb-debugger
 MAX_CYCLES ?= 2000000000
 ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 BIN_PATH = $(ROOT_DIR)/../../build/ckb-js-vm
-
+FS_PACKER = node ../../../../tools/fs-packer/dist/index.js
 all: \
 	cargo_test \
 	syscall \
@@ -16,9 +16,8 @@ syscall:
 	cargo run --bin syscall | $(CKB_DEBUGGER) --tx-file=- -s lock
 
 fs_mount:
-	cd test_data/fs_module_mount && node ../../../../tools/fs-packer/dist/index.js pack ../../../../build/bytecode/fib_module.fs fib_module.js
-	cd test_data/fs_module_mount && node ../../../../tools/fs-packer/dist/index.js pack ../../../../build/bytecode/fib_module_mount.fs index.js init.js
-
+	cd test_data/fs_module_mount && $(FS_PACKER) pack ../../../../build/bytecode/fib_module.fs fib_module.js
+	cd test_data/fs_module_mount && $(FS_PACKER) pack ../../../../build/bytecode/fib_module_mount.fs index.js init.js
 	cargo run --bin module_mount | ${CKB_DEBUGGER} --tx-file=- -s lock
 
 simple_udt:
@@ -33,4 +32,4 @@ install-lua:
 
 clean:
 	cargo clean
-	rm -rf ../../build/testdata_fs_modules.bin
+	rm -rf ../../build/bytecode

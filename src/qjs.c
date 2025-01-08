@@ -38,9 +38,7 @@
 #include "qjs.h"
 
 #define INIT_FILE_NAME "init.js"
-#define INIT_FILE_NAME_BC "init.bc"
 #define ENTRY_FILE_NAME "index.js"
-#define ENTRY_FILE_NAME_BC "index.bc"
 
 static void js_dump_obj(JSContext *ctx, JSValueConst val) {
     const char *str;
@@ -167,8 +165,13 @@ static int eval_buf(JSContext *ctx, const void *buf, int buf_len, const char *fi
         if (promise_state == JS_PROMISE_REJECTED) {
             printf("JS_Eval return a rejected promise");
             JSValue result = JS_PromiseResult(ctx, val);
-            printf("This promise returns JSValue with tag: %d", JS_VALUE_GET_TAG(result));
-            ret = 0;
+            const char *str = JS_ToCString(ctx, result);
+            if (str) {
+                printf("This promise returns: %s", str);
+                JS_FreeCString(ctx, str);
+            }
+            JS_FreeValue(ctx, result);
+            ret = -2;
         } else {
             ret = 0;
         }
@@ -183,10 +186,6 @@ int run_from_file_system_buf(JSContext *ctx, char *buf, size_t buf_size) {
 
     FSFile *init_file = NULL;
     err = ckb_get_file(INIT_FILE_NAME, &init_file);
-    if (err != 0) {
-        ckb_get_file(INIT_FILE_NAME_BC, &init_file);
-        // skip error checking
-    }
     if (init_file) {
         err = eval_buf(ctx, init_file->content, init_file->size, INIT_FILE_NAME, 0);
         CHECK(err);
@@ -194,9 +193,6 @@ int run_from_file_system_buf(JSContext *ctx, char *buf, size_t buf_size) {
 
     FSFile *entry_file = NULL;
     err = ckb_get_file(ENTRY_FILE_NAME, &entry_file);
-    if (err != 0) {
-        err = ckb_get_file(ENTRY_FILE_NAME_BC, &entry_file);
-    }
     CHECK(err);
     CHECK2(entry_file->size > 0, -1);
     err = eval_buf(ctx, entry_file->content, entry_file->size, ENTRY_FILE_NAME, 0);

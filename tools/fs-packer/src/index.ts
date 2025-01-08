@@ -39,6 +39,7 @@ async function appendFileToStream(
 ): Promise<void> {
   const content = await fs.readFile(filePath);
   await writeToFile(content, stream);
+  await writeToFile(Buffer.from([0]), stream);
 }
 
 async function appendStringNullToStream(
@@ -72,13 +73,15 @@ async function pack(
   for (const [name, filePath] of Object.entries(files)) {
     console.log(`packing file ${filePath} to ${name}`);
     await appendIntegerToStream(offset, outputStream);
-    length = Buffer.byteLength(name) + 1;
+    length = Buffer.byteLength(name);
     await appendIntegerToStream(length, outputStream);
     offset += length;
+    offset += 1; // add trailing zero
     await appendIntegerToStream(offset, outputStream);
     length = await getFileSize(filePath);
     await appendIntegerToStream(length, outputStream);
     offset += length;
+    offset += 1; // add trailing zero
   }
 
   // Write actual file data
@@ -105,7 +108,6 @@ async function unpack(directory: string, fileContent: Buffer): Promise<void> {
     const value = fileContent
       .toString("utf8", position, position + length)
       .replace(/\0$/, "");
-    position += length;
     return value;
   }
 

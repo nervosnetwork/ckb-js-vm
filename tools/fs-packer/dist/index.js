@@ -88,6 +88,9 @@ function appendFileToStream(filePath, stream) {
                     return [4 /*yield*/, writeToFile(content, stream)];
                 case 2:
                     _a.sent();
+                    return [4 /*yield*/, writeToFile(Buffer.from([0]), stream)];
+                case 3:
+                    _a.sent();
                     return [2 /*return*/];
             }
         });
@@ -145,11 +148,12 @@ function pack(files, outputStream) {
                     return [4 /*yield*/, appendIntegerToStream(offset, outputStream)];
                 case 3:
                     _f.sent();
-                    length = Buffer.byteLength(name_1) + 1;
+                    length = Buffer.byteLength(name_1);
                     return [4 /*yield*/, appendIntegerToStream(length, outputStream)];
                 case 4:
                     _f.sent();
                     offset += length;
+                    offset += 1; // add trailing zero
                     return [4 /*yield*/, appendIntegerToStream(offset, outputStream)];
                 case 5:
                     _f.sent();
@@ -160,6 +164,7 @@ function pack(files, outputStream) {
                 case 7:
                     _f.sent();
                     offset += length;
+                    offset += 1; // add trailing zero
                     _f.label = 8;
                 case 8:
                     _i++;
@@ -208,7 +213,6 @@ function unpack(directory, fileContent) {
             var value = fileContent
                 .toString("utf8", position, position + length)
                 .replace(/\0$/, "");
-            position += length;
             return value;
         }
         function copyToFile(directory, filename, offset, length) {
