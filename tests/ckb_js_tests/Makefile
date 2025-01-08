@@ -4,16 +4,17 @@ ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 BIN_PATH = $(ROOT_DIR)/../../build/ckb-js-vm
 FS_PACKER = node $(ROOT_DIR)/../../tools/fs-packer/dist/index.js
 
-BYTECODE_DIR = ../../build/bytecode
-JS_SOURCE_DIR = test_data/fs_module_mount
+BYTECODE_DIR = $(ROOT_DIR)/../../build/bytecode
+JS_SOURCE_DIR = $(ROOT_DIR)/test_data/fs_module_mount
 BYTECODE_FILES = $(BYTECODE_DIR)/index.bc $(BYTECODE_DIR)/fib_module.bc
 
-%.bc: $(JS_SOURCE_DIR)/%.js
-	$(CKB_DEBUGGER) --read-file $< --bin $(BIN_PATH) -- -c | \
+define compile_js_to_bc
+	$(CKB_DEBUGGER) --read-file $(1) --bin $(BIN_PATH) -- -c | \
 		awk -f $(ROOT_DIR)/../../tools/compile.awk | \
-		xxd -r -p > $@
+		xxd -r -p > $(2)
+endef
 
-all: \
+all: out \
 	cargo_test \
 	syscall \
 	simple_udt \
@@ -21,10 +22,15 @@ all: \
 	fs_bytecode \
 	cell_target
 
+out:
+	@mkdir -p $(ROOT_DIR)/../../build/bytecode
+
 cargo_test:
 	cargo test
 
-fs_bytecode: $(BYTECODE_FILES)
+fs_bytecode:
+	$(call compile_js_to_bc,$(JS_SOURCE_DIR)/index.js,$(BYTECODE_DIR)/index.bc)
+	$(call compile_js_to_bc,$(JS_SOURCE_DIR)/fib_module.js,$(BYTECODE_DIR)/fib_module.bc)
 	cd $(BYTECODE_DIR) && $(FS_PACKER) pack fs_modules_bc.fs $(notdir $(BYTECODE_FILES))
 	$(CKB_DEBUGGER) --max-cycles $(MAX_CYCLES) \
 		--read-file $(BYTECODE_DIR)/fs_modules_bc.fs \
