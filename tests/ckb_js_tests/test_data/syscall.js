@@ -112,6 +112,7 @@ function test_misc() {
 function test_spawn() {
     console.log('test_spawn ...');
     const js_code = `
+    import * as ckb from 'ckb';
     let fds = ckb.inherited_fds();
     ckb.write(fds[0], new Uint8Array([0, 1, 2, 3]));
     ckb.close(fds[0]);
