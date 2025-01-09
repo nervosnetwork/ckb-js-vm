@@ -34,6 +34,7 @@
 #include "ckb_module.h"
 #include "secp256k1_module.h"
 #include "hash_module.h"
+#include "misc_module.h"
 #include "ckb_exec.h"
 #include "cmdopt.h"
 #include "qjs.h"
@@ -369,6 +370,8 @@ int main(int argc, const char **argv) {
     err = js_init_module_secp256k1(ctx);
     CHECK(err);
     err = js_init_module_hash(ctx);
+    CHECK(err);
+    err = js_init_module_misc(ctx);
     CHECK(err);
 
     bool c_bool = cmdopt_has(co, "c");
