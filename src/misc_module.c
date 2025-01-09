@@ -121,9 +121,14 @@ static JSValue js_encode_hex(JSContext *ctx, JSValueConst this_val, int argc, JS
     char *hex = js_malloc(ctx, data_len * 2 + 1);
     if (!hex) return JS_ThrowOutOfMemory(ctx);
 
+    // Lookup table for hex conversion
+    static const char hex_chars[] = "0123456789abcdef";
+
     for (size_t i = 0; i < data_len; i++) {
-        sprintf(hex + (i * 2), "%02x", data[i]);
+        hex[i * 2] = hex_chars[data[i] >> 4];
+        hex[i * 2 + 1] = hex_chars[data[i] & 0x0F];
     }
+    hex[data_len * 2] = '\0';
 
     JSValue result = JS_NewString(ctx, hex);
     js_free(ctx, hex);
