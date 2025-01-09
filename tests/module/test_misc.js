@@ -12,11 +12,11 @@ function test_ckb_smt_verify1() {
     const proofHex =
         '4c4fff51ff322de8a89fe589987f97220cfcb6820bd798b31a0b56ffea221093d35f909e580b00000000000000000000000000000000000000000000000000000000000000';
 
-    // Update the conversions to use misc.encoding.decodeHex
-    const key = misc.encoding.decodeHex(keyHex);
-    const value = misc.encoding.decodeHex(valueHex);
-    const rootHash = misc.encoding.decodeHex(rootHashHex);
-    const proof = misc.encoding.decodeHex(proofHex);
+    // Update the conversions to use misc.hex.decode
+    const key = misc.hex.decode(keyHex);
+    const value = misc.hex.decode(valueHex);
+    const rootHash = misc.hex.decode(rootHashHex);
+    const proof = misc.hex.decode(proofHex);
 
     // Create new SMT instance
     const smt = new misc.Smt();
@@ -47,10 +47,10 @@ function test_ckb_smt_verify2() {
     const proofHex =
         '4c4fff51fa8aaa2aece17b92ec3f202a40a09f7286522bae1e5581a2a49195ab6781b1b8090000000000000000000000000000000000000000000000000000000000000000';
 
-    const key = misc.encoding.decodeHex(keyHex);
-    const value = misc.encoding.decodeHex(valueHex);
-    const rootHash = misc.encoding.decodeHex(rootHashHex);
-    const proof = misc.encoding.decodeHex(proofHex);
+    const key = misc.hex.decode(keyHex);
+    const value = misc.hex.decode(valueHex);
+    const rootHash = misc.hex.decode(rootHashHex);
+    const proof = misc.hex.decode(proofHex);
 
     const smt = new misc.Smt();
 
@@ -78,10 +78,10 @@ function test_ckb_smt_verify3() {
     const proofHex =
         '4c4fff51fa8aaa2aece17b92ec3f202a40a09f7286522bae1e5581a2a49195ab6781b1b8090000000000000000000000000000000000000000000000000000000000000000';
 
-    const key = misc.encoding.decodeHex(keyHex);
-    const value = misc.encoding.decodeHex(valueHex);
-    const rootHash = misc.encoding.decodeHex(rootHashHex);
-    const proof = misc.encoding.decodeHex(proofHex);
+    const key = misc.hex.decode(keyHex);
+    const value = misc.hex.decode(valueHex);
+    const rootHash = misc.hex.decode(rootHashHex);
+    const proof = misc.hex.decode(proofHex);
 
     const smt = new misc.Smt();
 
@@ -109,10 +109,10 @@ function test_ckb_smt_verify_invalid() {
     const proofHex =
         '4c50fe32845309d34f132cd6f7ac6a7881962401adc35c19a18d4fffeb511b97eabf86';
 
-    const key = misc.encoding.decodeHex(keyHex);
-    const value = misc.encoding.decodeHex(valueHex);
-    const rootHash = misc.encoding.decodeHex(rootHashHex);
-    const proof = misc.encoding.decodeHex(proofHex);
+    const key = misc.hex.decode(keyHex);
+    const value = misc.hex.decode(valueHex);
+    const rootHash = misc.hex.decode(rootHashHex);
+    const proof = misc.hex.decode(proofHex);
 
     const smt = new misc.Smt();
 
@@ -134,8 +134,8 @@ function test_base64_encode() {
     const inputHex = '48656c6c6f20576f726c6421'; // "Hello World!" in hex
     const expectedBase64 = 'SGVsbG8gV29ybGQh';
 
-    const input = misc.encoding.decodeHex(inputHex);
-    const encoded = misc.encoding.encodeBase64(input);
+    const input = misc.hex.decode(inputHex);
+    const encoded = misc.base64.encode(input);
 
     console.assert(encoded === expectedBase64, 'Base64 encoding failed');
     console.log('test_base64_encode ok');
@@ -145,8 +145,8 @@ function test_base64_decode() {
     const base64Input = 'SGVsbG8gV29ybGQh'; // "Hello World!" in base64
     const expectedHex = '48656c6c6f20576f726c6421';
 
-    const decoded = misc.encoding.decodeBase64(base64Input);
-    const result = misc.encoding.encodeHex(decoded);
+    const decoded = misc.base64.decode(base64Input);
+    const result = misc.hex.encode(decoded);
 
     console.assert(result === expectedHex, 'Base64 decoding failed');
     console.log('test_base64_decode ok');

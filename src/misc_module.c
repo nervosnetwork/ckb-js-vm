@@ -267,6 +267,17 @@ static JSValue js_decode_base64(JSContext *ctx, JSValueConst this_val, int argc,
     return JS_NewArrayBufferCopy(ctx, data, data_len);
 }
 
+// Update the function list to include hex and base64 functions under separate objects
+static const JSCFunctionListEntry js_hex_funcs[] = {
+    JS_CFUNC_DEF("encode", 1, js_encode_hex),
+    JS_CFUNC_DEF("decode", 1, js_decode_hex),
+};
+
+static const JSCFunctionListEntry js_base64_funcs[] = {
+    JS_CFUNC_DEF("encode", 1, js_encode_base64),
+    JS_CFUNC_DEF("decode", 1, js_decode_base64),
+};
+
 // SMT class definition
 static const JSCFunctionListEntry js_smt_proto_funcs[] = {
     JS_CFUNC_DEF("insert", 2, js_smt_insert),
@@ -278,13 +289,6 @@ static const JSClassDef js_smt_class = {
     .finalizer = js_smt_finalizer,
 };
 
-// Update the function list to include both SMT and encoding functions
-static const JSCFunctionListEntry js_misc_funcs[] = {
-    JS_CFUNC_DEF("encodeHex", 1, js_encode_hex),
-    JS_CFUNC_DEF("decodeHex", 1, js_decode_hex),
-    JS_CFUNC_DEF("encodeBase64", 1, js_encode_base64),
-    JS_CFUNC_DEF("decodeBase64", 1, js_decode_base64),
-};
 
 static int js_misc_init(JSContext *ctx, JSModuleDef *m) {
     JSValue proto, obj;
@@ -305,10 +309,15 @@ static int js_misc_init(JSContext *ctx, JSModuleDef *m) {
     // Export the SMT constructor and encoding functions
     JS_SetModuleExport(ctx, m, "Smt", obj);
 
-    // Create module object for encoding functions
-    JSValue encoding = JS_NewObject(ctx);
-    JS_SetPropertyFunctionList(ctx, encoding, js_misc_funcs, countof(js_misc_funcs));
-    JS_SetModuleExport(ctx, m, "encoding", encoding);
+    // Create hex object and add functions
+    JSValue hex = JS_NewObject(ctx);
+    JS_SetPropertyFunctionList(ctx, hex, js_hex_funcs, countof(js_hex_funcs));
+    JS_SetModuleExport(ctx, m, "hex", hex);
+
+    // Create base64 object and add functions
+    JSValue base64 = JS_NewObject(ctx);
+    JS_SetPropertyFunctionList(ctx, base64, js_base64_funcs, countof(js_base64_funcs));
+    JS_SetModuleExport(ctx, m, "base64", base64);
 
     return 0;
 }
@@ -319,6 +328,7 @@ int js_init_module_misc(JSContext *ctx) {
     if (!m) return -1;
 
     JS_AddModuleExport(ctx, m, "Smt");
-    JS_AddModuleExport(ctx, m, "encoding");
+    JS_AddModuleExport(ctx, m, "hex");
+    JS_AddModuleExport(ctx, m, "base64");
     return 0;
 }

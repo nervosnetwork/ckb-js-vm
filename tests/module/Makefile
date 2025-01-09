@@ -18,4 +18,4 @@ endef
 all:
 	$(call run,test_secp256k1.js)
 	$(call run,test_hash.js)
-	$(call debug,test_misc.js)
+	$(call run,test_misc.js)
