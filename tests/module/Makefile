@@ -17,4 +17,4 @@ endef
 
 all:
 	$(call run,test_secp256k1.js)
-	$(call debug,test_hash.js)
+	$(call run,test_hash.js)
