@@ -294,6 +294,21 @@ static const JSClassDef js_smt_class = {
     .finalizer = js_smt_finalizer,
 };
 
+// Add these new function definitions
+static JSValue js_throw_exception(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv) {
+    const char *message = "Test exception";
+    if (argc > 0) {
+        message = JS_ToCString(ctx, argv[0]);
+        if (!message) return JS_EXCEPTION;
+    }
+    JSValue error = JS_ThrowInternalError(ctx, "This is a test exception, %s", message);
+    if (argc > 0) JS_FreeCString(ctx, message);
+    return error;
+}
+
+static const JSCFunctionListEntry js_test_funcs[] = {
+    JS_CFUNC_DEF("throw_exception", 1, js_throw_exception),
+};
 
 static int js_misc_init(JSContext *ctx, JSModuleDef *m) {
     JSValue proto, obj;
@@ -324,6 +339,11 @@ static int js_misc_init(JSContext *ctx, JSModuleDef *m) {
     JS_SetPropertyFunctionList(ctx, base64, js_base64_funcs, countof(js_base64_funcs));
     JS_SetModuleExport(ctx, m, "base64", base64);
 
+    // Create test object and add functions
+    JSValue test = JS_NewObject(ctx);
+    JS_SetPropertyFunctionList(ctx, test, js_test_funcs, countof(js_test_funcs));
+    JS_SetModuleExport(ctx, m, "test", test);
+
     return 0;
 }
 
@@ -335,5 +355,6 @@ int js_init_module_misc(JSContext *ctx) {
     JS_AddModuleExport(ctx, m, "Smt");
     JS_AddModuleExport(ctx, m, "hex");
     JS_AddModuleExport(ctx, m, "base64");
+    JS_AddModuleExport(ctx, m, "test");
     return 0;
 }
