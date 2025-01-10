@@ -1,7 +1,7 @@
 import * as misc from 'misc';
 import * as ckb from 'ckb';
 
-function test_ckb_smt_verify1() {
+function test_ckb_smt_verify1(failure) {
     // Test vectors from the Rust example
     const keyHex =
         '381dc5391dab099da5e28acd1ad859a051cf18ace804d037f12819c6fbc0e18b';
@@ -27,17 +27,28 @@ function test_ckb_smt_verify1() {
     const endInsert = ckb.current_cycles();
     console.log(`SMT insert cycles: ${endInsert - startInsert}`);
 
-    // Verify proof and measure cycles
-    const startVerify = ckb.current_cycles();
-    const isValid = smt.verify(rootHash, proof);
-    const endVerify = ckb.current_cycles();
-    console.log(`SMT verify cycles: ${endVerify - startVerify}`);
+    if (failure) {
+        // Verify proof and measure cycles
+        const startVerify = ckb.current_cycles();
+        const wrongRootHash = misc.hex.decode(
+            '0000000000000000000000000000000000000000000000000000000000000000');
+        const isValid = smt.verify(wrongRootHash, proof);
+        const endVerify = ckb.current_cycles();
+        console.log(`SMT verify cycles: ${endVerify - startVerify}`);
+        console.assert(isValid === false, 'SMT verification should fail');
+    } else {
+        // Verify proof and measure cycles
+        const startVerify = ckb.current_cycles();
+        const isValid = smt.verify(rootHash, proof);
+        const endVerify = ckb.current_cycles();
+        console.log(`SMT verify cycles: ${endVerify - startVerify}`);
+        console.assert(isValid === true, 'SMT verification failed');
+    }
 
-    console.assert(isValid === true, 'SMT verification failed');
     console.log('test_ckb_smt_verify1 ok');
 }
 
-function test_ckb_smt_verify2() {
+function test_ckb_smt_verify2(failure) {
     const keyHex =
         'a9bb945be71f0bd2757d33d2465b6387383da42f321072e47472f0c9c7428a8a';
     const valueHex =
@@ -59,12 +70,21 @@ function test_ckb_smt_verify2() {
     const endInsert = ckb.current_cycles();
     console.log(`SMT verify2 insert cycles: ${endInsert - startInsert}`);
 
-    const startVerify = ckb.current_cycles();
-    const isValid = smt.verify(rootHash, proof);
-    const endVerify = ckb.current_cycles();
-    console.log(`SMT verify2 verify cycles: ${endVerify - startVerify}`);
-
-    console.assert(isValid === true, 'SMT verification2 failed');
+    if (failure) {
+        const startVerify = ckb.current_cycles();
+        const wrongProof = misc.hex.decode(
+            '0000000000000000000000000000000000000000000000000000000000000000');
+        const isValid = smt.verify(rootHash, wrongProof);
+        const endVerify = ckb.current_cycles();
+        console.log(`SMT verify2 verify cycles: ${endVerify - startVerify}`);
+        console.assert(isValid === false, 'SMT verification2 should fail');
+    } else {
+        const startVerify = ckb.current_cycles();
+        const isValid = smt.verify(rootHash, proof);
+        const endVerify = ckb.current_cycles();
+        console.log(`SMT verify2 verify cycles: ${endVerify - startVerify}`);
+        console.assert(isValid === true, 'SMT verification2 failed');
+    }
     console.log('test_ckb_smt_verify2 ok');
 }
 
@@ -131,7 +151,7 @@ function test_ckb_smt_verify_invalid() {
 }
 
 function test_base64_encode() {
-    const inputHex = '48656c6c6f20576f726c6421'; // "Hello World!" in hex
+    const inputHex = '48656c6c6f20576f726c6421';  // "Hello World!" in hex
     const expectedBase64 = 'SGVsbG8gV29ybGQh';
 
     const input = misc.hex.decode(inputHex);
@@ -142,7 +162,7 @@ function test_base64_encode() {
 }
 
 function test_base64_decode() {
-    const base64Input = 'SGVsbG8gV29ybGQh'; // "Hello World!" in base64
+    const base64Input = 'SGVsbG8gV29ybGQh';  // "Hello World!" in base64
     const expectedHex = '48656c6c6f20576f726c6421';
 
     const decoded = misc.base64.decode(base64Input);
@@ -154,8 +174,10 @@ function test_base64_decode() {
 
 // Add the new test cases to the main execution
 console.log('test_misc.js ...');
-test_ckb_smt_verify1();
-test_ckb_smt_verify2();
+test_ckb_smt_verify1(true);
+test_ckb_smt_verify1(false);
+test_ckb_smt_verify2(true);
+test_ckb_smt_verify2(false);
 test_ckb_smt_verify3();
 test_ckb_smt_verify_invalid();
 test_base64_encode();
