@@ -110,6 +110,7 @@ build/ckb-js-vm: build/ckb-c-stdlib/impl.o \
                  build/src/ckb_module.o \
                  build/src/secp256k1_module.o \
 				 build/src/hash_module.o \
+				 build/src/misc_module.o \
                  build/src/qjs.o \
                  build/src/std_module.o \
                  deps/compiler-rt-builtins-riscv/build/libcompiler-rt.a
