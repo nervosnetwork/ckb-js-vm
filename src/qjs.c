@@ -128,11 +128,16 @@ int compile_from_file(JSContext *ctx) {
     return 0;
 }
 
-static int eval_buf(JSContext *ctx, const void *buf, int buf_len, const char *filename, int eval_flags) {
+static int eval_buf(JSContext *ctx, const void *buf, int buf_len, const char *filename) {
     JSValue val;
     int ret;
-
-    if (JS_DetectModule(buf, buf_len)) eval_flags |= JS_EVAL_TYPE_MODULE;
+    /* Use module mode by default for better security and modern JS features:
+     * - Enables strict mode automatically
+     * - Disables legacy unsafe features like 'with' statements
+     * - Allows import/export statements
+     * - Provides better scoping isolation
+     */
+    int eval_flags = JS_EVAL_TYPE_MODULE;
 
     if (((const char *)buf)[0] == (char)BC_VERSION) {
         val = JS_ReadObject(ctx, buf, buf_len, JS_READ_OBJ_BYTECODE);
@@ -194,7 +199,7 @@ int run_from_file_system_buf(JSContext *ctx, char *buf, size_t buf_size) {
         // skip error checking
     }
     if (init_file) {
-        err = eval_buf(ctx, init_file->content, init_file->size, INIT_FILE_NAME, 0);
+        err = eval_buf(ctx, init_file->content, init_file->size, INIT_FILE_NAME);
         CHECK(err);
     }
 
@@ -205,7 +210,7 @@ int run_from_file_system_buf(JSContext *ctx, char *buf, size_t buf_size) {
     }
     CHECK(err);
     CHECK2(entry_file->size > 0, -1);
-    err = eval_buf(ctx, entry_file->content, entry_file->size, ENTRY_FILE_NAME, 0);
+    err = eval_buf(ctx, entry_file->content, entry_file->size, ENTRY_FILE_NAME);
     CHECK(err);
 
 exit:
@@ -229,7 +234,7 @@ static int run_from_local_file(JSContext *ctx, bool enable_fs) {
         return run_from_file_system_buf(ctx, buf, (size_t)count);
     } else {
         buf[count] = 0;
-        return eval_buf(ctx, buf, count, "<run_from_file>", 0);
+        return eval_buf(ctx, buf, count, "<run_from_file>");
     }
 }
 
@@ -254,7 +259,7 @@ static int run_from_cell_data(JSContext *ctx, bool enable_fs) {
         return err;
     } else {
         buf[buf_size] = 0;
-        err = eval_buf(ctx, buf, buf_size, "<run_from_file>", 0);
+        err = eval_buf(ctx, buf, buf_size, "<run_from_file>");
         free(buf);
         return err;
     }
@@ -292,7 +297,7 @@ static int run_from_target(JSContext *ctx, const char *target, bool enable_fs) {
         return err;
     } else {
         buf[buf_size] = 0;
-        err = eval_buf(ctx, buf, buf_size, "<run_from_file>", 0);
+        err = eval_buf(ctx, buf, buf_size, "<run_from_file>");
         free(buf);
         return err;
     }
@@ -379,7 +384,7 @@ int main(int argc, const char **argv) {
         JS_SetModuleLoaderFunc(rt, NULL, js_module_dummy_loader, NULL);
         err = compile_from_file(ctx);
     } else if (e_data) {
-        err = eval_buf(ctx, e_data, strlen(e_data), "<cmdline>", 0);
+        err = eval_buf(ctx, e_data, strlen(e_data), "<cmdline>");
     } else if (r_bool && f_bool) {
         err = run_from_local_file(ctx, true);
     } else if (r_bool) {
