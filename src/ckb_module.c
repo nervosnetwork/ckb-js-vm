@@ -568,8 +568,10 @@ static JSValue mount(JSContext *ctx, JSValueConst this_value, int argc, JSValueC
     }
 }
 
-JSValue eval_script(JSContext *ctx, const char *str, int len) {
-    JSValue val = JS_Eval(ctx, str, len, "<evalScript>", JS_EVAL_TYPE_MODULE);
+JSValue eval_script(JSContext *ctx, const char *str, int len, bool enable_module) {
+    int eval_flags = enable_module ? JS_EVAL_TYPE_MODULE : (JS_EVAL_FLAG_ASYNC | JS_EVAL_TYPE_GLOBAL);
+
+    JSValue val = JS_Eval(ctx, str, len, "<evalScript>", eval_flags);
 
     if (JS_IsException(val)) {
         JS_Throw(ctx, val);
@@ -614,17 +616,22 @@ JSValue eval_script(JSContext *ctx, const char *str, int len) {
 static JSValue js_eval_script(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv) {
     const char *str;
     size_t len;
-    JSValue val;
     JSValue ret;
+    bool enable_module = false;
 
     if (argc < 1) {
-        return JS_ThrowTypeError(ctx, "evalScript requires 1 argument");
+        return JS_ThrowTypeError(ctx, "evalScript requires at least 1 argument");
+    }
+
+    // Get enable_module flag if provided
+    if (argc > 1) {
+        enable_module = JS_ToBool(ctx, argv[1]);
     }
 
     str = JS_ToCStringLen(ctx, &len, argv[0]);
     if (!str) return JS_EXCEPTION;
 
-    ret = eval_script(ctx, str, len);
+    ret = eval_script(ctx, str, len, enable_module);
     JS_FreeCString(ctx, str);
     return ret;
 }
@@ -676,12 +683,20 @@ exit:
 }
 
 static JSValue js_load_script(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv) {
+    bool enable_module = false;
+
+    // Get enable_module flag if provided
+    if (argc > 1) {
+        enable_module = JS_ToBool(ctx, argv[1]);
+    }
+
     JSValue ret = js_load_file(ctx, this_val, argc, argv);
     if (JS_IsException(ret)) return ret;
+
     size_t len = 0;
     const char *str = JS_ToCStringLen(ctx, &len, ret);
     JS_FreeValue(ctx, ret);
-    ret = eval_script(ctx, str, len);
+    ret = eval_script(ctx, str, len, enable_module);
     JS_FreeCString(ctx, str);
     return ret;
 }
@@ -726,8 +741,8 @@ static const JSCFunctionListEntry js_ckb_funcs[] = {
     JS_CFUNC_DEF("process_id", 0, syscall_process_id),
     JS_CFUNC_DEF("load_block_extension", 3, syscall_load_block_extension),
     JS_CFUNC_DEF("mount", 2, mount),
-    JS_CFUNC_DEF("evalScript", 1, js_eval_script),
-    JS_CFUNC_DEF("loadScript", 1, js_load_script),
+    JS_CFUNC_DEF("evalScript", 2, js_eval_script),
+    JS_CFUNC_DEF("loadScript", 2, js_load_script),
     JS_CFUNC_DEF("loadFile", 1, js_load_file),
     JS_CFUNC_DEF("parseExtJSON", 1, js_parse_ext_json),
 
