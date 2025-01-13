@@ -8,25 +8,6 @@
 #include "ckb_cell_fs.h"
 #include "qjs.h"
 
-#define CHECK2(cond, code)                                                           \
-    do {                                                                             \
-        if (!(cond)) {                                                               \
-            err = code;                                                              \
-            printf("checking failed on %s:%d, code = %d", __FILE__, __LINE__, code); \
-            goto exit;                                                               \
-        }                                                                            \
-    } while (0)
-
-#define CHECK(_code)                                                                 \
-    do {                                                                             \
-        int code = (_code);                                                          \
-        if (code != 0) {                                                             \
-            err = code;                                                              \
-            printf("checking failed on %s:%d, code = %d", __FILE__, __LINE__, code); \
-            goto exit;                                                               \
-        }                                                                            \
-    } while (0)
-
 // For syscalls supporting partial loading, the arguments are described as:
 // argument 1: index
 // argument 2: source
@@ -587,6 +568,136 @@ static JSValue mount(JSContext *ctx, JSValueConst this_value, int argc, JSValueC
     }
 }
 
+JSValue eval_script(JSContext *ctx, const char *str, int len) {
+    JSValue val = JS_Eval(ctx, str, len, "<evalScript>", JS_EVAL_TYPE_MODULE);
+
+    if (JS_IsException(val)) {
+        JS_Throw(ctx, val);
+        return JS_EXCEPTION;
+    }
+
+    // Handle promise states
+    int promise_state = JS_PromiseState(ctx, val);
+    if (promise_state >= 0) {
+        switch (promise_state) {
+            case JS_PROMISE_REJECTED: {
+                JSValue error = JS_PromiseResult(ctx, val);
+                JS_FreeValue(ctx, val);
+                JS_Throw(ctx, error);
+                val = JS_EXCEPTION;
+                break;
+            }
+            case JS_PROMISE_FULFILLED: {
+                JSValue ret = JS_PromiseResult(ctx, val);
+                JS_FreeValue(ctx, val);
+                val = ret;
+                break;
+            }
+            case JS_PROMISE_PENDING: {
+                JS_FreeValue(ctx, val);
+                val = JS_ThrowInternalError(ctx, "invalid promise state in evalScript: pending");
+                break;
+            }
+            default: {
+                JS_FreeValue(ctx, val);
+                printf("unknown promise state: %d", promise_state);
+                val = JS_ThrowInternalError(ctx, "unknown promise state in evalScript");
+                break;
+            }
+        }
+    }
+
+    // Non-promise result
+    return val;
+}
+
+static JSValue js_eval_script(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv) {
+    const char *str;
+    size_t len;
+    JSValue val;
+    JSValue ret;
+
+    if (argc < 1) {
+        return JS_ThrowTypeError(ctx, "evalScript requires 1 argument");
+    }
+
+    str = JS_ToCStringLen(ctx, &len, argv[0]);
+    if (!str) return JS_EXCEPTION;
+
+    ret = eval_script(ctx, str, len);
+    JS_FreeCString(ctx, str);
+    return ret;
+}
+
+static JSValue js_load_file(JSContext *ctx, JSValueConst _this_val, int argc, JSValueConst *argv) {
+    uint8_t *buf = NULL;
+    const char *filename = NULL;
+    JSValue ret = JS_EXCEPTION;
+    size_t buf_len = 0;
+    int err = 0;
+
+    filename = JS_ToCString(ctx, argv[0]);
+    CHECK2(filename != NULL, -1);
+
+    size_t index = 0;
+    bool use_filesystem = false;
+    err = load_cell_code_info(&buf_len, &index, &use_filesystem);
+    CHECK(err);
+
+    buf = js_malloc(ctx, buf_len + 1);
+    CHECK2(buf != NULL, 0);
+
+    err = load_cell_code(buf_len, index, buf);
+    CHECK(err);
+
+    if (use_filesystem) {
+        // don't need to load file system for a single file.
+        // it should be mounted or initialized before.
+        FSFile *file_handler = NULL;
+        err = ckb_get_file(filename, &file_handler);
+        CHECK(err);
+        ret = JS_NewStringLen(ctx, file_handler->content, file_handler->size);
+    } else {
+        ret = JS_ThrowInternalError(ctx, "loadFile fail: filesystem is disabled.");
+    }
+
+exit:
+    if (buf) {
+        js_free(ctx, buf);
+    }
+    if (filename) {
+        JS_FreeCString(ctx, filename);
+    }
+    if (err) {
+        return JS_EXCEPTION;
+    } else {
+        return ret;
+    }
+}
+
+static JSValue js_load_script(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv) {
+    JSValue ret = js_load_file(ctx, this_val, argc, argv);
+    if (JS_IsException(ret)) return ret;
+    size_t len = 0;
+    const char *str = JS_ToCStringLen(ctx, &len, ret);
+    JS_FreeValue(ctx, ret);
+    ret = eval_script(ctx, str, len);
+    JS_FreeCString(ctx, str);
+    return ret;
+}
+
+static JSValue js_parse_ext_json(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv) {
+    JSValue obj;
+    const char *str;
+    size_t len;
+
+    str = JS_ToCStringLen(ctx, &len, argv[0]);
+    if (!str) return JS_EXCEPTION;
+    obj = JS_ParseJSON2(ctx, str, len, "<input>", JS_PARSE_JSON_EXT);
+    JS_FreeCString(ctx, str);
+    return obj;
+}
+
 static const JSCFunctionListEntry js_ckb_funcs[] = {
     JS_CFUNC_DEF("exit", 1, syscall_exit),
     JS_CFUNC_DEF("load_tx_hash", 1, syscall_load_tx_hash),
@@ -615,6 +726,10 @@ static const JSCFunctionListEntry js_ckb_funcs[] = {
     JS_CFUNC_DEF("process_id", 0, syscall_process_id),
     JS_CFUNC_DEF("load_block_extension", 3, syscall_load_block_extension),
     JS_CFUNC_DEF("mount", 2, mount),
+    JS_CFUNC_DEF("evalScript", 1, js_eval_script),
+    JS_CFUNC_DEF("loadScript", 1, js_load_script),
+    JS_CFUNC_DEF("loadFile", 1, js_load_file),
+    JS_CFUNC_DEF("parseExtJSON", 1, js_parse_ext_json),
 
     // Constants
     JS_PROP_INT64_DEF("SOURCE_INPUT", CKB_SOURCE_INPUT, JS_PROP_ENUMERABLE),
