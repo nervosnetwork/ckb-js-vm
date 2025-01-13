@@ -20,7 +20,8 @@ all: out \
 	simple_udt \
 	fs_mount \
 	fs_bytecode \
-	cell_target
+	cell_target \
+	load_script
 
 out:
 	@mkdir -p $(ROOT_DIR)/../../build/bytecode
@@ -44,6 +45,10 @@ fs_mount:
 	cd test_data/fs_module_mount && $(FS_PACKER) pack ../../../../build/bytecode/fib_module.fs fib_module.js
 	cd test_data/fs_module_mount && $(FS_PACKER) pack ../../../../build/bytecode/fib_module_mount.fs index.js init.js
 	cargo run --bin module_mount | ${CKB_DEBUGGER} --tx-file=- -s lock
+
+load_script:
+	cd test_data/load_script && $(FS_PACKER) pack ../../../../build/bytecode/load_script.fs index.js fib_module.js fib.js
+	cargo run --bin load_script | ${CKB_DEBUGGER} --tx-file=- -s lock
 
 simple_udt:
 	cargo run --bin simple_udt | $(CKB_DEBUGGER) --tx-file=- --script-group-type type --cell-type output --cell-index 0
