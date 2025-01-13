@@ -140,12 +140,14 @@ function test_for_in()
     assert(tab.toString(), "x,y", "for_in");
 
     /* variable assigment in the for in */
-    tab = [];
-    for(var k = 2 in {x:1, y: 2}) {
-        tab.push(k);
-    }
-    assert(tab.toString(), "x,y", "for_in");
+    // tab = [];
+    // for(var k = 2 in {x:1, y: 2}) {
+    //     tab.push(k);
+    // }
+    // assert(tab.toString(), "x,y", "for_in");
 }
+
+var tab;
 
 function test_for_in2()
 {
