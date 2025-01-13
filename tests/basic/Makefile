@@ -22,6 +22,9 @@ qjs-tests:
 	$(call run,test_bignum.js)
 	$(call run,test_float.js)
 
+exception:
+	$(call debug,test_exception.js)
+
 log:
 	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e "console.log(scriptArgs[0], scriptArgs[1]);" hello world
 

@@ -168,14 +168,9 @@ static int eval_buf(JSContext *ctx, const void *buf, int buf_len, const char *fi
         if ((eval_flags & JS_EVAL_TYPE_MASK) == JS_EVAL_TYPE_MODULE) {
             int promise_state = JS_PromiseState(ctx, val);
             if (promise_state == JS_PROMISE_REJECTED) {
-                printf("JS_Eval return a rejected promise");
-                JSValue result = JS_PromiseResult(ctx, val);
-                const char *str = JS_ToCString(ctx, result);
-                if (str) {
-                    printf("This promise returns: %s", str);
-                    JS_FreeCString(ctx, str);
-                }
-                JS_FreeValue(ctx, result);
+                JSValue error = JS_PromiseResult(ctx, val);
+                js_std_dump_error1(ctx, error);
+                JS_FreeValue(ctx, error);
                 ret = -2;
             } else {
                 ret = 0;

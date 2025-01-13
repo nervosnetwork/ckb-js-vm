@@ -52,7 +52,6 @@ static JSValue ThrowError(JSContext *ctx, int32_t error_code, const char *messag
     JSValue obj, ret;
     obj = JS_NewError(ctx);
     if (unlikely(JS_IsException(obj))) {
-        /* out of memory: throw JS_NULL to avoid recursing */
         obj = JS_NULL;
     } else {
         JS_DefinePropertyValueStr(ctx, obj, "message", JS_NewString(ctx, message),
@@ -60,10 +59,8 @@ static JSValue ThrowError(JSContext *ctx, int32_t error_code, const char *messag
         JS_DefinePropertyValueStr(ctx, obj, "errorCode", JS_NewInt32(ctx, error_code),
                                   JS_PROP_WRITABLE | JS_PROP_CONFIGURABLE);
     }
-    // TODO
-    // if (add_backtrace) {
-    //     build_backtrace(ctx, obj, NULL, 0, 0);
-    // }
+    // Syscall errors are expected to occur frequently during normal operation.
+    // We intentionally skip generating stack traces here to avoid performance overhead
     ret = JS_Throw(ctx, obj);
     return ret;
 }
@@ -590,14 +587,6 @@ static JSValue mount(JSContext *ctx, JSValueConst this_value, int argc, JSValueC
     }
 }
 
-/*
-TODO:
-// who allocated the memory indicated by aligned_addr?
-int ckb_dlopen2(const uint8_t* dep_cell_hash, uint8_t hash_type,
-                uint8_t* aligned_addr, size_t aligned_size, void** handle,
-                size_t* consumed_size);
-void* ckb_dlsym(void* handle, const char* symbol);
-*/
 static const JSCFunctionListEntry js_ckb_funcs[] = {
     JS_CFUNC_DEF("exit", 1, syscall_exit),
     JS_CFUNC_DEF("load_tx_hash", 1, syscall_load_tx_hash),
