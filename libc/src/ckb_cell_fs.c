@@ -17,9 +17,20 @@ int get_file(const CellFileSystem *fs, const char *filename, FSFile **f) {
     CellFileSystem *cfs = (CellFileSystem *)fs;
     CellFileSystemNode *node = cfs->current;
     while (node != NULL) {
+        size_t filename_len = strlen(filename);
+        size_t prefix_len = strlen(node->prefix);
+        if (prefix_len > filename_len) {
+            if (cfs->next == NULL) {
+                break;
+            }
+            cfs = cfs->next;
+            node = cfs->current;
+            continue;
+        }
+        const char *filename_without_prefix = filename + prefix_len;
         for (uint32_t i = 0; i < node->count; i++) {
             FSEntry entry = node->files[i];
-            if (strcmp(filename, node->start + entry.filename.offset) == 0) {
+            if (strcmp(filename_without_prefix, node->start + entry.filename.offset) == 0) {
                 // TODO: check the memory addresses are legal
                 file->filename = filename;
                 file->size = entry.content.length;
@@ -41,7 +52,7 @@ int get_file(const CellFileSystem *fs, const char *filename, FSFile **f) {
 
 int ckb_get_file(const char *filename, FSFile **file) { return get_file(CELL_FILE_SYSTEM, filename, file); }
 
-int load_fs(CellFileSystem **fs, void *buf, uint64_t buflen) {
+int load_fs(CellFileSystem **fs, const char *prefix, void *buf, uint64_t buflen) {
     if (fs == NULL || buf == NULL) {
         return -1;
     }
@@ -57,6 +68,7 @@ int load_fs(CellFileSystem **fs, void *buf, uint64_t buflen) {
         return -1;
     }
 
+    node->prefix = prefix;
     node->count = *(uint32_t *)buf;
     if (node->count == 0) {
         node->files = NULL;
@@ -87,8 +99,8 @@ int load_fs(CellFileSystem **fs, void *buf, uint64_t buflen) {
     return 0;
 }
 
-int ckb_load_fs(void *buf, uint64_t buflen) {
-    int ret = load_fs(&CELL_FILE_SYSTEM, buf, buflen);
+int ckb_load_fs(const char *prefix, void *buf, uint64_t buflen) {
+    int ret = load_fs(&CELL_FILE_SYSTEM, prefix, buf, buflen);
     return ret;
 }
 

@@ -606,13 +606,14 @@ static JSValue syscall_load_block_extension(JSContext *ctx, JSValueConst this_va
 }
 
 static JSValue mount(JSContext *ctx, JSValueConst this_value, int argc, JSValueConst *argv) {
-    JSValue buf = syscall_load_cell_data(ctx, this_value, argc, argv);
+    JSValue buf = syscall_load_cell_data(ctx, this_value, argc-1, argv);
     if (JS_IsException(buf)) {
         return JS_EXCEPTION;
     }
+    const char* prefix = JS_ToCString(ctx, argv[2]);
     size_t psize = 0;
     uint8_t *addr = JS_GetArrayBuffer(ctx, &psize, buf);
-    int err = ckb_load_fs(addr, psize);
+    int err = ckb_load_fs(prefix, addr, psize);
     if (err != 0) {
         ThrowError(ctx, QJS_ERROR_MOUNT, "ckb.mount failed");
         return JS_EXCEPTION;
