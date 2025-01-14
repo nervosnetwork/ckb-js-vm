@@ -172,6 +172,12 @@ function test_base64_decode() {
     console.log('test_base64_decode ok');
 }
 
+function test_import_meta() {
+    console.assert(import.meta.main, 'import.meta.main should be true');
+    console.assert(import.meta.url.length > 0, 'import.meta.url should be true');
+    console.log('test_import_meta ok');
+}
+
 // Add the new test cases to the main execution
 console.log('test_misc.js ...');
 test_ckb_smt_verify1(true);
@@ -182,4 +188,5 @@ test_ckb_smt_verify3();
 test_ckb_smt_verify_invalid();
 test_base64_encode();
 test_base64_decode();
+test_import_meta();
 console.log('test_misc.js ok');
