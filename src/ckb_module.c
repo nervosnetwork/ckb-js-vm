@@ -777,7 +777,7 @@ static int js_ckb_init(JSContext *ctx, JSModuleDef *m) {
 int js_init_module_ckb(JSContext *ctx) {
     JSModuleDef *m = JS_NewCModule(ctx, "ckb", js_ckb_init);
     if (!m) {
-        return -1;
+        return QJS_ERROR_GENERIC;
     }
     JS_AddModuleExportList(ctx, m, js_ckb_funcs, countof(js_ckb_funcs));
     JS_AddModuleExport(ctx, m, "SOURCE_GROUP_INPUT");
@@ -815,7 +815,7 @@ int load_cell_code_info(size_t *buf_size, size_t *index, bool *use_filesystem) {
     script_seg.size = len;
 
     if (MolReader_Script_verify(&script_seg, false) != MOL_OK) {
-        return -1;
+        return QJS_ERROR_INVALID_SCRIPT;
     }
 
     // The script arguments are in the following format
@@ -851,7 +851,7 @@ int load_cell_code(size_t buf_size, size_t index, uint8_t *buf) {
     int ret = ckb_load_cell_data(buf, &buf_size, 0, index, CKB_SOURCE_CELL_DEP);
     if (ret) {
         printf("Error while loading cell data: %d\n", ret);
-        return -1;
+        return ret;
     }
     return 0;
 }

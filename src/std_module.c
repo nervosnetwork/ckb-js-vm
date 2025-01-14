@@ -86,19 +86,19 @@ int js_module_set_import_meta(JSContext *ctx, JSValueConst func_val, JS_BOOL use
     const char *module_name;
 
     if (JS_VALUE_GET_TAG(func_val) != JS_TAG_MODULE) {
-        return QJS_ERROR_INVALID_ARGUMENT;
+        return QJS_ERROR_INTERNAL;
     }
     m = JS_VALUE_GET_PTR(func_val);
 
     module_name_atom = JS_GetModuleName(ctx, m);
     module_name = JS_AtomToCString(ctx, module_name_atom);
     JS_FreeAtom(ctx, module_name_atom);
-    if (!module_name) return -1;
+    if (!module_name) return QJS_ERROR_INTERNAL;
     pstrcpy(buf, sizeof(buf), module_name);
     JS_FreeCString(ctx, module_name);
 
     meta_obj = JS_GetImportMeta(ctx, m);
-    if (JS_IsException(meta_obj)) return -1;
+    if (JS_IsException(meta_obj)) return QJS_ERROR_INTERNAL;
     JS_DefinePropertyValueStr(ctx, meta_obj, "url", JS_NewString(ctx, buf), JS_PROP_C_W_E);
     JS_DefinePropertyValueStr(ctx, meta_obj, "main", JS_NewBool(ctx, is_main), JS_PROP_C_W_E);
     JS_FreeValue(ctx, meta_obj);

@@ -10,7 +10,7 @@
 static int js_blake2b_init(blake2b_state *S, size_t outlen, char personal[BLAKE2B_PERSONALBYTES]) {
     blake2b_param P[1];
 
-    if ((!outlen) || (outlen > BLAKE2B_OUTBYTES)) return -1;
+    if ((!outlen) || (outlen > BLAKE2B_OUTBYTES)) return QJS_ERROR_GENERIC;
 
     P->digest_length = (uint8_t)outlen;
     P->key_length = 0;
@@ -438,7 +438,7 @@ static int js_hash_init(JSContext *ctx, JSModuleDef *m) {
 int js_init_module_hash(JSContext *ctx) {
     JSModuleDef *m;
     m = JS_NewCModule(ctx, "hash", js_hash_init);
-    if (!m) return -1;
+    if (!m) return QJS_ERROR_GENERIC;
     JS_AddModuleExport(ctx, m, "Sha256");
     JS_AddModuleExport(ctx, m, "Keccak256");
     JS_AddModuleExport(ctx, m, "Blake2b");

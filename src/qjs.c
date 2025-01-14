@@ -87,7 +87,7 @@ int js_std_loop(JSContext *ctx) {
         if (err <= 0) {
             if (err < 0) {
                 js_std_dump_error(ctx1);
-                ret = -1;
+                ret = QJS_ERROR_GENERIC;
             }
             break;
         }
@@ -208,7 +208,7 @@ int run_from_file_system_buf(JSContext *ctx, char *buf, size_t buf_size) {
         err = ckb_get_file(ENTRY_FILE_NAME_BC, &entry_file);
     }
     CHECK(err);
-    CHECK2(entry_file->size > 0, QJS_ERROR_GENERIC);
+    CHECK2(entry_file->size > 0, QJS_ERROR_EMPTY_FILE);
     err = eval_buf(ctx, entry_file->content, entry_file->size, ENTRY_FILE_NAME, true);
     CHECK(err);
 
@@ -267,7 +267,7 @@ static int run_from_cell_data(JSContext *ctx, bool enable_fs) {
 
 static int run_from_target(JSContext *ctx, const char *target, bool enable_fs) {
     if (strlen(target) < 66) {
-        return QJS_ERROR_GENERIC;
+        return QJS_ERROR_INVALID_ARGUMENT;
     }
 
     uint8_t target_byte[33] = {};

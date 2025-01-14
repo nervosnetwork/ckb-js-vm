@@ -173,7 +173,7 @@ int js_init_module_secp256k1(JSContext *js_ctx) {
     g_secp256k1_context = secp256k1_context_create(SECP256K1_CONTEXT_VERIFY);
     JSModuleDef *m = JS_NewCModule(js_ctx, "secp256k1", js_secp256k1_init);
     if (!m) {
-        return QJS_ERROR_MODULE_LOAD;
+        return QJS_ERROR_GENERIC;
     }
     JS_AddModuleExportList(js_ctx, m, js_secp256k1_funcs, countof(js_secp256k1_funcs));
     return 0;

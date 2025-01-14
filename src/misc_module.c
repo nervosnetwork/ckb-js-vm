@@ -6,6 +6,7 @@
 #define BLAKE2_REF_C
 #include "blake2b.h"
 #include "ckb_smt.h"
+#include "qjs.h"
 
 typedef struct {
     uint8_t key[SMT_KEY_BYTES];
@@ -350,7 +351,7 @@ static int js_misc_init(JSContext *ctx, JSModuleDef *m) {
 int js_init_module_misc(JSContext *ctx) {
     JSModuleDef *m;
     m = JS_NewCModule(ctx, "misc", js_misc_init);
-    if (!m) return -1;
+    if (!m) return QJS_ERROR_GENERIC;
 
     JS_AddModuleExport(ctx, m, "Smt");
     JS_AddModuleExport(ctx, m, "hex");
