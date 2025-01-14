@@ -102,22 +102,23 @@ int compile_from_file(JSContext *ctx) {
     if (buf_len < 0 || buf_len == sizeof(buf)) {
         if (buf_len == sizeof(buf)) {
             printf("Error while reading from file: file too large\n");
+            return QJS_ERROR_FILE_TOO_LARGE;
         } else {
             printf("Error while reading from file: %d\n", buf_len);
+            return QJS_ERROR_FILE_READ;
         }
-        return -1;
     }
 
     JSValue val;
     val = JS_Eval(ctx, buf, buf_len, "", JS_EVAL_TYPE_MODULE | JS_EVAL_FLAG_COMPILE_ONLY);
     if (JS_IsException(val)) {
         js_std_dump_error(ctx);
-        return -1;
+        return QJS_ERROR_EVAL;
     }
     uint8_t *out_buf;
     size_t out_buf_len;
     out_buf = JS_WriteObject(ctx, &out_buf_len, val, JS_WRITE_OBJ_BYTECODE);
-    if (!out_buf) return -1;
+    if (!out_buf) return QJS_ERROR_MEMORY_ALLOCATION;
     char msg_buf[65];
     for (int i = 0; i < out_buf_len; i += 32) {
         uint32_t size = i + 32 > out_buf_len ? out_buf_len - i : 32;
@@ -142,13 +143,13 @@ static int eval_buf(JSContext *ctx, const void *buf, int buf_len, const char *fi
         val = JS_ReadObject(ctx, buf, buf_len, JS_READ_OBJ_BYTECODE);
         if (JS_IsException(val)) {
             js_std_dump_error(ctx);
-            return -1;
+            return QJS_ERROR_GENERIC;
         }
         if (JS_VALUE_GET_TAG(val) == JS_TAG_MODULE) {
             if (JS_ResolveModule(ctx, val) < 0) {
                 JS_FreeValue(ctx, val);
                 js_std_dump_error(ctx);
-                return -1;
+                return QJS_ERROR_GENERIC;
             }
             js_module_set_import_meta(ctx, val, FALSE, is_main);
         }
@@ -166,7 +167,7 @@ static int eval_buf(JSContext *ctx, const void *buf, int buf_len, const char *fi
     }
     if (JS_IsException(val)) {
         js_std_dump_error(ctx);
-        ret = -1;
+        ret = QJS_ERROR_GENERIC;
     } else {
         if ((eval_flags & JS_EVAL_TYPE_MASK) == JS_EVAL_TYPE_MODULE) {
             int promise_state = JS_PromiseState(ctx, val);
@@ -174,7 +175,7 @@ static int eval_buf(JSContext *ctx, const void *buf, int buf_len, const char *fi
                 JSValue error = JS_PromiseResult(ctx, val);
                 js_std_dump_error1(ctx, error);
                 JS_FreeValue(ctx, error);
-                ret = -2;
+                ret = QJS_ERROR_EXCEPTION;
             } else {
                 ret = 0;
             }
@@ -207,7 +208,7 @@ int run_from_file_system_buf(JSContext *ctx, char *buf, size_t buf_size) {
         err = ckb_get_file(ENTRY_FILE_NAME_BC, &entry_file);
     }
     CHECK(err);
-    CHECK2(entry_file->size > 0, -1);
+    CHECK2(entry_file->size > 0, QJS_ERROR_GENERIC);
     err = eval_buf(ctx, entry_file->content, entry_file->size, ENTRY_FILE_NAME, true);
     CHECK(err);
 
@@ -223,10 +224,11 @@ static int run_from_local_file(JSContext *ctx, bool enable_fs) {
     if (count < 0 || count == sizeof(buf)) {
         if (count == sizeof(buf)) {
             printf("Error while reading from file: file too large\n");
+            return QJS_ERROR_FILE_TOO_LARGE;
         } else {
             printf("Error while reading from file: %d\n", count);
+            return QJS_ERROR_FILE_READ;
         }
-        return -1;
     }
     if (enable_fs) {
         return run_from_file_system_buf(ctx, buf, (size_t)count);
@@ -265,7 +267,7 @@ static int run_from_cell_data(JSContext *ctx, bool enable_fs) {
 
 static int run_from_target(JSContext *ctx, const char *target, bool enable_fs) {
     if (strlen(target) < 66) {
-        return -1;
+        return QJS_ERROR_GENERIC;
     }
 
     uint8_t target_byte[33] = {};
@@ -351,7 +353,7 @@ int main(int argc, const char **argv) {
     rt = JS_NewRuntime();
     if (!rt) {
         printf("qjs: cannot allocate JS runtime\n");
-        return -2;
+        return QJS_ERROR_GENERIC;
     }
     if (memory_limit != 0) JS_SetMemoryLimit(rt, memory_limit);
     if (stack_size != 0) JS_SetMaxStackSize(rt, stack_size);
@@ -359,7 +361,7 @@ int main(int argc, const char **argv) {
     // js_std_set_worker_new_context_func(JS_NewCustomContext);
     // js_std_init_handlers(rt);
     ctx = JS_NewCustomContext(rt);
-    CHECK2(ctx != NULL, -1);
+    CHECK2(ctx != NULL, QJS_ERROR_GENERIC);
     /* loader for ES6 modules */
     JS_SetModuleLoaderFunc(rt, NULL, js_module_loader, NULL);
     js_std_add_helpers(ctx, argc - optind, &argv[optind]);

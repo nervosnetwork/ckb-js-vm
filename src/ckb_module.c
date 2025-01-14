@@ -16,12 +16,6 @@
 //
 #define NO_VALUE ((size_t) - 1)
 
-enum SyscallErrorCode {
-    SyscallErrorUnknown = 80,
-    SyscallErrorMemory = 81,
-    SyscallErrorArgument = 82,
-};
-
 static JSValue syscall_exit(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv) {
     int32_t status;
     if (JS_ToInt32(ctx, &status, argv[0])) return JS_EXCEPTION;
@@ -123,7 +117,7 @@ static JSValue syscall_load(JSContext *ctx, LoadData *data) {
     }
 
     addr = (uint8_t *)malloc(data->length);
-    CHECK2(addr != NULL, SyscallErrorMemory);
+    CHECK2(addr != NULL, QJS_ERROR_MEMORY_ALLOCATION);
     uint64_t len = data->length;
     err = data->func(addr, &len, data);
     CHECK(err);
@@ -319,9 +313,9 @@ static JSValue syscall_exec_cell(JSContext *ctx, JSValueConst this_value, int ar
     uint8_t code_hash[32];
 
     JSValue buffer = JS_GetTypedArrayBuffer(ctx, argv[0], NULL, NULL, NULL);
-    CHECK2(!JS_IsException(buffer), SyscallErrorArgument);
+    CHECK2(!JS_IsException(buffer), QJS_ERROR_INVALID_SYSCALL_ARGUMENT);
     uint8_t *p = JS_GetArrayBuffer(ctx, &code_hash_len, buffer);
-    CHECK2(code_hash_len == 32 && p != NULL, -1);
+    CHECK2(code_hash_len == 32 && p != NULL, QJS_ERROR_INVALID_SYSCALL_ARGUMENT);
     memcpy(code_hash, p, 32);
 
     err = JS_ToUint32(ctx, &hash_type, argv[1]);
@@ -354,7 +348,7 @@ int read_local_file(char *buf, int size) {
 static int get_property(JSContext *ctx, JSValueConst *obj, const char *prop, int64_t *value) {
     int err = 0;
     JSValue val = JS_GetPropertyStr(ctx, *obj, prop);
-    CHECK2(!JS_IsException(val), SyscallErrorArgument);
+    CHECK2(!JS_IsException(val), QJS_ERROR_INVALID_SYSCALL_ARGUMENT);
     if (!JS_IsUndefined(val)) {
         err = JS_ToInt64(ctx, value, val);
         CHECK(err);
@@ -376,9 +370,9 @@ static JSValue syscall_spawn_cell(JSContext *ctx, JSValueConst this_value, int a
     uint64_t spgs_pid = 0;
     uint64_t spgs_fds[32] = {0};
     JSValue buffer = JS_GetTypedArrayBuffer(ctx, argv[0], NULL, NULL, NULL);
-    CHECK2(!JS_IsException(buffer), SyscallErrorArgument);
+    CHECK2(!JS_IsException(buffer), QJS_ERROR_INVALID_SYSCALL_ARGUMENT);
     uint8_t *p = JS_GetArrayBuffer(ctx, &code_hash_len, buffer);
-    CHECK2(code_hash_len == 32 && p != NULL, -1);
+    CHECK2(code_hash_len == 32 && p != NULL, QJS_ERROR_INVALID_SYSCALL_ARGUMENT);
     memcpy(code_hash, p, 32);
     err = JS_ToUint32(ctx, &hash_type, argv[1]);
     CHECK(err);
@@ -388,7 +382,7 @@ static JSValue syscall_spawn_cell(JSContext *ctx, JSValueConst this_value, int a
     CHECK(err);
     JSValue val;
     val = JS_GetPropertyStr(ctx, argv[4], "argv");
-    CHECK2(!JS_IsException(val), SyscallErrorArgument);
+    CHECK2(!JS_IsException(val), QJS_ERROR_INVALID_SYSCALL_ARGUMENT);
     if (!JS_IsUndefined(val)) {
         for (int i = 0; i < 32; i++) {
             const JSValue elem = JS_GetPropertyUint32(ctx, val, i);
@@ -403,7 +397,7 @@ static JSValue syscall_spawn_cell(JSContext *ctx, JSValueConst this_value, int a
     }
     JS_FreeValue(ctx, val);
     val = JS_GetPropertyStr(ctx, argv[4], "inherited_fds");
-    CHECK2(!JS_IsException(val), SyscallErrorArgument);
+    CHECK2(!JS_IsException(val), QJS_ERROR_INVALID_SYSCALL_ARGUMENT);
     if (!JS_IsUndefined(val)) {
         uint32_t temp;
         for (int i = 0; i < 32; i++) {
@@ -495,9 +489,9 @@ static JSValue syscall_write(JSContext *ctx, JSValueConst this_value, int argc, 
     fd = (uint64_t)u32;
     size_t length = 0;
     JSValue buffer = JS_GetTypedArrayBuffer(ctx, argv[1], NULL, NULL, NULL);
-    CHECK2(!JS_IsException(buffer), SyscallErrorArgument);
+    CHECK2(!JS_IsException(buffer), QJS_ERROR_INVALID_SYSCALL_ARGUMENT);
     uint8_t *content = JS_GetArrayBuffer(ctx, &length, buffer);
-    CHECK2(content != NULL, SyscallErrorUnknown);
+    CHECK2(content != NULL, QJS_ERROR_GENERIC);
     err = ckb_write(fd, content, &length);
     CHECK(err);
 exit:
@@ -561,7 +555,7 @@ static JSValue mount(JSContext *ctx, JSValueConst this_value, int argc, JSValueC
     uint8_t *addr = JS_GetArrayBuffer(ctx, &psize, buf);
     int err = ckb_load_fs(addr, psize);
     if (err != 0) {
-        ThrowError(ctx, SyscallErrorUnknown, "ckb_load_fs failed");
+        ThrowError(ctx, QJS_ERROR_MOUNT, "ckb.mount failed");
         return JS_EXCEPTION;
     } else {
         return JS_UNDEFINED;
@@ -644,7 +638,7 @@ static JSValue js_load_file(JSContext *ctx, JSValueConst _this_val, int argc, JS
     int err = 0;
 
     filename = JS_ToCString(ctx, argv[0]);
-    CHECK2(filename != NULL, -1);
+    CHECK2(filename != NULL, QJS_ERROR_GENERIC);
 
     size_t index = 0;
     bool use_filesystem = false;
@@ -652,7 +646,7 @@ static JSValue js_load_file(JSContext *ctx, JSValueConst _this_val, int argc, JS
     CHECK(err);
 
     buf = js_malloc(ctx, buf_len + 1);
-    CHECK2(buf != NULL, 0);
+    CHECK2(buf != NULL, QJS_ERROR_GENERIC);
 
     err = load_cell_code(buf_len, index, buf);
     CHECK(err);
@@ -804,7 +798,7 @@ int load_cell_code_info_explicit(size_t *buf_size, size_t *index, const uint8_t 
     *buf_size = 0;
     err = ckb_load_cell_data(NULL, buf_size, 0, *index, CKB_SOURCE_CELL_DEP);
     CHECK(err);
-    CHECK2(*buf_size > 0, -1);
+    CHECK2(*buf_size > 0, QJS_ERROR_FILE_READ);
 exit:
     return err;
 }
@@ -815,7 +809,7 @@ int load_cell_code_info(size_t *buf_size, size_t *index, bool *use_filesystem) {
     uint64_t len = SCRIPT_SIZE;
     err = ckb_load_script(script, &len, 0);
     CHECK(err);
-    CHECK2(len <= SCRIPT_SIZE, -1);
+    CHECK2(len <= SCRIPT_SIZE, QJS_ERROR_FILE_TOO_LARGE);
     mol_seg_t script_seg;
     script_seg.ptr = (uint8_t *)script;
     script_seg.size = len;
@@ -828,13 +822,13 @@ int load_cell_code_info(size_t *buf_size, size_t *index, bool *use_filesystem) {
     // <js loader args, 2 bytes> <data, variable length>
     mol_seg_t args_seg = MolReader_Script_get_args(&script_seg);
     mol_seg_t args_bytes_seg = MolReader_Bytes_raw_bytes(&args_seg);
-    CHECK2(args_bytes_seg.size >= JS_LOADER_ARGS_SIZE, -1);
+    CHECK2(args_bytes_seg.size >= JS_LOADER_ARGS_SIZE, QJS_ERROR_INVALID_SCRIPT_ARGS);
 
     // Loading js code from dependent cell with code hash and hash type
     // The script arguments are in the following format
     // <js loader args, 2 bytes> <code hash of js code, 32 bytes>
     // <hash type of js code, 1 byte>
-    CHECK2(args_bytes_seg.size >= JS_LOADER_ARGS_SIZE + BLAKE2B_BLOCK_SIZE + 1, -1);
+    CHECK2(args_bytes_seg.size >= JS_LOADER_ARGS_SIZE + BLAKE2B_BLOCK_SIZE + 1, QJS_ERROR_INVALID_SCRIPT_ARGS);
     uint16_t js_loader_args = *(uint16_t *)args_bytes_seg.ptr;
     *use_filesystem = js_loader_args & 0x1;
 
@@ -848,7 +842,7 @@ int load_cell_code_info(size_t *buf_size, size_t *index, bool *use_filesystem) {
     *buf_size = 0;
     err = ckb_load_cell_data(NULL, buf_size, 0, *index, CKB_SOURCE_CELL_DEP);
     CHECK(err);
-    CHECK2(*buf_size > 0, -1);
+    CHECK2(*buf_size > 0, QJS_ERROR_FILE_READ);
 exit:
     return err;
 }

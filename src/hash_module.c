@@ -5,6 +5,7 @@
 #include "ckb_keccak256.h"
 #include "blake2b.h"
 #include "ripemd160.h"
+#include "qjs.h"
 
 static int js_blake2b_init(blake2b_state *S, size_t outlen, char personal[BLAKE2B_PERSONALBYTES]) {
     blake2b_param P[1];

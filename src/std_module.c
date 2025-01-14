@@ -60,11 +60,6 @@ void js_std_add_helpers(JSContext *ctx, int argc, const char *argv[]) {
     }
 
     JS_SetPropertyStr(ctx, global_obj, "print", JS_NewCFunction(ctx, js_print, "print", 1));
-    // TODO:
-    // JS_SetPropertyStr(ctx, global_obj, "__loadScript",
-    //                   JS_NewCFunction(ctx, js_loadScript, "__loadScript",
-    //                   1));
-
     JS_FreeValue(ctx, global_obj);
 }
 
@@ -91,7 +86,7 @@ int js_module_set_import_meta(JSContext *ctx, JSValueConst func_val, JS_BOOL use
     const char *module_name;
 
     if (JS_VALUE_GET_TAG(func_val) != JS_TAG_MODULE) {
-        return -1;
+        return QJS_ERROR_INVALID_ARGUMENT;
     }
     m = JS_VALUE_GET_PTR(func_val);
 

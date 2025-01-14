@@ -4,6 +4,9 @@
 #include "secp256k1.h"
 #include "secp256k1_recovery.h"
 #include "group.h"
+#undef CHECK
+#undef CHECK2
+#include "qjs.h"
 
 #define COMPRESSED_PUBKEY_LENGTH 33    // 1 byte prefix + 32 bytes x coordinate
 #define UNCOMPRESSED_PUBKEY_LENGTH 65  // 1 byte prefix + 32 bytes x + 32 bytes y
@@ -170,7 +173,7 @@ int js_init_module_secp256k1(JSContext *js_ctx) {
     g_secp256k1_context = secp256k1_context_create(SECP256K1_CONTEXT_VERIFY);
     JSModuleDef *m = JS_NewCModule(js_ctx, "secp256k1", js_secp256k1_init);
     if (!m) {
-        return -1;
+        return QJS_ERROR_MODULE_LOAD;
     }
     JS_AddModuleExportList(js_ctx, m, js_secp256k1_funcs, countof(js_secp256k1_funcs));
     return 0;
