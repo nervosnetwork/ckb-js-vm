@@ -106,6 +106,13 @@ function test_misc() {
     console.assert(cycles > 0);
     let cycles2 = ckb.currentCycles();
     console.assert(cycles2 > cycles);
+    try {
+        // wrong index type
+        ckb.loadCellData("hello");
+    } catch (e) {
+        let s = e.toString();
+        console.assert(s.includes("Invalid argument: expected integer at index 0"));
+    }
     console.log('test_misc done');
 }
 
