@@ -11,8 +11,8 @@
 // For syscalls supporting partial loading, the arguments are described as:
 // argument 1: index
 // argument 2: source
-// argument 3: length (optional, default to full length)
-// argument 4: offset (optional, default to 0)
+// argument 3: offset (optional, default to 0)
+// argument 4: length (optional, default to full length)
 //
 #define NO_VALUE ((size_t) - 1)
 
@@ -104,6 +104,8 @@ static JSValue parse_args(JSContext *ctx, LoadData *data, bool has_field, int ar
         return JS_EXCEPTION;
     }
     if (JS_ToBigInt64(ctx, &source, argv[1])) {
+        // clear exception in JS_ToBigInt64
+        JS_GetException(ctx);
         if (JS_ToInt64(ctx, &source, argv[1])) return JS_EXCEPTION;
     }
     int var_arg_index = 2;
@@ -122,7 +124,7 @@ static JSValue parse_args(JSContext *ctx, LoadData *data, bool has_field, int ar
         if (check_int_arg(ctx, argv[var_arg_index], var_arg_index)) {
             return JS_EXCEPTION;
         }
-        if (JS_ToInt64(ctx, &length, argv[var_arg_index])) {
+        if (JS_ToInt64(ctx, &offset, argv[var_arg_index])) {
             return JS_EXCEPTION;
         }
     }
@@ -130,7 +132,7 @@ static JSValue parse_args(JSContext *ctx, LoadData *data, bool has_field, int ar
         if (check_int_arg(ctx, argv[var_arg_index + 1], var_arg_index + 1)) {
             return JS_EXCEPTION;
         }
-        if (JS_ToInt64(ctx, &offset, argv[var_arg_index + 1])) {
+        if (JS_ToInt64(ctx, &length, argv[var_arg_index + 1])) {
             return JS_EXCEPTION;
         }
     }

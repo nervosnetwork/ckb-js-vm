@@ -27,15 +27,13 @@ function test_partial_loading(load_func) {
     console.log('test_partial_loading ...');
     let data = load_func(0, ckb.SOURCE_OUTPUT);
     expect_array(data, ARRAY8);
-    data = load_func(0, ckb.SOURCE_OUTPUT, 100);
+    data = load_func(0, ckb.SOURCE_OUTPUT, 0);
     expect_array(data, ARRAY8);
-    let length = load_func(0, ckb.SOURCE_OUTPUT, 0);
-    console.assert(length === 8, 'length != 8');
-    length = load_func(0, ckb.SOURCE_OUTPUT, 0, 1);
+    let length = load_func(0, ckb.SOURCE_OUTPUT, 1, 0);
     console.assert(length === 7, 'length != 7');
-    data = load_func(0, ckb.SOURCE_OUTPUT, 7);
+    data = load_func(0, ckb.SOURCE_OUTPUT, 0, 7);
     expect_array(data, ARRAY8.slice(0, 7));
-    data = load_func(0, ckb.SOURCE_OUTPUT, 7, 1);
+    data = load_func(0, ckb.SOURCE_OUTPUT, 1, 7);
     expect_array(data, ARRAY8.slice(1, 8));
 
     let error_code = must_throw_exception(() => {
@@ -54,13 +52,13 @@ function test_partial_loading_without_comparing(load_func) {
     console.log('test_partial_loading_without_comparing ...');
     let data = load_func(0, ckb.SOURCE_OUTPUT);
     console.assert(data);
-    let length = load_func(0, ckb.SOURCE_OUTPUT, 0);
-    console.assert(length > 0);
-    length = load_func(0, ckb.SOURCE_OUTPUT, 0, 1);
-    console.assert(length > 0);
-    data = load_func(0, ckb.SOURCE_OUTPUT, 7);
+    let length = load_func(0, ckb.SOURCE_OUTPUT, 0, 0);
+    console.assert(length == data.byteLength, "length != data.byteLength");
+    length = load_func(0, ckb.SOURCE_OUTPUT, 1, 0);
+    console.assert(length == data.byteLength - 1, "length != data.byteLength - 1");
+    data = load_func(0, ckb.SOURCE_OUTPUT, 0, 7);
     console.assert(data);
-    data = load_func(0, ckb.SOURCE_OUTPUT, 7, 1);
+    data = load_func(0, ckb.SOURCE_OUTPUT, 1, 7);
     console.assert(data);
 
     must_throw_exception(() => {
@@ -76,13 +74,13 @@ function test_partial_loading_field_without_comparing(load_func, field) {
     console.log('test_partial_loading_field_without_comparing ...');
     let data = load_func(0, ckb.SOURCE_INPUT, field);
     console.assert(data);
-    let length = load_func(0, ckb.SOURCE_INPUT, field, 0);
-    console.assert(length > 0);
-    length = load_func(0, ckb.SOURCE_INPUT, field, 0, 1);
-    console.assert(length > 0);
-    data = load_func(0, ckb.SOURCE_INPUT, field, 7);
+    let length = load_func(0, ckb.SOURCE_INPUT, field, 0, 0);
+    console.assert(length == data.byteLength, "length != data.byteLength");
+    length = load_func(0, ckb.SOURCE_INPUT, field, 1, 0);
+    console.assert(length == data.byteLength - 1, "length != data.byteLength - 1");
+    data = load_func(0, ckb.SOURCE_INPUT, field, 0, 7);
     console.assert(data);
-    data = load_func(0, ckb.SOURCE_INPUT, field, 7, 1);
+    data = load_func(0, ckb.SOURCE_INPUT, field, 1, 7);
     console.assert(data);
 
     must_throw_exception(() => {
@@ -111,7 +109,13 @@ function test_misc() {
         ckb.loadCellData("hello");
     } catch (e) {
         let s = e.toString();
-        console.assert(s.includes("Invalid argument: expected integer at index 0"));
+        console.assert(s.includes("Invalid argument: expected integer at index 0"), "failed in test_misc");
+    }
+    try {
+        ckb.loadCellData({});
+    } catch (e) {
+        let s = e.toString();
+        console.assert(s.includes("Invalid argument: expected integer at index 0"), "failed in test_misc");
     }
     console.log('test_misc done');
 }
