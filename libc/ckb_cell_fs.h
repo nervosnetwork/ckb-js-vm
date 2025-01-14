@@ -15,6 +15,7 @@ typedef struct CellFileSystemNode {
     uint32_t count;
     FSEntry *files;
     void *start;
+    const char *prefix;
 } CellFileSystemNode;
 
 typedef struct CellFileSystem {
@@ -36,9 +37,9 @@ int get_file(const CellFileSystem *fs, const char *filename, FSFile **f);
 
 int ckb_get_file(const char *filename, FSFile **file);
 
-int load_fs(CellFileSystem **fs, void *buf, uint64_t buflen);
+int load_fs(CellFileSystem **fs, const char *prefix, void *buf, uint64_t buflen);
 
-int ckb_load_fs(void *buf, uint64_t buflen);
+int ckb_load_fs(const char *prefix, void *buf, uint64_t buflen);
 
 void ckb_reset_fs();
 
