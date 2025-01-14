@@ -39,7 +39,7 @@ syntax-error:
 syscalls:
 	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e 'import * as ckb from "ckb"; ckb.exit(0);'
 	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e 'import * as ckb from "ckb"; ckb.debug("hello, ckb");'
-	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e 'import * as ckb from "ckb"; console.log(ckb.vm_version(), ckb.current_cycles())'
+	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e 'import * as ckb from "ckb"; console.log(ckb.vmVersion(), ckb.currentCycles())'
 	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e 'import * as ckb from "ckb"; console.log(ckb.SOURCE_INPUT, ckb.SOURCE_OUTPUT, ckb.CELL_FIELD_OCCUPIED_CAPACITY)'
 	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e 'import * as ckb from "ckb"; console.log(100.1, ckb.SOURCE_GROUP_INPUT, ckb.SOURCE_GROUP_OUTPUT)'
 

@@ -1,3 +1,6 @@
+#ifndef __QJS_H__
+#define __QJS_H__
+
 #define CHECK2(cond, code)                                                           \
     do {                                                                             \
         if (!(cond)) {                                                               \
@@ -31,3 +34,5 @@
 
 // TODO
 // add more error codes here.
+
+#endif  //__QJS_H__

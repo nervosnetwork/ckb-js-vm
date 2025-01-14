@@ -33,10 +33,10 @@ function test_sha2_sha256_empty_string() {
         'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
 
     const sha256 = new hash.Sha256();
-    const start = ckb.current_cycles();
+    const start = ckb.currentCycles();
     sha256.write(new Uint8Array(0).buffer);
     const result = sha256.finalize();
-    const end = ckb.current_cycles();
+    const end = ckb.currentCycles();
     console.log(`empty string hash cycles: ${end - start}`);
 
     console.assert(
@@ -50,10 +50,10 @@ function test_keccak256_empty_string() {
         'c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470';
 
     const keccak256 = new hash.Keccak256();
-    const start = ckb.current_cycles();
+    const start = ckb.currentCycles();
     keccak256.write(new Uint8Array(0).buffer);
     const result = keccak256.finalize();
-    const end = ckb.current_cycles();
+    const end = ckb.currentCycles();
     console.log(`empty string hash cycles: ${end - start}`);
 
     console.assert(
@@ -70,10 +70,10 @@ function test_sha2_sha256_basic_string() {
         '2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824';
 
     const sha256 = new hash.Sha256();
-    const start = ckb.current_cycles();
+    const start = ckb.currentCycles();
     sha256.write(input.buffer);
     const result = sha256.finalize();
-    const end = ckb.current_cycles();
+    const end = ckb.currentCycles();
     console.log(`basic string hash cycles: ${end - start}`);
 
     console.assert(
@@ -90,11 +90,11 @@ function test_sha2_sha256_multiple_updates() {
         '2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824';
 
     const sha256 = new hash.Sha256();
-    const start = ckb.current_cycles();
+    const start = ckb.currentCycles();
     sha256.write(input1.buffer);
     sha256.write(input2.buffer);
     const result = sha256.finalize();
-    const end = ckb.current_cycles();
+    const end = ckb.currentCycles();
     console.log(`multiple updates hash cycles: ${end - start}`);
 
     console.assert(
@@ -111,10 +111,10 @@ function test_sha2_sha256_long_string() {
         '41edece42d63e8d9bf515a9ba6932e1c20cbc9f5a5d134645adb5db1b9737ea3';
 
     const sha256 = new hash.Sha256();
-    const start = ckb.current_cycles();
+    const start = ckb.currentCycles();
     sha256.write(inputBytes.buffer);
     const result = sha256.finalize();
-    const end = ckb.current_cycles();
+    const end = ckb.currentCycles();
     console.log(`long string hash cycles: ${end - start}`);
     console.assert(
         arrayBufferToHexString(result) === expected, 'Long string hash failed');
@@ -140,10 +140,10 @@ function test_keccak256_basic_string() {
         '1c8aff950685c2ed4bc3174f3472287b56d9517b9c948127319a09a7a36deac8';
 
     const keccak256 = new hash.Keccak256();
-    const start = ckb.current_cycles();
+    const start = ckb.currentCycles();
     keccak256.write(input.buffer);
     const result = keccak256.finalize();
-    const end = ckb.current_cycles();
+    const end = ckb.currentCycles();
     console.log(`basic string hash cycles: ${end - start}`);
 
     console.assert(
@@ -160,11 +160,11 @@ function test_keccak256_multiple_updates() {
         '1c8aff950685c2ed4bc3174f3472287b56d9517b9c948127319a09a7a36deac8';
 
     const keccak256 = new hash.Keccak256();
-    const start = ckb.current_cycles();
+    const start = ckb.currentCycles();
     keccak256.write(input1.buffer);
     keccak256.write(input2.buffer);
     const result = keccak256.finalize();
-    const end = ckb.current_cycles();
+    const end = ckb.currentCycles();
     console.log(`multiple updates hash cycles: ${end - start}`);
 
     console.assert(
@@ -181,10 +181,10 @@ function test_keccak256_long_string() {
         'b6a4ac1f51884d71f30fa397a5e155de3099e11fc0edef5d08b646e621e19de9';
 
     const keccak256 = new hash.Keccak256();
-    const start = ckb.current_cycles();
+    const start = ckb.currentCycles();
     keccak256.write(inputBytes.buffer);
     const result = keccak256.finalize();
-    const end = ckb.current_cycles();
+    const end = ckb.currentCycles();
     console.log(`long string hash cycles: ${end - start}`);
     console.assert(
         arrayBufferToHexString(result) === expected, 'Long string hash failed');
@@ -197,10 +197,10 @@ function test_blake2b_empty_string() {
         '8e5e657ab293b4f6146feed495bf87c4c3c5e0cfca6aef78f924311866ea277bf359afae4a763af955e23abdad3f9c941c9e4a0a795c73d8b205679ab68eb294';
 
     const blake2b = new hash.Blake2b(CKB_DEFAULT_HASH);
-    const start = ckb.current_cycles();
+    const start = ckb.currentCycles();
     blake2b.write(new Uint8Array(0).buffer);
     const result = blake2b.finalize();
-    const end = ckb.current_cycles();
+    const end = ckb.currentCycles();
     console.log(`empty string hash cycles: ${end - start}`);
     console.assert(
         arrayBufferToHexString(result) === expected,
@@ -215,10 +215,10 @@ function test_blake2b_basic_string() {
         'a1e60e2fbb09f4f071f4e3cc30791fcdd694bfda60223c5b3912ae3d762a6ba59c9e90e9fd185c10eb545a4ca86a9bdc72539d5160576707a43760f4b50013ba';
 
     const blake2b = new hash.Blake2b(CKB_DEFAULT_HASH);
-    const start = ckb.current_cycles();
+    const start = ckb.currentCycles();
     blake2b.write(input.buffer);
     const result = blake2b.finalize();
-    const end = ckb.current_cycles();
+    const end = ckb.currentCycles();
     console.log(`basic string hash cycles: ${end - start}`);
     console.assert(
         arrayBufferToHexString(result) === expected,
@@ -234,11 +234,11 @@ function test_blake2b_multiple_updates() {
         'a1e60e2fbb09f4f071f4e3cc30791fcdd694bfda60223c5b3912ae3d762a6ba59c9e90e9fd185c10eb545a4ca86a9bdc72539d5160576707a43760f4b50013ba';
 
     const blake2b = new hash.Blake2b(CKB_DEFAULT_HASH);
-    const start = ckb.current_cycles();
+    const start = ckb.currentCycles();
     blake2b.write(input1.buffer);
     blake2b.write(input2.buffer);
     const result = blake2b.finalize();
-    const end = ckb.current_cycles();
+    const end = ckb.currentCycles();
     console.log(`multiple updates hash cycles: ${end - start}`);
     console.assert(
         arrayBufferToHexString(result) === expected,
@@ -254,10 +254,10 @@ function test_blake2b_long_string() {
         'e2bc748623468948e5483c45f6250557a672288edf3677535502e83f574f4d90aa296599678a010b7d5f1b0eb7249083f7294e6b80fea1351ca042dd10ddd7d4';
 
     const blake2b = new hash.Blake2b(CKB_DEFAULT_HASH);
-    const start = ckb.current_cycles();
+    const start = ckb.currentCycles();
     blake2b.write(inputBytes.buffer);
     const result = blake2b.finalize();
-    const end = ckb.current_cycles();
+    const end = ckb.currentCycles();
     console.log(`long string hash cycles: ${end - start}`);
     console.assert(
         arrayBufferToHexString(result) === expected, 'Long string hash failed');
@@ -269,10 +269,10 @@ function test_ripemd160_empty_string() {
     const expected = '9c1185a5c5e9fc54612808977ee8f548b2258d31';
 
     const ripemd160 = new hash.Ripemd160();
-    const start = ckb.current_cycles();
+    const start = ckb.currentCycles();
     ripemd160.write(new Uint8Array(0).buffer);
     const result = ripemd160.finalize();
-    const end = ckb.current_cycles();
+    const end = ckb.currentCycles();
     console.log(`empty string hash cycles: ${end - start}`);
     console.log("result: ", arrayBufferToHexString(result));
     console.assert(
@@ -287,10 +287,10 @@ function test_ripemd160_basic_string() {
     const expected = '108f07b8382412612c048d07d13f814118445acd';
 
     const ripemd160 = new hash.Ripemd160();
-    const start = ckb.current_cycles();
+    const start = ckb.currentCycles();
     ripemd160.write(input.buffer);
     const result = ripemd160.finalize();
-    const end = ckb.current_cycles();
+    const end = ckb.currentCycles();
     console.log(`basic string hash cycles: ${end - start}`);
 
     console.log("result: ", arrayBufferToHexString(result));
@@ -307,11 +307,11 @@ function test_ripemd160_multiple_updates() {
     const expected = '108f07b8382412612c048d07d13f814118445acd';
 
     const ripemd160 = new hash.Ripemd160();
-    const start = ckb.current_cycles();
+    const start = ckb.currentCycles();
     ripemd160.write(input1.buffer);
     ripemd160.write(input2.buffer);
     const result = ripemd160.finalize();
-    const end = ckb.current_cycles();
+    const end = ckb.currentCycles();
     console.log(`multiple updates hash cycles: ${end - start}`);
 
     console.log("result: ", arrayBufferToHexString(result));
@@ -328,10 +328,10 @@ function test_ripemd160_long_string() {
     const expected = 'aa69deee9a8922e92f8105e007f76110f381e9cf';
 
     const ripemd160 = new hash.Ripemd160();
-    const start = ckb.current_cycles();
+    const start = ckb.currentCycles();
     ripemd160.write(inputBytes.buffer);
     const result = ripemd160.finalize();
-    const end = ckb.current_cycles();
+    const end = ckb.currentCycles();
     console.log(`long string hash cycles: ${end - start}`);
     console.log("result: ", arrayBufferToHexString(result));
     console.assert(

@@ -82,7 +82,7 @@ out:
 	@mkdir -p build/secp256k1
 
 deps/compiler-rt-builtins-riscv/build/libcompiler-rt.a:
-	cd deps/compiler-rt-builtins-riscv && make
+	cd deps/compiler-rt-builtins-riscv && make -j $(nproc)
 
 build/ckb-js-vm: build/ckb-c-stdlib/impl.o \
                  build/libc/ckb_cell_fs.o \

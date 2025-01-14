@@ -5,7 +5,7 @@ function test_eval_script() {
         import * as ckb from 'ckb';
         globalThis.test_eval_script = 100;
     `;
-    ckb.evalScript(script, true);
+    ckb.evalJsScript(script, true);
     console.assert(globalThis.test_eval_script === 100, "test_eval_script failed");
 }
 
@@ -15,7 +15,7 @@ function test_eval_script_no_module() {
         let b = 200;
         a + b
     `;
-    let result = ckb.evalScript(script);
+    let result = ckb.evalJsScript(script);
     console.assert(result === 300, "test_eval_script_no_module failed");
 }
 
@@ -28,7 +28,7 @@ function test_eval_script_no_module_with_exception() {
     `;
     let success = false;
     try {
-        ckb.evalScript(script);
+        ckb.evalJsScript(script);
     } catch (e) {
         success = true;
     }
@@ -43,7 +43,7 @@ function test_eval_script_with_exception() {
     `;
     let success = false;
     try {
-        ckb.evalScript(script, true);
+        ckb.evalJsScript(script, true);
     } catch (e) {
         success = true;
     }
@@ -74,4 +74,3 @@ test_eval_script_no_module();
 test_eval_script_no_module_with_exception();
 test_parse_ext_json();
 console.log("test_ckb.js ok");
-
