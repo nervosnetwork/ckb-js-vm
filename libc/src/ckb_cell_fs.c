@@ -18,7 +18,7 @@ int get_file(const CellFileSystem *fs, const char *filename, FSFile **f) {
     CellFileSystemNode *node = cfs->current;
     while (node != NULL) {
         size_t filename_len = strlen(filename);
-        size_t prefix_len = strlen(node->prefix);
+        size_t prefix_len = strlen(node->prefix) - 1;
         if (prefix_len > filename_len) {
             if (cfs->next == NULL) {
                 break;
