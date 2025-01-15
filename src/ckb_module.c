@@ -221,6 +221,7 @@ static JSValue syscall_debug(JSContext *ctx, JSValueConst this_value, int argc, 
     }
     const char *str = JS_ToCString(ctx, argv[0]);
     ckb_debug(str);
+    JS_FreeCString(ctx, str);
     return JS_UNDEFINED;
 }
 
@@ -348,10 +349,10 @@ static JSValue syscall_exec_cell(JSContext *ctx, JSValueConst this_value, int ar
     const char *passed_argv[256] = {0};
     uint8_t code_hash[32];
 
-    JSValue buffer = JS_GetTypedArrayBuffer(ctx, argv[0], NULL, NULL, NULL);
-    CHECK2(!JS_IsException(buffer), ERROR_TEMP);
-    uint8_t *p = JS_GetArrayBuffer(ctx, &code_hash_len, buffer);
-    CHECK2(code_hash_len == 32 && p != NULL, ERROR_TEMP);
+    uint8_t *p = JS_GetArrayBuffer(ctx, &code_hash_len, argv[0]);
+    if (code_hash_len != 32 || p == NULL) {
+        return JS_ThrowTypeError(ctx, "invalid code_hash format");
+    }
     memcpy(code_hash, p, 32);
 
     CHECK2(!qjs_bad_int_arg(ctx, argv[1], 1), ERROR_TEMP);
@@ -374,7 +375,9 @@ static JSValue syscall_exec_cell(JSContext *ctx, JSValueConst this_value, int ar
     CHECK(err);
     // never reach here if succeeded
 exit:
-    JS_FreeValue(ctx, buffer);
+    for (int i = argv_offset; i < argc; i++) {
+        JS_FreeCString(ctx, passed_argv[i - argv_offset]);
+    }
     if (err != 0) {
         return JS_EXCEPTION;
     } else {
@@ -409,13 +412,13 @@ static JSValue syscall_spawn_cell(JSContext *ctx, JSValueConst this_value, int a
     uint32_t offset = 0;
     uint32_t length = 0;
     uint32_t spgs_argc = 0;
-    const char *spgs_argv[32] = {};
+    const char *spgs_argv[32] = {0};
     uint64_t spgs_pid = 0;
     uint64_t spgs_fds[32] = {0};
-    JSValue buffer = JS_GetTypedArrayBuffer(ctx, argv[0], NULL, NULL, NULL);
-    CHECK2(!JS_IsException(buffer), ERROR_TEMP);
-    uint8_t *p = JS_GetArrayBuffer(ctx, &code_hash_len, buffer);
-    CHECK2(code_hash_len == 32 && p != NULL, ERROR_TEMP);
+    uint8_t *p = JS_GetArrayBuffer(ctx, &code_hash_len, argv[0]);
+    if (code_hash_len != 32 || p == NULL) {
+        return JS_ThrowTypeError(ctx, "invalid code_hash format");
+    }
     memcpy(code_hash, p, 32);
 
     CHECK2(!qjs_bad_int_arg(ctx, argv[1], 1), ERROR_TEMP);
@@ -469,6 +472,9 @@ static JSValue syscall_spawn_cell(JSContext *ctx, JSValueConst this_value, int a
     err = ckb_spawn_cell(code_hash, hash_type, offset, length, &spgs);
     CHECK(err);
 exit:
+    for (size_t i = 0; i < spgs_argc; i++) {
+        JS_FreeCString(ctx, spgs_argv[i]);
+    }
     if (err != 0) {
         return JS_EXCEPTION;
     } else {

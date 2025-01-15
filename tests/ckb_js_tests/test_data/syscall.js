@@ -150,7 +150,7 @@ function test_spawn() {
         argv: ['-e', js_code],
         inherited_fds: [fds[1]],
     };
-    let pid = ckb.spawnCell(code_hash, ckb.SCRIPT_HASH_TYPE_TYPE, 0, 0, spawn_args);
+    let pid = ckb.spawnCell(code_hash.buffer, ckb.SCRIPT_HASH_TYPE_TYPE, 0, 0, spawn_args);
     let txt = new Uint8Array(ckb.read(fds[0], 4));
     console.assert(txt[0] == 0);
     console.assert(txt[1] == 1);
