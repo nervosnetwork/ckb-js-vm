@@ -16,17 +16,17 @@ uint32_t static inline le32toh_(uint32_t x) { return x; }
 
 uint32_t static inline htole32_(uint32_t x) { return x; }
 
-uint32_t static inline be32toh_(uint32_t x) { return bswap_32(x); }
+uint32_t static inline be32toh_(uint32_t x) { return __builtin_bswap32(x); }
 
-uint32_t static inline htobe32_(uint32_t x) { return bswap_32(x); }
+uint32_t static inline htobe32_(uint32_t x) { return __builtin_bswap32(x); }
 
 uint64_t static inline le64toh_(uint64_t x) { return x; }
 
 uint64_t static inline htole64_(uint64_t x) { return x; }
 
-uint32_t static inline be64toh_(uint64_t x) { return bswap_64(x); }
+uint32_t static inline be64toh_(uint64_t x) { return __builtin_bswap64(x); }
 
-uint64_t static inline htobe64_(uint64_t x) { return bswap_64(x); }
+uint64_t static inline htobe64_(uint64_t x) { return __builtin_bswap64(x); }
 
 uint32_t static inline ReadLE32(const unsigned char* ptr) {
     uint32_t x;

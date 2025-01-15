@@ -1,4 +1,4 @@
-
+import * as ckb from 'ckb';
 const MAX_ITERATE = 1;
 
 function bench(bench) {

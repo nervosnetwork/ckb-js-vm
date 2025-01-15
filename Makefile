@@ -32,16 +32,10 @@ CFLAGS_BASE_LIBC = $(CFLAGS_BASE) \
 	-I deps/ckb-c-stdlib/libc \
 	-I deps/ckb-c-stdlib \
 	-DCKB_DECLARATION_ONLY
-CFLAGS_BASE_NNCP = $(CFLAGS_BASE) \
-	-I libc \
-	-I deps/ckb-c-stdlib/libc \
-	-I deps/ckb-c-stdlib \
-	-DCKB_DECLARATION_ONLY
 CFLAGS_BASE_SRC = $(CFLAGS_BASE) \
 	-I libc \
 	-I deps/ckb-c-stdlib/libc \
 	-I deps/ckb-c-stdlib \
-	-I deps/nncp \
 	-I deps/quickjs \
 	-I deps/secp256k1/include \
 	-I deps/secp256k1/src \
@@ -76,7 +70,6 @@ out:
 	@mkdir -p build/bytecode
 	@mkdir -p build/ckb-c-stdlib
 	@mkdir -p build/libc
-	@mkdir -p build/nncp
 	@mkdir -p build/src
 	@mkdir -p build/quickjs
 	@mkdir -p build/secp256k1
@@ -99,7 +92,6 @@ build/ckb-js-vm: build/ckb-c-stdlib/impl.o \
                  build/libc/string.o \
                  build/libc/sys_time.o \
                  build/libc/time.o \
-                 build/nncp/cmdopt.o \
                  build/quickjs/quickjs.o \
                  build/quickjs/libregexp.o \
                  build/quickjs/libunicode.o \
@@ -127,10 +119,6 @@ build/ckb-c-stdlib/%.o: deps/ckb-c-stdlib/libc/src/%.c
 build/libc/%.o: libc/src/%.c
 	@echo build $<
 	@$(CC) $(CFLAGS_BASE_LIBC) -c -o $@ $<
-
-build/nncp/%.o: deps/nncp/%.c
-	@echo build $<
-	@$(CC) $(CFLAGS_BASE_NNCP) -c -o $@ $<
 
 build/src/%.o: src/%.c
 	@echo build $<

@@ -11,7 +11,7 @@ define debug
 	$(CKB-DEBUGGER) --max-cycles $(MAX-CYCLES) --read-file $(ROOT_DIR)/$(1) --bin $(BIN_PATH) -- -r
 endef
 
-all: qjs-tests syntax-error log syscalls assert
+all: qjs-tests syntax-error log syscalls assert log
 
 qjs-tests:
 	$(call run,test_op_overloading.js)
@@ -26,8 +26,7 @@ exception:
 	$(call debug,test_exception.js)
 
 log:
-	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e "console.log(scriptArgs[0], scriptArgs[1]);" hello world
-
+	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e "console.assert(scriptArgs[0] == 'hello'); console.assert(scriptArgs[1] == 'world');" hello world
 
 assert:
 	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e "console.assert(true);"

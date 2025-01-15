@@ -36,7 +36,6 @@
 #include "hash_module.h"
 #include "misc_module.h"
 #include "ckb_exec.h"
-#include "cmdopt.h"
 #include "qjs.h"
 
 #define INIT_FILE_NAME "init.js"
@@ -315,39 +314,64 @@ static JSContext *JS_NewCustomContext(JSRuntime *rt) {
     return ctx;
 }
 
-static const CMDOptDesc js_vm_options[] = {
-    {"h,help", 0, "show the help"},
-    {"c", 0, "compile javascript to bytecode"},
-    {"e", CMD_HAS_ARG, "run javascript from argument value"},
-    {"r", 0, "read from file"},
-    {"t", CMD_HAS_ARG, "specify target code_hash and hash_type in hex"},
-    {"f", 0, "use file system"},
-    {NULL},
-};
+static void print_help_message(void) {
+    printf("Usage: ckb-js-vm [options]\n");
+    printf("Options:\n");
+    printf("  -h, --help        show this help message\n");
+    printf("  -c                compile javascript to bytecode\n");
+    printf("  -e <code>         run javascript from argument value\n");
+    printf("  -r                read from file\n");
+    printf("  -t <target>       specify target code_hash and hash_type in hex\n");
+    printf("  -f                use file system\n");
+}
 
 int main(int argc, const char **argv) {
-    const char *new_argv[8] = {0};
-    new_argv[0] = "qjs";
-    for (int i = 0; i < argc; i++) {
-        new_argv[1 + i] = argv[i];
-    }
-    int optind;
-    CMDOption *co;
-    co = cmdopt_init("ckb-js-vm");
-    cmdopt_add_desc(co, js_vm_options);
-    optind = cmdopt_parse(co, argc + 1, new_argv);
-    if (optind > argc + 1) {
-        cmdopt_show_desc(js_vm_options);
-        exit(1);
-    }
-    if (cmdopt_has(co, "help")) {
-        cmdopt_show_desc(js_vm_options);
-        exit(1);
-    }
-
     int err = 0;
     JSRuntime *rt = NULL;
     JSContext *ctx = NULL;
+
+    // command line parsing
+    size_t optind = 0;
+    bool c_flag = false;         // compile flag
+    bool r_flag = false;         // read from file flag
+    bool f_flag = false;         // use filesystem flag
+    const char *e_value = NULL;  // eval argument
+    const char *t_value = NULL;  // target argument
+
+    for (int i = 0; i < argc; i++) {
+        const char *arg = argv[i];
+
+        if (strcmp(arg, "-h") == 0 || strcmp(arg, "--help") == 0) {
+            print_help_message();
+            return 0;
+        } else if (strcmp(arg, "-c") == 0) {
+            c_flag = true;
+            optind = i + 1;
+        } else if (strcmp(arg, "-e") == 0) {
+            if (i + 1 < argc) {
+                e_value = argv[++i];
+                optind = i + 1;
+            } else {
+                printf("Error: -e requires an argument\n");
+                return 1;
+            }
+        } else if (strcmp(arg, "-r") == 0) {
+            r_flag = true;
+            optind = i + 1;
+        } else if (strcmp(arg, "-f") == 0) {
+            f_flag = true;
+            optind = i + 1;
+        } else if (strcmp(arg, "-t") == 0) {
+            if (i + 1 < argc) {
+                t_value = argv[++i];
+                optind = i + 1;
+            } else {
+                printf("Error: -t requires an argument\n");
+                return 1;
+            }
+        }
+    }
+
     size_t memory_limit = 0;
     size_t stack_size = 1024 * 1020;
     rt = JS_NewRuntime();
@@ -364,6 +388,7 @@ int main(int argc, const char **argv) {
     CHECK2(ctx != NULL, QJS_ERROR_GENERIC);
     /* loader for ES6 modules */
     JS_SetModuleLoaderFunc(rt, NULL, js_module_loader, NULL);
+    // Now passing remaining arguments after the flags
     js_std_add_helpers(ctx, argc - optind, &argv[optind]);
     err = js_init_module_ckb(ctx);
     CHECK(err);
@@ -374,26 +399,21 @@ int main(int argc, const char **argv) {
     err = js_init_module_misc(ctx);
     CHECK(err);
 
-    bool c_bool = cmdopt_has(co, "c");
-    const char *e_data = cmdopt_get(co, "e");
-    bool r_bool = cmdopt_has(co, "r");
-    bool f_bool = cmdopt_has(co, "f");
-    const char *t_data = cmdopt_get(co, "t");
-
-    if (c_bool) {
+    // Replace the command-line handling logic
+    if (c_flag) {
         JS_SetModuleLoaderFunc(rt, NULL, js_module_dummy_loader, NULL);
         err = compile_from_file(ctx);
-    } else if (e_data) {
-        err = eval_buf(ctx, e_data, strlen(e_data), "<cmdline>", true);
-    } else if (r_bool && f_bool) {
+    } else if (e_value) {
+        err = eval_buf(ctx, e_value, strlen(e_value), "<cmdline>", true);
+    } else if (r_flag && f_flag) {
         err = run_from_local_file(ctx, true);
-    } else if (r_bool) {
+    } else if (r_flag) {
         err = run_from_local_file(ctx, false);
-    } else if (t_data && f_bool) {
-        err = run_from_target(ctx, t_data, true);
-    } else if (t_data) {
-        err = run_from_target(ctx, t_data, false);
-    } else if (f_bool) {
+    } else if (t_value && f_flag) {
+        err = run_from_target(ctx, t_value, true);
+    } else if (t_value) {
+        err = run_from_target(ctx, t_value, false);
+    } else if (f_flag) {
         err = run_from_cell_data(ctx, true);
     } else {
         err = run_from_cell_data(ctx, false);
