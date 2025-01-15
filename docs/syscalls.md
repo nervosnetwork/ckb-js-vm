@@ -77,11 +77,12 @@ and `index`.
 
 Example:
 ```js
-ckb.mount(index, source)
+ckb.mount(index, source, mount_point)
 ```
 
-Arguments: source (the source of the cell to load), index (the index of the cell
-to load within all cells with source `source`)
+Arguments: source (the source of the cell to load), index (the index of the cellt
+to load within all cells with source `source`), mount_point (the file system will
+be mounted at this path, usually "")
 
 Return value(s): None
 
