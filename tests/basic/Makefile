@@ -11,7 +11,7 @@ define debug
 	$(CKB-DEBUGGER) --max-cycles $(MAX-CYCLES) --read-file $(ROOT_DIR)/$(1) --bin $(BIN_PATH) -- -r
 endef
 
-all: qjs-tests syntax-error log syscalls assert
+all: qjs-tests syntax-error log syscalls assert log
 
 qjs-tests:
 	$(call run,test_op_overloading.js)
@@ -26,8 +26,7 @@ exception:
 	$(call debug,test_exception.js)
 
 log:
-	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e "console.log(scriptArgs[0], scriptArgs[1]);" hello world
-
+	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e "console.assert(scriptArgs[0] == 'hello'); console.assert(scriptArgs[1] == 'world');" hello world
 
 assert:
 	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e "console.assert(true);"
@@ -39,7 +38,7 @@ syntax-error:
 syscalls:
 	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e 'import * as ckb from "ckb"; ckb.exit(0);'
 	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e 'import * as ckb from "ckb"; ckb.debug("hello, ckb");'
-	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e 'import * as ckb from "ckb"; console.log(ckb.vm_version(), ckb.current_cycles())'
+	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e 'import * as ckb from "ckb"; console.log(ckb.vmVersion(), ckb.currentCycles())'
 	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e 'import * as ckb from "ckb"; console.log(ckb.SOURCE_INPUT, ckb.SOURCE_OUTPUT, ckb.CELL_FIELD_OCCUPIED_CAPACITY)'
 	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e 'import * as ckb from "ckb"; console.log(100.1, ckb.SOURCE_GROUP_INPUT, ckb.SOURCE_GROUP_OUTPUT)'
 

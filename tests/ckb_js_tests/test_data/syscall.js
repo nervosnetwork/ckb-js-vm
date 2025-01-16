@@ -27,15 +27,13 @@ function test_partial_loading(load_func) {
     console.log('test_partial_loading ...');
     let data = load_func(0, ckb.SOURCE_OUTPUT);
     expect_array(data, ARRAY8);
-    data = load_func(0, ckb.SOURCE_OUTPUT, 100);
+    data = load_func(0, ckb.SOURCE_OUTPUT, 0);
     expect_array(data, ARRAY8);
-    let length = load_func(0, ckb.SOURCE_OUTPUT, 0);
-    console.assert(length === 8, 'length != 8');
-    length = load_func(0, ckb.SOURCE_OUTPUT, 0, 1);
+    let length = load_func(0, ckb.SOURCE_OUTPUT, 1, 0);
     console.assert(length === 7, 'length != 7');
-    data = load_func(0, ckb.SOURCE_OUTPUT, 7);
+    data = load_func(0, ckb.SOURCE_OUTPUT, 0, 7);
     expect_array(data, ARRAY8.slice(0, 7));
-    data = load_func(0, ckb.SOURCE_OUTPUT, 7, 1);
+    data = load_func(0, ckb.SOURCE_OUTPUT, 1, 7);
     expect_array(data, ARRAY8.slice(1, 8));
 
     let error_code = must_throw_exception(() => {
@@ -54,13 +52,13 @@ function test_partial_loading_without_comparing(load_func) {
     console.log('test_partial_loading_without_comparing ...');
     let data = load_func(0, ckb.SOURCE_OUTPUT);
     console.assert(data);
-    let length = load_func(0, ckb.SOURCE_OUTPUT, 0);
-    console.assert(length > 0);
-    length = load_func(0, ckb.SOURCE_OUTPUT, 0, 1);
-    console.assert(length > 0);
-    data = load_func(0, ckb.SOURCE_OUTPUT, 7);
+    let length = load_func(0, ckb.SOURCE_OUTPUT, 0, 0);
+    console.assert(length == data.byteLength, "length != data.byteLength");
+    length = load_func(0, ckb.SOURCE_OUTPUT, 1, 0);
+    console.assert(length == data.byteLength - 1, "length != data.byteLength - 1");
+    data = load_func(0, ckb.SOURCE_OUTPUT, 0, 7);
     console.assert(data);
-    data = load_func(0, ckb.SOURCE_OUTPUT, 7, 1);
+    data = load_func(0, ckb.SOURCE_OUTPUT, 1, 7);
     console.assert(data);
 
     must_throw_exception(() => {
@@ -76,13 +74,13 @@ function test_partial_loading_field_without_comparing(load_func, field) {
     console.log('test_partial_loading_field_without_comparing ...');
     let data = load_func(0, ckb.SOURCE_INPUT, field);
     console.assert(data);
-    let length = load_func(0, ckb.SOURCE_INPUT, field, 0);
-    console.assert(length > 0);
-    length = load_func(0, ckb.SOURCE_INPUT, field, 0, 1);
-    console.assert(length > 0);
-    data = load_func(0, ckb.SOURCE_INPUT, field, 7);
+    let length = load_func(0, ckb.SOURCE_INPUT, field, 0, 0);
+    console.assert(length == data.byteLength, "length != data.byteLength");
+    length = load_func(0, ckb.SOURCE_INPUT, field, 1, 0);
+    console.assert(length == data.byteLength - 1, "length != data.byteLength - 1");
+    data = load_func(0, ckb.SOURCE_INPUT, field, 0, 7);
     console.assert(data);
-    data = load_func(0, ckb.SOURCE_INPUT, field, 7, 1);
+    data = load_func(0, ckb.SOURCE_INPUT, field, 1, 7);
     console.assert(data);
 
     must_throw_exception(() => {
@@ -96,16 +94,37 @@ function test_partial_loading_field_without_comparing(load_func, field) {
 
 function test_misc() {
     console.log('test_misc ....');
-    let hash = ckb.load_tx_hash();
+    let hash = ckb.loadTxHash();
     console.assert(hash.byteLength == 32);
-    hash = ckb.load_script_hash();
+    let script = ckb.loadScript();
+    console.assert(script.byteLength == 88, "script.byteLength != 88");
+    let script1 = ckb.loadScript(1);
+    console.assert(script1.byteLength == 87, "script1.byteLength != 87");
+    let script_length = ckb.loadScript(0, 0);
+    console.assert(script_length == 88, "script_length != 88");
+    let script2 = ckb.loadScript(1, 10);
+    console.assert(script2.byteLength == 10, "script2.byteLength != 10");
+    hash = ckb.loadScriptHash();
     console.assert(hash.byteLength == 32);
-    let version = ckb.vm_version();
+    let version = ckb.vmVersion();
     console.assert(version >= 0);
-    let cycles = ckb.current_cycles();
+    let cycles = ckb.currentCycles();
     console.assert(cycles > 0);
-    let cycles2 = ckb.current_cycles();
+    let cycles2 = ckb.currentCycles();
     console.assert(cycles2 > cycles);
+    try {
+        // wrong index type
+        ckb.loadCellData("hello");
+    } catch (e) {
+        let s = e.toString();
+        console.assert(s.includes("Invalid argument: expected integer at index 0"), "failed in test_misc");
+    }
+    try {
+        ckb.loadCellData({});
+    } catch (e) {
+        let s = e.toString();
+        console.assert(s.includes("Invalid argument: expected integer at index 0"), "failed in test_misc");
+    }
     console.log('test_misc done');
 }
 
@@ -113,7 +132,7 @@ function test_spawn() {
     console.log('test_spawn ...');
     const js_code = `
     import * as ckb from 'ckb';
-    let fds = ckb.inherited_fds();
+    let fds = ckb.inheritedFds();
     ckb.write(fds[0], new Uint8Array([0, 1, 2, 3]));
     ckb.close(fds[0]);
     ckb.exit(42);
@@ -131,7 +150,7 @@ function test_spawn() {
         argv: ['-e', js_code],
         inherited_fds: [fds[1]],
     };
-    let pid = ckb.spawn_cell(code_hash, ckb.SCRIPT_HASH_TYPE_TYPE, 0, 0, spawn_args);
+    let pid = ckb.spawnCell(code_hash.buffer, ckb.SCRIPT_HASH_TYPE_TYPE, 0, 0, spawn_args);
     let txt = new Uint8Array(ckb.read(fds[0], 4));
     console.assert(txt[0] == 0);
     console.assert(txt[1] == 1);
@@ -143,15 +162,14 @@ function test_spawn() {
 }
 
 test_misc();
-test_partial_loading(ckb.load_witness);
-test_partial_loading(ckb.load_cell_data);
-test_partial_loading_without_comparing(ckb.load_witness);
-test_partial_loading_without_comparing(ckb.load_cell_data);
-test_partial_loading_without_comparing(ckb.load_transaction);
-test_partial_loading_without_comparing(ckb.load_script);
-test_partial_loading_without_comparing(ckb.load_cell);
-test_partial_loading_field_without_comparing(ckb.load_cell_by_field, ckb.CELL_FIELD_CAPACITY);
-test_partial_loading_field_without_comparing(ckb.load_input_by_field, ckb.INPUT_FIELD_OUT_POINT);
+test_partial_loading(ckb.loadWitness);
+test_partial_loading(ckb.loadCellData);
+test_partial_loading_without_comparing(ckb.loadWitness);
+test_partial_loading_without_comparing(ckb.loadCellData);
+test_partial_loading_without_comparing(ckb.loadTransaction);
+test_partial_loading_without_comparing(ckb.loadCell);
+test_partial_loading_field_without_comparing(ckb.loadCellByField, ckb.CELL_FIELD_CAPACITY);
+test_partial_loading_field_without_comparing(ckb.loadInputByField, ckb.INPUT_FIELD_OUT_POINT);
 test_spawn()
 
 ckb.exit(0);

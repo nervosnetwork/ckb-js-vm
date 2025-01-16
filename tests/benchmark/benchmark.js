@@ -1,4 +1,4 @@
-
+import * as ckb from 'ckb';
 const MAX_ITERATE = 1;
 
 function bench(bench) {
@@ -6,9 +6,9 @@ function bench(bench) {
     if (bench.bench_prepare !== undefined) {
         value = bench.bench_prepare();
     }
-    let start_cycles = ckb.current_cycles();
+    let start_cycles = ckb.currentCycles();
     bench.func(MAX_ITERATE, value);
-    let cost_cycles = ckb.current_cycles() - start_cycles;
+    let cost_cycles = ckb.currentCycles() - start_cycles;
     console.log(`${bench.name}: ${Math.round(cost_cycles / 1024)} K cycles`);
 }
 

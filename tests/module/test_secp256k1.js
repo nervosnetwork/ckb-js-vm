@@ -12,13 +12,13 @@ function test_recovery(failure) {
         'ce2d0d49d55e810312f7c22702e0548a' +
         '3969ce72940a34632f93ebd1b8d591c3' +
         '775428f035c6577e4adf8068b04819f0');
-    const s = ckb.current_cycles();
+    const s = ckb.currentCycles();
     const expected_pubkey = misc.hex.decode(
         'aca98c5822b997c15f8c974386a11b14' +
         'a0d009a4d5156e145644573e82ef7e7b' +
         '226b9eb6173d6b4504606eb8d9558bde' +
         '98d12100836e92d306a40f337ed8a0f3');
-    const e = ckb.current_cycles();
+    const e = ckb.currentCycles();
     console.log(`misc.hex.decode: ${e - s}`);
 
     // Verify the signature
@@ -36,9 +36,9 @@ function test_recovery(failure) {
         }
         console.assert(success, 'Signature recovery should fail');
     } else {
-        const start = ckb.current_cycles();
+        const start = ckb.currentCycles();
         const pubkey = secp256k1.recover(sig, recid, msg);
-        const end = ckb.current_cycles();
+        const end = ckb.currentCycles();
         console.log(`recover cycles: ${end - start}`);
         console.assert(
             misc.hex.encode(pubkey) === misc.hex.encode(expected_pubkey),
@@ -84,9 +84,9 @@ function test_verify() {
         'a0d009a4d5156e145644573e82ef7e7b' +
         '226b9eb6173d6b4504606eb8d9558bde' +
         '98d12100836e92d306a40f337ed8a0f3');
-    const start = ckb.current_cycles();
+    const start = ckb.currentCycles();
     const success = secp256k1.verify(sig, msg, pubkey);
-    const end = ckb.current_cycles();
+    const end = ckb.currentCycles();
     console.log(`verify cycles: ${end - start}`);
     console.assert(success, 'test_verify failed');
 
@@ -97,9 +97,9 @@ function test_parse_pubkey() {
     const pubkey = misc.hex.decode(
         '0375fbccbf29be9408ed96ca232fb941' +
         'b358e6158ace9fbfe8214c994d38bd9ff9');
-    const start = ckb.current_cycles();
+    const start = ckb.currentCycles();
     const out_pubkey = secp256k1.parsePubkey(pubkey);
-    const end = ckb.current_cycles();
+    const end = ckb.currentCycles();
     console.log(`parsePubkey cycles: ${end - start}`);
     console.assert(
         misc.hex.encode(out_pubkey) ===
@@ -117,9 +117,9 @@ function test_serialize_pubkey() {
         'b341b92f23ca96ed0894be29bfccfb75' +
         '3d797a1b2ce723964030b3ef1e31656b' +
         '04a9c3fadcf100a613b385fec85620d1');
-    const start = ckb.current_cycles();
+    const start = ckb.currentCycles();
     const out_pubkey = secp256k1.serializePubkey(pubkey, true);
-    const end = ckb.current_cycles();
+    const end = ckb.currentCycles();
     console.log(`serializePubkey: ${end - start}`);
     console.assert(
         misc.hex.encode(out_pubkey) ===

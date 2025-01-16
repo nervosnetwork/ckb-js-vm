@@ -40,7 +40,7 @@ function* iterate_field(source, field) {
     let index = 0;
     while (true) {
         try {
-            let ret = ckb.load_cell_by_field(index, source, field);
+            let ret = ckb.loadCellByField(index, source, field);
             yield ret;
             index++;
         } catch (e) {
@@ -57,7 +57,7 @@ function* iterate_cell_data(source) {
     let index = 0;
     while (true) {
         try {
-            let ret = ckb.load_cell_data(index, source);
+            let ret = ckb.loadCellData(index, source);
             yield ret;
             index++;
         } catch (e) {
@@ -72,7 +72,7 @@ function* iterate_cell_data(source) {
 
 function main() {
     console.log('simple UDT ...');
-    let buf = ckb.load_script();
+    let buf = ckb.loadScript();
     let script = unpack_script(buf);
     let owner_mode = false;
     // ckb-js-vm has leading 35 bytes args
