@@ -178,8 +178,16 @@ function test_import_meta() {
     console.log('test_import_meta ok');
 }
 
+function test_printf() {
+    misc.printf('Hello, World: %d', 100);
+    const str = misc.sprintf("%s, %d", "Hello, World", 100);
+    console.assert(str === "Hello, World, 100", 'sprintf failed');
+    console.log('test_printf ok');
+}
+
 // Add the new test cases to the main execution
 console.log('test_misc.js ...');
+test_printf();
 test_ckb_smt_verify1(true);
 test_ckb_smt_verify1(false);
 test_ckb_smt_verify2(true);

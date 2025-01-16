@@ -10,7 +10,7 @@ function main_2() {
 }
 function main_3() {
     console.log("main_3() function");
-    misc.test.throw_exception("Exception in main_3() function");
+    misc.throw_exception("Exception in main_3() function");
 }
 
 function main() {
