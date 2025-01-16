@@ -179,6 +179,8 @@ function test_import_meta() {
 }
 
 function test_printf() {
+    const k = 100;
+    console.log("hello", "world", 111.1234, {"a": 1, "b": 2}, [1, 2, 3], `k = ${k}`);
     misc.printf('Hello, World: %d', 100);
     const str = misc.sprintf("%s, %d", "Hello, World", 100);
     console.assert(str === "Hello, World, 100", 'sprintf failed');

@@ -11,21 +11,24 @@
 #include "ckb_cell_fs.h"
 #include "qjs.h"
 
-/* console.log */
 static JSValue js_print(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv) {
-    for (int i = 0; i < argc; i++) {
-        int tag = JS_VALUE_GET_TAG(argv[i]);
-        if (JS_TAG_IS_FLOAT64(tag)) {
-            double d = JS_VALUE_GET_FLOAT64(argv[i]);
-            printf("%f", d);
-        } else {
-            size_t len;
-            const char *str = JS_ToCStringLen(ctx, &len, argv[i]);
-            if (!str) return JS_EXCEPTION;
-            ckb_debug(str);
-            JS_FreeCString(ctx, str);
+    int i;
+    const char *str;
+    size_t len;
+    DynBuf dbuf;
+    dbuf_init(&dbuf);
+    for (i = 0; i < argc; i++) {
+        if (i != 0) {
+            dbuf_putc(&dbuf, ' ');
         }
+        str = JS_ToCStringLen(ctx, &len, argv[i]);
+        if (!str) return JS_EXCEPTION;
+        dbuf_put(&dbuf, (const uint8_t *)str, len);
+        JS_FreeCString(ctx, str);
     }
+    dbuf_putc(&dbuf, '\0');
+    ckb_debug((char *)dbuf.buf);
+    dbuf_free(&dbuf);
     return JS_UNDEFINED;
 }
 
