@@ -10,13 +10,14 @@
 #include "ckb_syscall_apis.h"
 #include "ckb_cell_fs.h"
 #include "qjs.h"
+#include "utils.h"
 
 static JSValue js_print(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv) {
     int i;
     const char *str;
     size_t len;
     DynBuf dbuf;
-    dbuf_init(&dbuf);
+    qjs_dbuf_init(ctx, &dbuf);
     for (i = 0; i < argc; i++) {
         if (i != 0) {
             dbuf_putc(&dbuf, ' ');

@@ -8,6 +8,7 @@
 #include "blake2b.h"
 #include "ckb_smt.h"
 #include "qjs.h"
+#include "utils.h"
 
 typedef struct {
     uint8_t key[SMT_KEY_BYTES];
@@ -308,10 +309,6 @@ static JSValue js_throw_exception(JSContext *ctx, JSValueConst this_val, int arg
     return error;
 }
 
-static void js_std_dbuf_init(JSContext *ctx, DynBuf *s) {
-    dbuf_init2(s, JS_GetRuntime(ctx), (DynBufReallocFunc *)js_realloc_rt);
-}
-
 static bool my_isdigit(int c) { return (c >= '0' && c <= '9'); }
 
 static JSValue js_printf_internal(JSContext *ctx, int argc, JSValueConst *argv, bool to_console) {
@@ -332,7 +329,7 @@ static JSValue js_printf_internal(JSContext *ctx, int argc, JSValueConst *argv, 
     /* Use indirect call to dbuf_printf to prevent gcc warning */
     int (*dbuf_printf_fun)(DynBuf *s, const char *fmt, ...) = (void *)dbuf_printf;
 
-    js_std_dbuf_init(ctx, &dbuf);
+    qjs_dbuf_init(ctx, &dbuf);
 
     if (argc > 0) {
         fmt_str = JS_ToCStringLen(ctx, &fmt_len, argv[0]);
