@@ -1,5 +1,7 @@
 #include <stdbool.h>
 #include "utils.h"
+#include "cutils.h"
+#include "quickjs.h"
 
 bool qjs_bad_int_arg(JSContext *ctx, JSValue val, int index) {
     uint32_t tag = JS_VALUE_GET_TAG(val);
@@ -30,3 +32,5 @@ bool qjs_bad_str_arg(JSContext *ctx, JSValue val, int index) {
         return true;
     }
 }
+
+void qjs_dbuf_init(JSContext *ctx, DynBuf *s) { dbuf_init2(s, JS_GetRuntime(ctx), (DynBufReallocFunc *)js_realloc_rt); }

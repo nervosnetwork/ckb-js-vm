@@ -300,6 +300,10 @@ void *realloc(void *p, size_t n) {
     void *new;
 
     if (!p) return malloc(n);
+    if (p && (n == 0)) {
+        free(p);
+        return 0;
+    }
 
     if (adjust_size(&n) < 0) return 0;
 
