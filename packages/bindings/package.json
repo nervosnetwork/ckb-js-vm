@@ -1,0 +1,17 @@
+{
+    "name": "@ckb-js-std/bindings",
+    "version": "0.1.0",
+    "description": "bindings for ckb-js-vm",
+    "author": "CKB-VM Team",
+    "license": "MIT",
+    "private": false,
+    "homepage": "https://github.com/nervosnetwork/ckb-js-vm",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/nervosnetwork/ckb-js-vm.git"
+    },
+    "scripts": {
+    },
+    "sideEffects": false,
+    "types": "index"
+}

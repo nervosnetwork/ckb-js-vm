@@ -1,0 +1,18 @@
+{
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build:prepare": "pnpm -r install",
+    "build": "pnpm -r run build",
+    "docs": "typedoc"
+  },
+  "devDependencies": {
+    "esbuild": "0.24.2",
+    "eslint": "9.18.0",
+    "prettier": "3.4.2",
+    "typescript": "^5.7.3"
+  },
+  "pnpm": {}
+}
