@@ -13,5 +13,5 @@
     "scripts": {
     },
     "sideEffects": false,
-    "types": "index"
+    "types": "./index.d.ts"
 }
