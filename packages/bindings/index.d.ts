@@ -54,7 +54,32 @@ export const SCRIPT_HASH_TYPE_DATA2: number;
  */
 export function exit(status: number): void;
 
+/**
+ * Load script
+ * @param offset - Optional starting offset in the data
+ * @param length - Optional length of data to load
+ * @returns The loaded script as ArrayBuffer
+ */
+export function loadScript(offset?: number, length?: number): ArrayBuffer;
 
+/**
+ * Load transaction
+ * @returns The loaded transaction as ArrayBuffer
+ */
+export function loadTransaction(): ArrayBuffer;
+
+/**
+ * Load script hash
+ * @returns The loaded script hash as ArrayBuffer
+ */
+export function loadScriptHash(): ArrayBuffer;
+
+/**
+ * Load script
+ * @param offset - Optional starting offset in the data
+ * @param length - Optional length of data to load
+ * @returns The loaded script as ArrayBuffer
+ */
 export function loadScript(offset?: number, length?: number): ArrayBuffer;
 
 /**
@@ -98,14 +123,25 @@ export function loadHeader(index: number, source: SourceType, offset?: number, l
 export function loadWitness(index: number, source: SourceType, offset?: number, length?: number): ArrayBuffer;
 
 /**
+ * Load cell data from the transaction
+ * @param index - The index of the cell
+ * @param source - The source of the cell (use SOURCE_* constants)
+ * @param offset - Optional starting offset in the data
+ * @param length - Optional length of data to load
+ * @returns The loaded cell data as ArrayBuffer
+ */
+export function loadCellData(index: number, source: SourceType, offset?: number, length?: number): ArrayBuffer;
+
+/**
  * Load cell data by specific field
  * @param index - The index of the cell
  * @param source - The source of the cell (use SOURCE_* constants)
  * @param field - The field to load (use CELL_FIELD_* constants)
  * @param offset - Optional starting offset in the field data
+ * @param length - Optional length of data to load
  * @returns The loaded field data as ArrayBuffer
  */
-export function loadCellByField(index: number, source: SourceType, field: number, offset?: number): ArrayBuffer;
+export function loadCellByField(index: number, source: SourceType, field: number, offset?: number, length?: number): ArrayBuffer;
 
 /**
  * Load header data by specific field
@@ -113,9 +149,10 @@ export function loadCellByField(index: number, source: SourceType, field: number
  * @param source - The source of the header (use SOURCE_* constants)
  * @param field - The field to load (use HEADER_FIELD_* constants)
  * @param offset - Optional starting offset in the field data
+ * @param length - Optional length of data to load
  * @returns The loaded field data as ArrayBuffer
  */
-export function loadHeaderByField(index: number, source: SourceType, field: number, offset?: number): ArrayBuffer;
+export function loadHeaderByField(index: number, source: SourceType, field: number, offset?: number, length?: number): ArrayBuffer;
 
 /**
  * Load input data by specific field
@@ -123,9 +160,10 @@ export function loadHeaderByField(index: number, source: SourceType, field: numb
  * @param source - The source of the input (use SOURCE_* constants)
  * @param field - The field to load (use INPUT_FIELD_* constants)
  * @param offset - Optional starting offset in the field data
+ * @param length - Optional length of data to load
  * @returns The loaded field data as ArrayBuffer
  */
-export function loadInputByField(index: number, source: SourceType, field: number, offset?: number): ArrayBuffer;
+export function loadInputByField(index: number, source: SourceType, field: number, offset?: number, length?: number): ArrayBuffer;
 
 /**
  * Get the current VM version
@@ -143,7 +181,7 @@ export function currentCycles(): number;
  * Execute a cell with the given parameters
  * @param codeHash - The code hash of the cell to execute
  * @param hashType - The hash type of the code (use SCRIPT_HASH_TYPE_* constants)
- * @param offset - The offset in the cell data to start execution
+ * @param offset - The offset in the cell data
  * @param length - The length of code to execute
  * @param args - Additional arguments to pass to the cell
  */
@@ -163,7 +201,7 @@ export interface SpawnArgs {
  * Spawn a new process from a cell
  * @param codeHash - The code hash of the cell to spawn
  * @param hashType - The hash type of the code (use SCRIPT_HASH_TYPE_* constants)
- * @param offset - The offset in the cell data to start execution
+ * @param offset - The offset in the cell data
  * @param length - The length of code to execute
  * @param args - Spawn arguments including argv and inherited file descriptors
  * @returns The process ID of the spawned process
@@ -228,11 +266,49 @@ export function processId(): number;
 export function loadBlockExtension(index: number, source: number, offset?: number, length?: number): ArrayBuffer;
 
 /**
+ * Mount a file system
+ * @param codeHash - The code hash of the cell to mount
+ * @param hashType - The hash type of the code (use SCRIPT_HASH_TYPE_* constants)
+ */
+export function mount(codeHash: ArrayBuffer, hashType: number): void;
+
+/**
  * Output debug message
  * @param message - The debug message to output
  */
 export function debug(message: string): void;
 
+/**
+ * Evaluate a JavaScript script
+ * @param jsScript - The JavaScript script to evaluate
+ * @param enableModule - Whether to enable ES6 module (default: false)
+ * @returns The result of the script evaluation
+ * @note When enableModule is true, the script doesn't return any value.
+ */
+export function evalJsScript(jsScript: string, enableModule?: boolean): any;
+
+/**
+ * Load a JavaScript script
+ * @param path - The path to the JavaScript script
+ * @param enableModule - Whether to enable ES6 module (default: false)
+ * @returns The loaded script as ArrayBuffer
+ * @note When enableModule is true, the script doesn't return any value.
+ */
+export function loadJsScript(path: string, enableModule?: boolean): any;
+
+/**
+ * Load a file
+ * @param path - The path to the file
+ * @returns The loaded file as string
+ */
+export function loadFile(path: string): string;
+
+/**
+ * Parse a JSON string with extended options, like comments
+ * @param json - The JSON string to parse
+ * @returns The parsed JSON object
+ */
+export function parseExtJSON(json: string) : Object;
 
 /**
  * SHA256 hash implementation
@@ -243,7 +319,7 @@ export class Sha256 {
      * Update the hash with new data
      * @param data - Data to be hashed
      */
-    write(data: ArrayBuffer): void;
+    update(data: ArrayBuffer): void;
     /**
      * Finalize and get the hash result
      * @returns The 32-byte hash result
@@ -260,7 +336,7 @@ export class Keccak256 {
      * Update the hash with new data
      * @param data - Data to be hashed
      */
-    write(data: ArrayBuffer): void;
+    update(data: ArrayBuffer): void;
     /**
      * Finalize and get the hash result
      * @returns The 32-byte hash result
@@ -281,7 +357,7 @@ export class Blake2b {
      * Update the hash with new data
      * @param data - Data to be hashed
      */
-    write(data: ArrayBuffer): void;
+    update(data: ArrayBuffer): void;
     /**
      * Finalize and get the hash result
      * @returns The 32-byte hash result
@@ -298,7 +374,7 @@ export class Ripemd160 {
      * Update the hash with new data
      * @param data - Data to be hashed
      */
-    write(data: ArrayBuffer): void;
+    update(data: ArrayBuffer): void;
     /**
      * Finalize and get the hash result
      * @returns The 20-byte hash result
@@ -308,26 +384,28 @@ export class Ripemd160 {
 
 
 /**
- * Recover public key from signature and message hash
+ * Recover raw public key from signature and message hash
  * @param signature - The 64-byte signature
  * @param recoveryId - The recovery ID (0-3)
  * @param messageHash - The 32-byte message hash
- * @returns The recovered public key
+ * @returns The recovered raw public key (64-bytes)
  */
 export function recover(signature: ArrayBuffer, recoveryId: number, messageHash: ArrayBuffer): ArrayBuffer;
 
 /**
- * Serialize a public key to compressed or uncompressed format
- * @param pubkey - The public key to serialize
- * @param compressed - Whether to use compressed format (33 bytes) or uncompressed (65 bytes)
- * @returns The serialized public key
+ * Serialize a raw public key (64-bytes) to serialized format(compressed or uncompressed)
+ * @param pubkey - The raw public key to serialize
+ * @param compressed - Whether to use compressed format (33 bytes) or
+ * uncompressed (65 bytes)
+ * @returns The serialized public key (33 or 65 bytes)
  */
 export function serializePubkey(pubkey: ArrayBuffer, compressed?: boolean): ArrayBuffer;
 
 /**
- * Parse a serialized public key
- * @param serializedPubkey - The serialized public key (33 or 65 bytes)
- * @returns The parsed public key
+ * Parse a serialized public key(compressed or uncompressed) to raw public key. It
+ * is the reverse function of serializePubkey.
+ * @param serializedPubkey - The serialized format public key (33 or 65 bytes)
+ * @returns The parsed raw public key (64-bytes)
  */
 export function parsePubkey(serializedPubkey: ArrayBuffer): ArrayBuffer;
 
@@ -335,11 +413,10 @@ export function parsePubkey(serializedPubkey: ArrayBuffer): ArrayBuffer;
  * Verify an ECDSA signature
  * @param signature - The 64-byte signature
  * @param messageHash - The 32-byte message hash
- * @param pubkey - The public key
+ * @param pubkey - The raw public key (64-bytes)
  * @returns True if signature is valid, false otherwise
  */
 export function verify(signature: ArrayBuffer, messageHash: ArrayBuffer, pubkey: ArrayBuffer): boolean;
-
 
 /**
  * Sparse Merkle Tree implementation
@@ -411,3 +488,26 @@ export function sprintf(format: string, ...args: any[]): string;
  * @param args - Values to format
  */
 export function printf(format: string, ...args: any[]): void;
+
+/**
+ * Console object for logging and assertions
+ */
+export const console: {
+    /**
+     * Log messages to debug output
+     * @param args - Values to log
+     */
+    log(...args: any[]): void;
+
+    /**
+     * Assert a condition, throw if false
+     * @param condition - Condition to check
+     * @param args - Values to log if assertion fails
+     */
+    assert(condition: boolean, ...args: any[]): void;
+};
+
+/**
+ * Global scriptArgs array containing command line arguments
+ */
+export const scriptArgs: string[];

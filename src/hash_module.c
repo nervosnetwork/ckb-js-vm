@@ -107,7 +107,7 @@ static JSValue js_sha256_finalize(JSContext *ctx, JSValueConst this_val, int arg
 }
 
 static const JSCFunctionListEntry js_sha256_proto_funcs[] = {
-    JS_CFUNC_DEF("write", 1, js_sha256_write),
+    JS_CFUNC_DEF("update", 1, js_sha256_write),
     JS_CFUNC_DEF("finalize", 0, js_sha256_finalize),
 };
 
@@ -185,7 +185,7 @@ static JSValue js_keccak256_finalize(JSContext *ctx, JSValueConst this_val, int 
 }
 
 static const JSCFunctionListEntry js_keccak256_proto_funcs[] = {
-    JS_CFUNC_DEF("write", 1, js_keccak256_write),
+    JS_CFUNC_DEF("update", 1, js_keccak256_write),
     JS_CFUNC_DEF("finalize", 0, js_keccak256_finalize),
 };
 
@@ -293,7 +293,7 @@ static JSValue js_blake2b_finalize(JSContext *ctx, JSValueConst this_val, int ar
 }
 
 static const JSCFunctionListEntry js_blake2b_proto_funcs[] = {
-    JS_CFUNC_DEF("write", 1, js_blake2b_write),
+    JS_CFUNC_DEF("update", 1, js_blake2b_write),
     JS_CFUNC_DEF("finalize", 0, js_blake2b_finalize),
 };
 
@@ -373,7 +373,7 @@ static JSValue js_ripemd160_finalize(JSContext *ctx, JSValueConst this_val, int 
 }
 
 static const JSCFunctionListEntry js_ripemd160_proto_funcs[] = {
-    JS_CFUNC_DEF("write", 1, js_ripemd160_write),
+    JS_CFUNC_DEF("update", 1, js_ripemd160_write),
     JS_CFUNC_DEF("finalize", 0, js_ripemd160_finalize),
 };
 

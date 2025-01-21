@@ -34,7 +34,7 @@ function test_sha2_sha256_empty_string() {
 
     const sha256 = new hash.Sha256();
     const start = ckb.currentCycles();
-    sha256.write(new Uint8Array(0).buffer);
+    sha256.update(new Uint8Array(0).buffer);
     const result = sha256.finalize();
     const end = ckb.currentCycles();
     console.log(`empty string hash cycles: ${end - start}`);
@@ -51,7 +51,7 @@ function test_keccak256_empty_string() {
 
     const keccak256 = new hash.Keccak256();
     const start = ckb.currentCycles();
-    keccak256.write(new Uint8Array(0).buffer);
+    keccak256.update(new Uint8Array(0).buffer);
     const result = keccak256.finalize();
     const end = ckb.currentCycles();
     console.log(`empty string hash cycles: ${end - start}`);
@@ -71,7 +71,7 @@ function test_sha2_sha256_basic_string() {
 
     const sha256 = new hash.Sha256();
     const start = ckb.currentCycles();
-    sha256.write(input.buffer);
+    sha256.update(input.buffer);
     const result = sha256.finalize();
     const end = ckb.currentCycles();
     console.log(`basic string hash cycles: ${end - start}`);
@@ -91,8 +91,8 @@ function test_sha2_sha256_multiple_updates() {
 
     const sha256 = new hash.Sha256();
     const start = ckb.currentCycles();
-    sha256.write(input1.buffer);
-    sha256.write(input2.buffer);
+    sha256.update(input1.buffer);
+    sha256.update(input2.buffer);
     const result = sha256.finalize();
     const end = ckb.currentCycles();
     console.log(`multiple updates hash cycles: ${end - start}`);
@@ -112,7 +112,7 @@ function test_sha2_sha256_long_string() {
 
     const sha256 = new hash.Sha256();
     const start = ckb.currentCycles();
-    sha256.write(inputBytes.buffer);
+    sha256.update(inputBytes.buffer);
     const result = sha256.finalize();
     const end = ckb.currentCycles();
     console.log(`long string hash cycles: ${end - start}`);
@@ -125,7 +125,7 @@ function test_sha2_sha256_error_handling() {
     let success = false;
     try {
         const sha256 = new hash.Sha256();
-        sha256.write('invalid input');  // Should throw type error
+        sha256.update('invalid input');  // Should throw type error
     } catch (e) {
         success = true;
     }
@@ -141,7 +141,7 @@ function test_keccak256_basic_string() {
 
     const keccak256 = new hash.Keccak256();
     const start = ckb.currentCycles();
-    keccak256.write(input.buffer);
+    keccak256.update(input.buffer);
     const result = keccak256.finalize();
     const end = ckb.currentCycles();
     console.log(`basic string hash cycles: ${end - start}`);
@@ -161,8 +161,8 @@ function test_keccak256_multiple_updates() {
 
     const keccak256 = new hash.Keccak256();
     const start = ckb.currentCycles();
-    keccak256.write(input1.buffer);
-    keccak256.write(input2.buffer);
+    keccak256.update(input1.buffer);
+    keccak256.update(input2.buffer);
     const result = keccak256.finalize();
     const end = ckb.currentCycles();
     console.log(`multiple updates hash cycles: ${end - start}`);
@@ -182,7 +182,7 @@ function test_keccak256_long_string() {
 
     const keccak256 = new hash.Keccak256();
     const start = ckb.currentCycles();
-    keccak256.write(inputBytes.buffer);
+    keccak256.update(inputBytes.buffer);
     const result = keccak256.finalize();
     const end = ckb.currentCycles();
     console.log(`long string hash cycles: ${end - start}`);
@@ -198,7 +198,7 @@ function test_blake2b_empty_string() {
 
     const blake2b = new hash.Blake2b(CKB_DEFAULT_HASH);
     const start = ckb.currentCycles();
-    blake2b.write(new Uint8Array(0).buffer);
+    blake2b.update(new Uint8Array(0).buffer);
     const result = blake2b.finalize();
     const end = ckb.currentCycles();
     console.log(`empty string hash cycles: ${end - start}`);
@@ -216,7 +216,7 @@ function test_blake2b_basic_string() {
 
     const blake2b = new hash.Blake2b(CKB_DEFAULT_HASH);
     const start = ckb.currentCycles();
-    blake2b.write(input.buffer);
+    blake2b.update(input.buffer);
     const result = blake2b.finalize();
     const end = ckb.currentCycles();
     console.log(`basic string hash cycles: ${end - start}`);
@@ -235,8 +235,8 @@ function test_blake2b_multiple_updates() {
 
     const blake2b = new hash.Blake2b(CKB_DEFAULT_HASH);
     const start = ckb.currentCycles();
-    blake2b.write(input1.buffer);
-    blake2b.write(input2.buffer);
+    blake2b.update(input1.buffer);
+    blake2b.update(input2.buffer);
     const result = blake2b.finalize();
     const end = ckb.currentCycles();
     console.log(`multiple updates hash cycles: ${end - start}`);
@@ -255,7 +255,7 @@ function test_blake2b_long_string() {
 
     const blake2b = new hash.Blake2b(CKB_DEFAULT_HASH);
     const start = ckb.currentCycles();
-    blake2b.write(inputBytes.buffer);
+    blake2b.update(inputBytes.buffer);
     const result = blake2b.finalize();
     const end = ckb.currentCycles();
     console.log(`long string hash cycles: ${end - start}`);
@@ -270,7 +270,7 @@ function test_ripemd160_empty_string() {
 
     const ripemd160 = new hash.Ripemd160();
     const start = ckb.currentCycles();
-    ripemd160.write(new Uint8Array(0).buffer);
+    ripemd160.update(new Uint8Array(0).buffer);
     const result = ripemd160.finalize();
     const end = ckb.currentCycles();
     console.log(`empty string hash cycles: ${end - start}`);
@@ -288,7 +288,7 @@ function test_ripemd160_basic_string() {
 
     const ripemd160 = new hash.Ripemd160();
     const start = ckb.currentCycles();
-    ripemd160.write(input.buffer);
+    ripemd160.update(input.buffer);
     const result = ripemd160.finalize();
     const end = ckb.currentCycles();
     console.log(`basic string hash cycles: ${end - start}`);
@@ -308,8 +308,8 @@ function test_ripemd160_multiple_updates() {
 
     const ripemd160 = new hash.Ripemd160();
     const start = ckb.currentCycles();
-    ripemd160.write(input1.buffer);
-    ripemd160.write(input2.buffer);
+    ripemd160.update(input1.buffer);
+    ripemd160.update(input2.buffer);
     const result = ripemd160.finalize();
     const end = ckb.currentCycles();
     console.log(`multiple updates hash cycles: ${end - start}`);
@@ -329,7 +329,7 @@ function test_ripemd160_long_string() {
 
     const ripemd160 = new hash.Ripemd160();
     const start = ckb.currentCycles();
-    ripemd160.write(inputBytes.buffer);
+    ripemd160.update(inputBytes.buffer);
     const result = ripemd160.finalize();
     const end = ckb.currentCycles();
     console.log(`long string hash cycles: ${end - start}`);
