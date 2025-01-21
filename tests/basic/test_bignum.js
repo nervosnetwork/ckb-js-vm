@@ -85,7 +85,7 @@ function test_bigint1()
     test_eq(3, 3n);
 
     test_less(2.1, 3n);
-    // test_eq(Math.sqrt(4), 2n);
+    test_eq(BigInt.sqrt(4n), 2n);
 
     a = bigint_pow(3n, 100n);
     assert((a - 1n) != a);
@@ -136,10 +136,10 @@ function test_bigint_ext()
     assert(BigInt.floorLog2(0n) === -1n);
     assert(BigInt.floorLog2(7n) === 2n);
 
-    // assert(BigInt.sqrt(0xffffffc000000000000000n) === 17592185913343n);
-    // r = BigInt.sqrtrem(0xffffffc000000000000000n);
-    // assert(r[0] === 17592185913343n);
-    // assert(r[1] === 35167191957503n);
+    assert(BigInt.sqrt(0xffffffc000000000000000n) === 17592185913343n);
+    r = BigInt.sqrtrem(0xffffffc000000000000000n);
+    assert(r[0] === 17592185913343n);
+    assert(r[1] === 35167191957503n);
 
     test_idiv1("tdiv", 3n, 2n, [1n, -1n, -1n, 1n]);
     test_idiv1("fdiv", 3n, 2n, [1n, -2n, -2n, 1n]);
@@ -163,20 +163,20 @@ function test_bigfloat()
     test_eq(3, 3l);
 
     test_less(2.1, 3l);
-    // test_eq(Math.sqrt(9), 3l);
+    test_eq(BigFloat.sqrt(9), 3l);
 
     test_less(2n, 3l);
     test_eq(3n, 3l);
 
     e = new BigFloatEnv(128);
     assert(e.prec == 128);
-    // a = BigFloat.sqrt(2l, e);
-    // assert(a === BigFloat.parseFloat("0x1.6a09e667f3bcc908b2fb1366ea957d3e", 0, e));
-    // assert(e.inexact === true);
-    // assert(BigFloat.fpRound(a) == 0x1.6a09e667f3bcc908b2fb1366ea95l);
+    a = BigFloat.sqrt(2l, e);
+    assert(a === BigFloat.parseFloat("0x1.6a09e667f3bcc908b2fb1366ea957d3e", 0, e));
+    assert(e.inexact === true);
+    assert(BigFloat.fpRound(a) == 0x1.6a09e667f3bcc908b2fb1366ea95l);
 
-    // b = BigFloatEnv.setPrec(BigFloat.sqrt.bind(null, 2), 128);
-    // assert(a === b);
+    b = BigFloatEnv.setPrec(BigFloat.sqrt.bind(null, 2), 128);
+    assert(a === b);
 
     assert(BigFloat.isNaN(BigFloat(NaN)));
     assert(BigFloat.isFinite(1l));
@@ -244,8 +244,9 @@ function test_bigdecimal()
 
     test_less(1, 2m);
 
-    // test_less(1.1, 2m);
-    // test_eq(Math.sqrt(4), 2m);
+    test_less(1.1, 2m);
+    const result = BigDecimal.sqrt(4m, { roundingMode: "half-even", maximumFractionDigits: 3 });
+    test_eq(result, 2m);
 
     test_less(2n, 3m);
     test_eq(3n, 3m);
@@ -254,7 +255,7 @@ function test_bigdecimal()
     assert(BigDecimal("    1234.1") === 1234.1m);
     assert(BigDecimal("    1234.1  ") === 1234.1m);
 
-    // assert(BigDecimal(0.1) === 0.1m);
+    assert(BigDecimal(0.1) === 0.1m);
     assert(BigDecimal(123) === 123m);
     assert(BigDecimal(true) === 1m);
 
@@ -272,15 +273,15 @@ function test_bigdecimal()
     assertThrows(RangeError, () => { 2m ** 3.1m } );
     assertThrows(RangeError, () => { 2m ** -3m } );
 
-    // assert(BigDecimal.sqrt(2m,
-    //                    { roundingMode: "half-even",
-    //                      maximumSignificantDigits: 4 }) === 1.414m);
-    // assert(BigDecimal.sqrt(101m,
-    //                    { roundingMode: "half-even",
-    //                      maximumFractionDigits: 3 }) === 10.050m);
-    // assert(BigDecimal.sqrt(0.002m,
-    //                    { roundingMode: "half-even",
-    //                      maximumFractionDigits: 3 }) === 0.045m);
+    assert(BigDecimal.sqrt(2m,
+                       { roundingMode: "half-even",
+                         maximumSignificantDigits: 4 }) === 1.414m);
+    assert(BigDecimal.sqrt(101m,
+                       { roundingMode: "half-even",
+                         maximumFractionDigits: 3 }) === 10.050m);
+    assert(BigDecimal.sqrt(0.002m,
+                       { roundingMode: "half-even",
+                         maximumFractionDigits: 3 }) === 0.045m);
 
     assert(BigDecimal.round(3.14159m,
                        { roundingMode: "half-even",

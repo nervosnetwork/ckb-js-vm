@@ -769,9 +769,9 @@ static JSValue js_parse_ext_json(JSContext *ctx, JSValueConst this_val, int argc
 static const JSCFunctionListEntry js_ckb_funcs[] = {
     JS_CFUNC_DEF("exit", 1, syscall_exit),
     JS_CFUNC_DEF("loadTxHash", 1, syscall_load_tx_hash),
-    JS_CFUNC_DEF("loadTransaction", 1, syscall_load_transaction),
+    JS_CFUNC_DEF("loadTransaction", 2, syscall_load_transaction),
     JS_CFUNC_DEF("loadScriptHash", 1, syscall_load_script_hash),
-    JS_CFUNC_DEF("loadScript", 1, syscall_load_script),
+    JS_CFUNC_DEF("loadScript", 2, syscall_load_script),
     JS_CFUNC_DEF("debug", 1, syscall_debug),
     JS_CFUNC_DEF("loadCell", 4, syscall_load_cell),
     JS_CFUNC_DEF("loadInput", 4, syscall_load_input),

@@ -64,9 +64,11 @@ export function loadScript(offset?: number, length?: number): ArrayBuffer;
 
 /**
  * Load transaction
+ * @param offset - Optional starting offset in the transaction (defaults to 0)
+ * @param length - Optional length of transaction to load (defaults to reading until the end)
  * @returns The loaded transaction as ArrayBuffer
  */
-export function loadTransaction(): ArrayBuffer;
+export function loadTransaction(offset?: number, length?: number): ArrayBuffer;
 
 /**
  * Load script hash
@@ -76,8 +78,8 @@ export function loadScriptHash(): ArrayBuffer;
 
 /**
  * Load script
- * @param offset - Optional starting offset in the data
- * @param length - Optional length of data to load
+ * @param offset - Optional starting offset in the data (defaults to 0)
+ * @param length - Optional length of data to load (defaults to reading until the end)
  * @returns The loaded script as ArrayBuffer
  */
 export function loadScript(offset?: number, length?: number): ArrayBuffer;
@@ -86,8 +88,8 @@ export function loadScript(offset?: number, length?: number): ArrayBuffer;
  * Load cell data from the transaction
  * @param index - The index of the cell
  * @param source - The source of the cell (use SOURCE_* constants)
- * @param offset - Optional starting offset in the data
- * @param length - Optional length of data to load
+ * @param offset - Optional starting offset in the data (defaults to 0)
+ * @param length - Optional length of data to load (defaults to reading until the end)
  * @returns The loaded cell data as ArrayBuffer
  */
 export function loadCell(index: number, source: SourceType, offset?: number, length?: number): ArrayBuffer;
@@ -96,8 +98,8 @@ export function loadCell(index: number, source: SourceType, offset?: number, len
  * Load input data from the transaction
  * @param index - The index of the input
  * @param source - The source of the input (use SOURCE_* constants)
- * @param offset - Optional starting offset in the data
- * @param length - Optional length of data to load
+ * @param offset - Optional starting offset in the data (defaults to 0)
+ * @param length - Optional length of data to load (defaults to reading until the end)
  * @returns The loaded input data as ArrayBuffer
  */
 export function loadInput(index: number, source: SourceType, offset?: number, length?: number): ArrayBuffer;
@@ -106,8 +108,8 @@ export function loadInput(index: number, source: SourceType, offset?: number, le
  * Load header data from the transaction
  * @param index - The index of the header
  * @param source - The source of the header (use SOURCE_* constants)
- * @param offset - Optional starting offset in the data
- * @param length - Optional length of data to load
+ * @param offset - Optional starting offset in the data (defaults to 0)
+ * @param length - Optional length of data to load (defaults to reading until the end)
  * @returns The loaded header data as ArrayBuffer
  */
 export function loadHeader(index: number, source: SourceType, offset?: number, length?: number): ArrayBuffer;
@@ -116,8 +118,8 @@ export function loadHeader(index: number, source: SourceType, offset?: number, l
  * Load witness data from the transaction
  * @param index - The index of the witness
  * @param source - The source of the witness (use SOURCE_* constants)
- * @param offset - Optional starting offset in the data
- * @param length - Optional length of data to load
+ * @param offset - Optional starting offset in the data (defaults to 0)
+ * @param length - Optional length of data to load (defaults to reading until the end)
  * @returns The loaded witness data as ArrayBuffer
  */
 export function loadWitness(index: number, source: SourceType, offset?: number, length?: number): ArrayBuffer;
@@ -126,8 +128,8 @@ export function loadWitness(index: number, source: SourceType, offset?: number, 
  * Load cell data from the transaction
  * @param index - The index of the cell
  * @param source - The source of the cell (use SOURCE_* constants)
- * @param offset - Optional starting offset in the data
- * @param length - Optional length of data to load
+ * @param offset - Optional starting offset in the data (defaults to 0)
+ * @param length - Optional length of data to load (defaults to reading until the end)
  * @returns The loaded cell data as ArrayBuffer
  */
 export function loadCellData(index: number, source: SourceType, offset?: number, length?: number): ArrayBuffer;
@@ -137,8 +139,8 @@ export function loadCellData(index: number, source: SourceType, offset?: number,
  * @param index - The index of the cell
  * @param source - The source of the cell (use SOURCE_* constants)
  * @param field - The field to load (use CELL_FIELD_* constants)
- * @param offset - Optional starting offset in the field data
- * @param length - Optional length of data to load
+ * @param offset - Optional starting offset in the field data (defaults to 0)
+ * @param length - Optional length of data to load (defaults to reading until the end)
  * @returns The loaded field data as ArrayBuffer
  */
 export function loadCellByField(index: number, source: SourceType, field: number, offset?: number, length?: number): ArrayBuffer;
@@ -148,8 +150,8 @@ export function loadCellByField(index: number, source: SourceType, field: number
  * @param index - The index of the header
  * @param source - The source of the header (use SOURCE_* constants)
  * @param field - The field to load (use HEADER_FIELD_* constants)
- * @param offset - Optional starting offset in the field data
- * @param length - Optional length of data to load
+ * @param offset - Optional starting offset in the field data (defaults to 0)
+ * @param length - Optional length of data to load (defaults to reading until the end)
  * @returns The loaded field data as ArrayBuffer
  */
 export function loadHeaderByField(index: number, source: SourceType, field: number, offset?: number, length?: number): ArrayBuffer;
@@ -159,8 +161,8 @@ export function loadHeaderByField(index: number, source: SourceType, field: numb
  * @param index - The index of the input
  * @param source - The source of the input (use SOURCE_* constants)
  * @param field - The field to load (use INPUT_FIELD_* constants)
- * @param offset - Optional starting offset in the field data
- * @param length - Optional length of data to load
+ * @param offset - Optional starting offset in the field data (defaults to 0)
+ * @param length - Optional length of data to load (defaults to reading until the end)
  * @returns The loaded field data as ArrayBuffer
  */
 export function loadInputByField(index: number, source: SourceType, field: number, offset?: number, length?: number): ArrayBuffer;
@@ -181,8 +183,8 @@ export function currentCycles(): number;
  * Execute a cell with the given parameters
  * @param codeHash - The code hash of the cell to execute
  * @param hashType - The hash type of the code (use SCRIPT_HASH_TYPE_* constants)
- * @param offset - The offset in the cell data
- * @param length - The length of code to execute
+ * @param offset - The offset in the cell data (defaults to 0)
+ * @param length - The length of code to execute (defaults to reading until the end)
  * @param args - Additional arguments to pass to the cell
  */
 export function execCell(codeHash: ArrayBuffer, hashType: number, offset: number, length: number, ...args: string[]): void;
@@ -201,8 +203,8 @@ export interface SpawnArgs {
  * Spawn a new process from a cell
  * @param codeHash - The code hash of the cell to spawn
  * @param hashType - The hash type of the code (use SCRIPT_HASH_TYPE_* constants)
- * @param offset - The offset in the cell data
- * @param length - The length of code to execute
+ * @param offset - The offset in the cell data (defaults to 0)
+ * @param length - The length of code to execute (defaults to reading until the end)
  * @param args - Spawn arguments including argv and inherited file descriptors
  * @returns The process ID of the spawned process
  */
@@ -259,8 +261,8 @@ export function processId(): number;
  * Load block extension data
  * @param index - The index of the block extension
  * @param source - The source of the block extension
- * @param offset - Optional starting offset in the data
- * @param length - Optional length of data to load
+ * @param offset - Optional starting offset in the data (defaults to 0)
+ * @param length - Optional length of data to load (defaults to reading until the end)
  * @returns The loaded block extension data as ArrayBuffer
  */
 export function loadBlockExtension(index: number, source: number, offset?: number, length?: number): ArrayBuffer;
@@ -511,3 +513,214 @@ export const console: {
  * Global scriptArgs array containing command line arguments
  */
 export const scriptArgs: string[];
+
+
+// TODO: double check and review BigFloat and BigDecimal
+
+/**
+ * Rounding modes for BigFloat operations
+ */
+export const enum BigFloatRoundingMode {
+    /** Round to nearest, with ties to even */
+    RNDN = 0,
+    /** Round to zero */
+    RNDZ = 1,
+    /** Round to -Infinity */
+    RNDD = 2,
+    /** Round to +Infinity */
+    RNDU = 3,
+    /** Round to nearest, with ties away from zero */
+    RNDNA = 4,
+    /** Round away from zero */
+    RNDA = 5,
+    /** Faithful rounding (non-deterministic) */
+    RNDF = 6,
+}
+
+/**
+ * Environment for BigFloat operations controlling precision and rounding
+ */
+export interface BigFloatEnv {
+    // Static properties
+    readonly precMin: number;      // Minimum allowed precision (at least 2)
+    readonly precMax: number;      // Maximum allowed precision (at least 113)
+    readonly expBitsMin: number;   // Minimum allowed exponent bits (at least 3)
+    readonly expBitsMax: number;   // Maximum allowed exponent bits (at least 15)
+
+    // Static methods
+    setPrec(fn: Function, prec: number, expBits?: number): any;
+
+    // Instance properties
+    /** Precision in bits */
+    prec: number;
+    /** Exponent size in bits */
+    expBits: number;
+    /** Rounding mode */
+    rndMode: BigFloatRoundingMode;
+    /** Whether subnormal numbers are allowed */
+    subnormal: boolean;
+
+    // Status flags
+    /** Invalid operation flag */
+    invalidOperation: boolean;
+    /** Division by zero flag */
+    divideByZero: boolean;
+    /** Overflow flag */
+    overflow: boolean;
+    /** Underflow flag */
+    underflow: boolean;
+    /** Inexact flag */
+    inexact: boolean;
+
+    // Methods
+    /** Clear all status flags */
+    clearStatus(): void;
+}
+
+/**
+ * Constructor for BigFloatEnv
+ */
+export interface BigFloatEnvConstructor {
+    new(): BigFloatEnv;
+    new(prec: number, rndMode?: BigFloatRoundingMode): BigFloatEnv;
+
+    readonly prototype: BigFloatEnv;
+
+    // Static properties from the interface
+    readonly precMin: number;
+    readonly precMax: number;
+    readonly expBitsMin: number;
+    readonly expBitsMax: number;
+
+    // Static methods
+    setPrec(fn: Function, prec: number, expBits?: number): any;
+}
+
+export const BigFloatEnv: BigFloatEnvConstructor;
+
+
+/**
+ * BigFloat provides arbitrary-precision floating-point arithmetic
+ */
+export const BigFloat: {
+    // Constants
+    readonly PI: BigFloat;
+    readonly LN2: BigFloat;
+    readonly MIN_VALUE: BigFloat;
+    readonly MAX_VALUE: BigFloat;
+    readonly EPSILON: BigFloat;
+
+    /**
+     * Convert value to BigFloat. Cannot be used as constructor.
+     * If number: converts without rounding
+     * If string: converts using global floating point environment precision
+     */
+    (value: number | string | BigFloat): BigFloat;
+
+    /**
+     * Parse string as floating point number
+     * @param str - String to parse
+     * @param radix - Optional base (0 or 2-36, default 0)
+     * @param env - Optional floating point environment
+     */
+    parseFloat(str: string, radix?: number, env?: BigFloatEnv): BigFloat;
+
+    /**
+     * Check if value is finite
+     */
+    isFinite(value: BigFloat): boolean;
+
+    /**
+     * Check if value is NaN
+     */
+    isNaN(value: BigFloat): boolean;
+
+    /**
+     * Round according to floating point environment
+     * @param x - Value to round
+     * @param env - Optional floating point environment
+     */
+    fpRound(x: BigFloat, env?: BigFloatEnv): BigFloat;
+
+    // Arithmetic operations with optional environment
+    add(a: BigFloat, b: BigFloat, env?: BigFloatEnv): BigFloat;
+    sub(a: BigFloat, b: BigFloat, env?: BigFloatEnv): BigFloat;
+    mul(a: BigFloat, b: BigFloat, env?: BigFloatEnv): BigFloat;
+    div(a: BigFloat, b: BigFloat, env?: BigFloatEnv): BigFloat;
+
+    // Integer rounding operations (no additional rounding)
+    floor(x: BigFloat): BigFloat;
+    ceil(x: BigFloat): BigFloat;
+    round(x: BigFloat): BigFloat;
+    trunc(x: BigFloat): BigFloat;
+
+    /**
+     * Absolute value (no additional rounding)
+     */
+    abs(x: BigFloat): BigFloat;
+
+    // Remainder operations
+    fmod(x: BigFloat, y: BigFloat, env?: BigFloatEnv): BigFloat;
+    remainder(x: BigFloat, y: BigFloat, env?: BigFloatEnv): BigFloat;
+
+    // Transcendental operations with optional environment
+    sqrt(x: BigFloat, env?: BigFloatEnv): BigFloat;
+    sin(x: BigFloat, env?: BigFloatEnv): BigFloat;
+    cos(x: BigFloat, env?: BigFloatEnv): BigFloat;
+    tan(x: BigFloat, env?: BigFloatEnv): BigFloat;
+    asin(x: BigFloat, env?: BigFloatEnv): BigFloat;
+    acos(x: BigFloat, env?: BigFloatEnv): BigFloat;
+    atan(x: BigFloat, env?: BigFloatEnv): BigFloat;
+    atan2(y: BigFloat, x: BigFloat, env?: BigFloatEnv): BigFloat;
+    exp(x: BigFloat, env?: BigFloatEnv): BigFloat;
+    log(x: BigFloat, env?: BigFloatEnv): BigFloat;
+    pow(x: BigFloat, y: BigFloat, env?: BigFloatEnv): BigFloat;
+};
+
+// Represents a BigFloat value
+export interface BigFloat {
+    toString(): string;
+    valueOf(): number;
+    toPrecision(precision: number, mode?: BigFloatRoundingMode, radix?: number): string;
+    toFixed(digits: number, mode?: BigFloatRoundingMode, radix?: number): string;
+    toExponential(fractionDigits: number, mode?: BigFloatRoundingMode, radix?: number): string;
+}
+
+/**
+ * Rounding mode for BigDecimal operations
+ */
+export type BigDecimalRoundingMode = "floor" | "ceiling" | "down" | "up" | "half-even" | "half-up";
+
+/**
+ * Rounding configuration for BigDecimal operations
+ */
+export interface BigDecimalRounding {
+    roundingMode: BigDecimalRoundingMode;
+    maximumSignificantDigits?: number;
+    maximumFractionDigits?: number;
+}
+
+/**
+ * BigDecimal is a wrapper around the BigDecimal type in QuickJS.
+ * It provides a subset of the methods from the BigDecimal class in QuickJS.
+ */
+export interface BigDecimal {
+    // Arithmetic operations
+    add(x: BigDecimal, y: BigDecimal, rounding?: BigDecimalRounding): BigDecimal;
+    sub(x: BigDecimal, y: BigDecimal, rounding?: BigDecimalRounding): BigDecimal;
+    mul(x: BigDecimal, y: BigDecimal, rounding?: BigDecimalRounding): BigDecimal;
+    div(x: BigDecimal, y: BigDecimal, rounding?: BigDecimalRounding): BigDecimal;
+    mod(x: BigDecimal, y: BigDecimal, rounding?: BigDecimalRounding): BigDecimal;
+
+    // Mathematical functions
+    round(x: BigDecimal, rounding: BigDecimalRounding): BigDecimal;
+    sqrt(x: BigDecimal, rounding: BigDecimalRounding): BigDecimal;
+
+    // Formatting methods from QuickJS implementation
+    toString(): string;
+    valueOf(): string;
+    toPrecision(precision: number): string;
+    toFixed(digits: number): string;
+    toExponential(fractionDigits: number): string;
+}
+
