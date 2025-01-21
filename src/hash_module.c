@@ -377,7 +377,7 @@ static const JSCFunctionListEntry js_ripemd160_proto_funcs[] = {
     JS_CFUNC_DEF("finalize", 0, js_ripemd160_finalize),
 };
 
-static int js_hash_init(JSContext *ctx, JSModuleDef *m) {
+int qjs_init_module_hash_lazy(JSContext *ctx, JSModuleDef *m) {
     JSValue proto, obj;
 
     // Initialize Sha256 class
@@ -435,10 +435,7 @@ static int js_hash_init(JSContext *ctx, JSModuleDef *m) {
     return 0;
 }
 
-int js_init_module_hash(JSContext *ctx) {
-    JSModuleDef *m;
-    m = JS_NewCModule(ctx, "hash", js_hash_init);
-    if (!m) return QJS_ERROR_GENERIC;
+int qjs_init_module_hash(JSContext *ctx, JSModuleDef *m) {
     JS_AddModuleExport(ctx, m, "Sha256");
     JS_AddModuleExport(ctx, m, "Keccak256");
     JS_AddModuleExport(ctx, m, "Blake2b");

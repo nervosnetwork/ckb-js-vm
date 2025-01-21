@@ -766,24 +766,6 @@ static JSValue js_parse_ext_json(JSContext *ctx, JSValueConst this_val, int argc
     return obj;
 }
 
-static JSValue js_require(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv) {
-    const char *module_name;
-    JSValue obj;
-    if (argc != 1) return JS_UNDEFINED;
-    module_name = JS_ToCString(ctx, argv[0]);
-    if (!module_name) return JS_EXCEPTION;
-    if (strcmp(module_name, "ckb") == 0) {
-        obj = JS_NewObject(ctx);
-        JS_SetPropertyStr(ctx, obj, "loadScript", JS_NewCFunction(ctx, syscall_load_script, "loadScript", 0));
-        JS_SetPropertyStr(ctx, obj, "currentCycles", JS_NewCFunction(ctx, syscall_current_cycles, "currentCycles", 0));
-        JS_FreeCString(ctx, module_name);
-        return obj;
-    }
-
-    JS_FreeCString(ctx, module_name);
-    return JS_UNDEFINED;
-}
-
 static const JSCFunctionListEntry js_ckb_funcs[] = {
     JS_CFUNC_DEF("exit", 1, syscall_exit),
     JS_CFUNC_DEF("loadTxHash", 1, syscall_load_tx_hash),
@@ -844,7 +826,7 @@ static const JSCFunctionListEntry js_ckb_funcs[] = {
     JS_PROP_INT64_DEF("SCRIPT_HASH_TYPE_DATA2", 4, JS_PROP_ENUMERABLE),
 };
 
-static int js_ckb_init(JSContext *ctx, JSModuleDef *m) {
+int qjs_init_module_ckb_lazy(JSContext *ctx, JSModuleDef *m) {
     JS_SetModuleExportList(ctx, m, js_ckb_funcs, countof(js_ckb_funcs));
     JS_SetModuleExport(ctx, m, "SOURCE_GROUP_INPUT", JS_NewBigUint64(ctx, CKB_SOURCE_GROUP_INPUT));
     JS_SetModuleExport(ctx, m, "SOURCE_GROUP_OUTPUT", JS_NewBigUint64(ctx, CKB_SOURCE_GROUP_OUTPUT));
@@ -852,19 +834,10 @@ static int js_ckb_init(JSContext *ctx, JSModuleDef *m) {
     return 0;
 }
 
-int js_init_module_ckb(JSContext *ctx) {
-    JSModuleDef *m = JS_NewCModule(ctx, "ckb", js_ckb_init);
-    if (!m) {
-        return QJS_ERROR_GENERIC;
-    }
+int qjs_init_module_ckb(JSContext *ctx, JSModuleDef *m) {
     JS_AddModuleExportList(ctx, m, js_ckb_funcs, countof(js_ckb_funcs));
     JS_AddModuleExport(ctx, m, "SOURCE_GROUP_INPUT");
     JS_AddModuleExport(ctx, m, "SOURCE_GROUP_OUTPUT");
-
-    JSValue global_obj = JS_GetGlobalObject(ctx);
-    JS_SetPropertyStr(ctx, global_obj, "require", JS_NewCFunction(ctx, js_require, "require", 1));
-    JS_FreeValue(ctx, global_obj);
-
     return 0;
 }
 

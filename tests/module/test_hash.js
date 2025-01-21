@@ -1,5 +1,5 @@
-import * as hash from 'hash';
-import * as ckb from 'ckb';
+import * as hash from "@ckb-js-std/bindings";
+import * as ckb from "@ckb-js-std/bindings";
 
 // Add global constant
 const CKB_DEFAULT_HASH = 'ckb-default-hash';

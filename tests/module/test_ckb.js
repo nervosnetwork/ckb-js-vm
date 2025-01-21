@@ -1,8 +1,8 @@
-import * as ckb from 'ckb';
+import * as ckb from "@ckb-js-std/bindings";
 
 function test_eval_script() {
     const script = `
-        import * as ckb from 'ckb';
+        import * as ckb from "@ckb-js-std/bindings";
         globalThis.test_eval_script = 100;
     `;
     ckb.evalJsScript(script, true);
@@ -38,7 +38,7 @@ function test_eval_script_no_module_with_exception() {
 
 function test_eval_script_with_exception() {
     const script = `
-        import * as ckb from 'ckb';
+        import * as ckb from "@ckb-js-std/bindings";
         abcdef.init();
     `;
     let success = false;

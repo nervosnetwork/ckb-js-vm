@@ -1,4 +1,4 @@
-import * as ckb from 'ckb';
+import * as ckb from "@ckb-js-std/bindings";
 globalThis.fib2 = function(n) {
     if (n <= 0)
         return 0;

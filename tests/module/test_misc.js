@@ -1,5 +1,5 @@
-import * as misc from 'misc';
-import * as ckb from 'ckb';
+import * as misc from "@ckb-js-std/bindings";
+import * as ckb from "@ckb-js-std/bindings";
 
 function test_ckb_smt_verify1(failure) {
     // Test vectors from the Rust example
@@ -188,9 +188,24 @@ function test_printf() {
     console.log('test_printf ok');
 }
 
+function test_require() {
+    const ckb = require('@ckb-js-std/bindings');
+    console.assert(typeof ckb.loadScript === 'function', 'require failed');
+    console.assert(ckb.currentCycles() > 0, 'currentCycles failed');
+    let success = false;
+    try {
+        const ckb = require("not existing module");
+    } catch (e) {
+        success = true;
+    }
+    console.assert(success, 'require should throw error');
+}
+
+
 // Add the new test cases to the main execution
 console.log('test_misc.js ...');
 test_printf();
+test_require();
 test_ckb_smt_verify1(true);
 test_ckb_smt_verify1(false);
 test_ckb_smt_verify2(true);

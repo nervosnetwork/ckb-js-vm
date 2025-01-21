@@ -1,4 +1,4 @@
-import * as ckb from 'ckb';
+import * as ckb from "@ckb-js-std/bindings";
 
 ckb.loadJsScript('fib.js');
 const result = fib(10);
