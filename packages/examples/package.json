@@ -15,7 +15,7 @@
     "module": "./dist/index.js",
     "scripts": {
         "start": "ckb-debugger --read-file dist/index.js --bin ../../build/ckb-js-vm -- -r",
-        "build": "tsc --noEmit && esbuild src/index.ts --bundle --outfile=dist/index.js --external:@ckb-js-std/bindings --target=es2022",
+        "build": "tsc --noEmit && esbuild --platform=neutral --minify --bundle --external:@ckb-js-std/bindings --target=es2022 src/index.ts --outfile=dist/index.js",
         "clean": "rm -f dist/*"
     },
     "devDependencies": {
