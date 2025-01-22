@@ -384,41 +384,45 @@ export class Ripemd160 {
     finalize(): ArrayBuffer;
 }
 
-
 /**
- * Recover raw public key from signature and message hash
- * @param signature - The 64-byte signature
- * @param recoveryId - The recovery ID (0-3)
- * @param messageHash - The 32-byte message hash
- * @returns The recovered raw public key (64-bytes)
+ * Secp256k1 cryptographic functions
  */
-export function recover(signature: ArrayBuffer, recoveryId: number, messageHash: ArrayBuffer): ArrayBuffer;
+export const secp256k1: {
+    /**
+     * Recover raw public key from signature and message hash
+     * @param signature - The 64-byte signature
+     * @param recoveryId - The recovery ID (0-3)
+     * @param messageHash - The 32-byte message hash
+     * @returns The recovered raw public key (64-bytes)
+     */
+    recover(signature: ArrayBuffer, recoveryId: number, messageHash: ArrayBuffer): ArrayBuffer;
 
-/**
- * Serialize a raw public key (64-bytes) to serialized format(compressed or uncompressed)
- * @param pubkey - The raw public key to serialize
- * @param compressed - Whether to use compressed format (33 bytes) or
- * uncompressed (65 bytes)
- * @returns The serialized public key (33 or 65 bytes)
- */
-export function serializePubkey(pubkey: ArrayBuffer, compressed?: boolean): ArrayBuffer;
+    /**
+     * Serialize a raw public key (64-bytes) to serialized format(compressed or uncompressed)
+     * @param pubkey - The raw public key to serialize
+     * @param compressed - Whether to use compressed format (33 bytes) or
+     * uncompressed (65 bytes)
+     * @returns The serialized public key (33 or 65 bytes)
+     */
+    serializePubkey(pubkey: ArrayBuffer, compressed?: boolean): ArrayBuffer;
 
-/**
- * Parse a serialized public key(compressed or uncompressed) to raw public key. It
- * is the reverse function of serializePubkey.
- * @param serializedPubkey - The serialized format public key (33 or 65 bytes)
- * @returns The parsed raw public key (64-bytes)
- */
-export function parsePubkey(serializedPubkey: ArrayBuffer): ArrayBuffer;
+    /**
+     * Parse a serialized public key(compressed or uncompressed) to raw public key. It
+     * is the reverse function of serializePubkey.
+     * @param serializedPubkey - The serialized format public key (33 or 65 bytes)
+     * @returns The parsed raw public key (64-bytes)
+     */
+    parsePubkey(serializedPubkey: ArrayBuffer): ArrayBuffer;
 
-/**
- * Verify an ECDSA signature
- * @param signature - The 64-byte signature
- * @param messageHash - The 32-byte message hash
- * @param pubkey - The raw public key (64-bytes)
- * @returns True if signature is valid, false otherwise
- */
-export function verify(signature: ArrayBuffer, messageHash: ArrayBuffer, pubkey: ArrayBuffer): boolean;
+    /**
+     * Verify an ECDSA signature
+     * @param signature - The 64-byte signature
+     * @param messageHash - The 32-byte message hash
+     * @param pubkey - The raw public key (64-bytes)
+     * @returns True if signature is valid, false otherwise
+     */
+    verify(signature: ArrayBuffer, messageHash: ArrayBuffer, pubkey: ArrayBuffer): boolean;
+};
 
 /**
  * Sparse Merkle Tree implementation

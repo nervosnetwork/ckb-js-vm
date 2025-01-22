@@ -1,4 +1,4 @@
-import * as secp256k1 from '@ckb-js-std/bindings';
+import { secp256k1 } from '@ckb-js-std/bindings';
 import * as ckb from "@ckb-js-std/bindings";
 import * as misc from "@ckb-js-std/bindings";
 
