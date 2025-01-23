@@ -611,12 +611,23 @@ static JSValue mount(JSContext *ctx, JSValueConst this_value, int argc, JSValueC
         return JS_EXCEPTION;
     }
     const char *prefix = JS_ToCString(ctx, argv[2]);
+    if (prefix[0] != '/') {
+        ThrowError(ctx, QJS_ERROR_MOUNT, "ckb.mount mount_point should starts with /");
+        return JS_EXCEPTION;
+    }
     size_t psize = 0;
     uint8_t *addr = JS_GetArrayBuffer(ctx, &psize, buf);
     int err = ckb_load_fs(prefix, addr, psize);
     if (err != 0) {
-        ThrowError(ctx, QJS_ERROR_MOUNT, "ckb.mount failed");
-        return JS_EXCEPTION;
+        switch (err) {
+            case -2:
+                ThrowError(ctx, QJS_ERROR_MOUNT, "ckb.mount found illegal file name");
+                return JS_EXCEPTION;
+            case -1:
+            default:
+                ThrowError(ctx, QJS_ERROR_MOUNT, "ckb.mount failed");
+                return JS_EXCEPTION;
+        }
     } else {
         return JS_UNDEFINED;
     }
@@ -794,7 +805,7 @@ static const JSCFunctionListEntry js_ckb_funcs[] = {
     JS_CFUNC_DEF("wait", 1, syscall_wait),
     JS_CFUNC_DEF("processId", 0, syscall_process_id),
     JS_CFUNC_DEF("loadBlockExtension", 3, syscall_load_block_extension),
-    JS_CFUNC_DEF("mount", 2, mount),
+    JS_CFUNC_DEF("mount", 3, mount),
     JS_CFUNC_DEF("evalJsScript", 2, js_eval_script),
     JS_CFUNC_DEF("loadJsScript", 2, js_load_script),
     JS_CFUNC_DEF("loadFile", 1, js_load_file),

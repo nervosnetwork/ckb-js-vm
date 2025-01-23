@@ -26,6 +26,9 @@ int get_file(const CellFileSystem *fs, const char *filename, FSFile **f) {
             continue;
         }
         const char *basename = filename + strlen(node->prefix) - 1;
+        if (node->prefix[strlen(node->prefix) - 1] != '/') {
+            basename++;
+        }
         for (uint32_t i = 0; i < node->count; i++) {
             FSEntry entry = node->files[i];
             if (strcmp(basename, node->start + entry.filename.offset) == 0) {
@@ -50,36 +53,6 @@ int get_file(const CellFileSystem *fs, const char *filename, FSFile **f) {
 
 int ckb_get_file(const char *filename, FSFile **file) { return get_file(CELL_FILE_SYSTEM, filename, file); }
 
-/*
-prefix_normalize("") == "/"
-prefix_normalize("/") == "/"
-prefix_normalize("foo") == "/foo/"
-prefix_normalize("foo/") == "/foo/"
-prefix_normalize("/foo") == "/foo/"
-prefix_normalize("/foo/bar") == "/foo/bar/"
-prefix_normalize("/foo/bar/") == "/foo/bar/"
-prefix_normalize("foo/bar") == "/foo/bar/"
-prefix_normalize("foo/bar/") == "/foo/bar/"
-*/
-char *prefix_normalize(const char *prefix) {
-    int len = strlen(prefix);
-    if (len == 0) {
-        return "/";
-    }
-    char *buf = malloc(len + 3);
-    buf[0] = '/';
-    memcpy(buf + 1, prefix, len);
-    buf[len + 1] = '/';
-    buf[len + 2] = 0;
-    if (prefix[len - 1] == '/') {
-        buf[len + 1] = 0;
-    }
-    if (prefix[0] == '/') {
-        buf++;
-    }
-    return buf;
-}
-
 int load_fs(CellFileSystem **fs, const char *prefix, void *buf, uint64_t buflen) {
     if (fs == NULL || buf == NULL) {
         return -1;
@@ -96,7 +69,7 @@ int load_fs(CellFileSystem **fs, const char *prefix, void *buf, uint64_t buflen)
         return -1;
     }
 
-    node->prefix = prefix_normalize(prefix);
+    node->prefix = prefix;
     node->count = *(uint32_t *)buf;
     if (node->count == 0) {
         node->files = NULL;
@@ -119,6 +92,10 @@ int load_fs(CellFileSystem **fs, const char *prefix, void *buf, uint64_t buflen)
     for (uint32_t i = 0; i < node->count; i++) {
         FSEntry entry = entries[i];
         node->files[i] = entry;
+        char *filename = node->start + entry.filename.offset;
+        if (filename[0] == '.' || filename[0] == '/' || filename[0] == '\\' || filename[0] == '~') {
+            return -2;
+        }
     }
 
     newfs->next = *fs;
