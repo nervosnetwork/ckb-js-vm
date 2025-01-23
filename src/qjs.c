@@ -187,7 +187,7 @@ static int eval_buf(JSContext *ctx, const void *buf, int buf_len, const char *fi
 }
 
 int run_from_file_system_buf(JSContext *ctx, char *buf, size_t buf_size) {
-    int err = ckb_load_fs(buf, buf_size);
+    int err = ckb_load_fs("/", buf, buf_size);
     CHECK(err);
 
     FSFile *init_file = NULL;
