@@ -194,7 +194,7 @@ function test_keccak256_long_string() {
 function test_blake2b_empty_string() {
     // Blake2b of empty string with ckb-default-hash personalization
     const expected =
-        '8e5e657ab293b4f6146feed495bf87c4c3c5e0cfca6aef78f924311866ea277bf359afae4a763af955e23abdad3f9c941c9e4a0a795c73d8b205679ab68eb294';
+        '44f4c69744d5f8c55d642062949dcae49bc4e7ef43d388c5a12f42b5633d163e';
 
     const blake2b = new hash.Blake2b(CKB_DEFAULT_HASH);
     const start = ckb.currentCycles();
@@ -202,6 +202,7 @@ function test_blake2b_empty_string() {
     const result = blake2b.finalize();
     const end = ckb.currentCycles();
     console.log(`empty string hash cycles: ${end - start}`);
+    console.log(`${arrayBufferToHexString(result)}`)
     console.assert(
         arrayBufferToHexString(result) === expected,
         'Empty string hash failed');
@@ -212,7 +213,7 @@ function test_blake2b_basic_string() {
     // Blake2b of "hello"
     const input = hexStringToUint8Array('68656c6c6f');  // "hello" in hex
     const expected =
-        'a1e60e2fbb09f4f071f4e3cc30791fcdd694bfda60223c5b3912ae3d762a6ba59c9e90e9fd185c10eb545a4ca86a9bdc72539d5160576707a43760f4b50013ba';
+        '2da1289373a9f6b7ed21db948f4dc5d942cf4023eaef1d5a2b1a45b9d12d1036';
 
     const blake2b = new hash.Blake2b(CKB_DEFAULT_HASH);
     const start = ckb.currentCycles();
@@ -220,6 +221,7 @@ function test_blake2b_basic_string() {
     const result = blake2b.finalize();
     const end = ckb.currentCycles();
     console.log(`basic string hash cycles: ${end - start}`);
+    console.log(`${arrayBufferToHexString(result)}`)
     console.assert(
         arrayBufferToHexString(result) === expected,
         'Basic string hash failed');
@@ -231,7 +233,7 @@ function test_blake2b_multiple_updates() {
     const input1 = hexStringToUint8Array('68656c');  // "hel"
     const input2 = hexStringToUint8Array('6c6f');    // "lo"
     const expected =
-        'a1e60e2fbb09f4f071f4e3cc30791fcdd694bfda60223c5b3912ae3d762a6ba59c9e90e9fd185c10eb545a4ca86a9bdc72539d5160576707a43760f4b50013ba';
+        '2da1289373a9f6b7ed21db948f4dc5d942cf4023eaef1d5a2b1a45b9d12d1036';
 
     const blake2b = new hash.Blake2b(CKB_DEFAULT_HASH);
     const start = ckb.currentCycles();
@@ -251,7 +253,7 @@ function test_blake2b_long_string() {
     const input = 'a'.repeat(1000);
     const inputBytes = stringToUint8Array(input);
     const expected =
-        'e2bc748623468948e5483c45f6250557a672288edf3677535502e83f574f4d90aa296599678a010b7d5f1b0eb7249083f7294e6b80fea1351ca042dd10ddd7d4';
+        '0f3a195c4c9504134731fbec2e3762342abe9a70b333d2d14ead1c2787cdb937';
 
     const blake2b = new hash.Blake2b(CKB_DEFAULT_HASH);
     const start = ckb.currentCycles();
@@ -274,7 +276,6 @@ function test_ripemd160_empty_string() {
     const result = ripemd160.finalize();
     const end = ckb.currentCycles();
     console.log(`empty string hash cycles: ${end - start}`);
-    console.log("result: ", arrayBufferToHexString(result));
     console.assert(
         arrayBufferToHexString(result) === expected,
         'Empty string hash failed');
@@ -292,8 +293,6 @@ function test_ripemd160_basic_string() {
     const result = ripemd160.finalize();
     const end = ckb.currentCycles();
     console.log(`basic string hash cycles: ${end - start}`);
-
-    console.log("result: ", arrayBufferToHexString(result));
     console.assert(
         arrayBufferToHexString(result) === expected,
         'Basic string hash failed');
@@ -313,8 +312,6 @@ function test_ripemd160_multiple_updates() {
     const result = ripemd160.finalize();
     const end = ckb.currentCycles();
     console.log(`multiple updates hash cycles: ${end - start}`);
-
-    console.log("result: ", arrayBufferToHexString(result));
     console.assert(
         arrayBufferToHexString(result) === expected,
         'Multiple updates hash failed');
@@ -333,7 +330,6 @@ function test_ripemd160_long_string() {
     const result = ripemd160.finalize();
     const end = ckb.currentCycles();
     console.log(`long string hash cycles: ${end - start}`);
-    console.log("result: ", arrayBufferToHexString(result));
     console.assert(
         arrayBufferToHexString(result) === expected, 'Long string hash failed');
     console.log('test_ripemd160_long_string ok');

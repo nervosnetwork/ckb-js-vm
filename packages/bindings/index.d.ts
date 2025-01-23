@@ -14,7 +14,7 @@ export const SOURCE_GROUP_OUTPUT: SourceType;
 
 /**
  * Field constants for loading cell data
- * Used to specify which field to load when using loadCellByField
+ * Used to specify which field to load when using `loadCellByField`
  */
 export const CELL_FIELD_CAPACITY: number;
 export const CELL_FIELD_DATA_HASH: number;
@@ -227,16 +227,21 @@ export function inheritedFds(): number[];
  * @param fd - The file descriptor to read from
  * @param length - Number of bytes to read
  * @returns The read data as ArrayBuffer
+ * @remark
+ * The length of returned data might be smaller than `length`.
  */
 export function read(fd: number, length: number): ArrayBuffer;
 
 /**
- * Write to a file descriptor
+ * Write data to a file descriptor
  * @param fd - The file descriptor to write to
- * @param data - The data to write
- * @returns Number of bytes written
+ * @param data - The data to write as ArrayBuffer
+ * @remarks
+ * - All data will be written atomically - no partial writes will occur
+ * - If the write cannot complete fully, it will throw an error
+ * - The function blocks until all data is written
  */
-export function write(fd: number, data: ArrayBuffer): number;
+export function write(fd: number, data: ArrayBuffer): void;
 
 /**
  * Close a file descriptor
@@ -352,7 +357,7 @@ export class Keccak256 {
 export class Blake2b {
     /**
      * Create a new Blake2b hash instance
-     * @param personal - Optional personalization string
+     * @param personal - Optional personalization string. It must have length with 16.
      */
     constructor(personal?: ArrayBuffer);
     /**
@@ -362,7 +367,7 @@ export class Blake2b {
     update(data: ArrayBuffer): void;
     /**
      * Finalize and get the hash result
-     * @returns The 32-byte hash result
+     * @returns The 32-byte hash result as ArrayBuffer
      */
     finalize(): ArrayBuffer;
 }
