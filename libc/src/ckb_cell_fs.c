@@ -17,9 +17,7 @@ int get_file(const CellFileSystem *fs, const char *filename, FSFile **f) {
     CellFileSystem *cfs = (CellFileSystem *)fs;
     CellFileSystemNode *node = cfs->current;
     while (node != NULL) {
-        size_t filename_len = strlen(filename);
-        size_t prefix_len = strlen(node->prefix) - 1;
-        if (prefix_len > filename_len) {
+        if (strncmp(node->prefix + 1, filename, strlen(node->prefix) - 1) != 0) {
             if (cfs->next == NULL) {
                 break;
             }
@@ -27,10 +25,10 @@ int get_file(const CellFileSystem *fs, const char *filename, FSFile **f) {
             node = cfs->current;
             continue;
         }
-        const char *filename_without_prefix = filename + prefix_len;
+        const char *basename = filename + strlen(node->prefix) - 1;
         for (uint32_t i = 0; i < node->count; i++) {
             FSEntry entry = node->files[i];
-            if (strcmp(filename_without_prefix, node->start + entry.filename.offset) == 0) {
+            if (strcmp(basename, node->start + entry.filename.offset) == 0) {
                 // TODO: check the memory addresses are legal
                 file->filename = filename;
                 file->size = entry.content.length;
@@ -64,22 +62,22 @@ prefix_normalize("foo/bar") == "/foo/bar/"
 prefix_normalize("foo/bar/") == "/foo/bar/"
 */
 char *prefix_normalize(const char *prefix) {
-  int len = strlen(prefix);
-  if (len == 0) {
-    return "/";
-  }
-  char *buf = malloc(len + 3);
-  buf[0] = '/';
-  memcpy(buf+1, prefix, len);
-  buf[len+1] = '/';
-  buf[len+2] = 0;
-  if (prefix[len - 1] == '/') {
-    buf[len+1] = 0;
-  }
-  if (prefix[0] == '/') {
-    buf++;
-  }
-  return buf;
+    int len = strlen(prefix);
+    if (len == 0) {
+        return "/";
+    }
+    char *buf = malloc(len + 3);
+    buf[0] = '/';
+    memcpy(buf + 1, prefix, len);
+    buf[len + 1] = '/';
+    buf[len + 2] = 0;
+    if (prefix[len - 1] == '/') {
+        buf[len + 1] = 0;
+    }
+    if (prefix[0] == '/') {
+        buf++;
+    }
+    return buf;
 }
 
 int load_fs(CellFileSystem **fs, const char *prefix, void *buf, uint64_t buflen) {
