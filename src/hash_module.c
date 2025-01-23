@@ -7,10 +7,12 @@
 #include "ripemd160.h"
 #include "qjs.h"
 
+#define BLAKE2B_HASH_SIZE 32
+
 static int js_blake2b_init(blake2b_state *S, size_t outlen, char personal[BLAKE2B_PERSONALBYTES]) {
     blake2b_param P[1];
 
-    if ((!outlen) || (outlen > BLAKE2B_OUTBYTES)) return QJS_ERROR_GENERIC;
+    if ((!outlen) || (outlen > BLAKE2B_HASH_SIZE)) return QJS_ERROR_GENERIC;
 
     P->digest_length = (uint8_t)outlen;
     P->key_length = 0;
@@ -107,7 +109,7 @@ static JSValue js_sha256_finalize(JSContext *ctx, JSValueConst this_val, int arg
 }
 
 static const JSCFunctionListEntry js_sha256_proto_funcs[] = {
-    JS_CFUNC_DEF("write", 1, js_sha256_write),
+    JS_CFUNC_DEF("update", 1, js_sha256_write),
     JS_CFUNC_DEF("finalize", 0, js_sha256_finalize),
 };
 
@@ -185,7 +187,7 @@ static JSValue js_keccak256_finalize(JSContext *ctx, JSValueConst this_val, int 
 }
 
 static const JSCFunctionListEntry js_keccak256_proto_funcs[] = {
-    JS_CFUNC_DEF("write", 1, js_keccak256_write),
+    JS_CFUNC_DEF("update", 1, js_keccak256_write),
     JS_CFUNC_DEF("finalize", 0, js_keccak256_finalize),
 };
 
@@ -247,7 +249,7 @@ static JSValue js_blake2b_ctor(JSContext *ctx, JSValueConst new_target, int argc
         goto fail;
     }
 
-    if (js_blake2b_init(hash, BLAKE2B_OUTBYTES, (char *)personal) < 0) {
+    if (js_blake2b_init(hash, BLAKE2B_HASH_SIZE, (char *)personal) < 0) {
         js_free(ctx, hash);
         if (personal) JS_FreeCString(ctx, personal);
         goto fail;
@@ -285,15 +287,15 @@ static JSValue js_blake2b_finalize(JSContext *ctx, JSValueConst this_val, int ar
     hash = JS_GetOpaque2(ctx, this_val, js_blake2b_class_id);
     if (!hash) return JS_EXCEPTION;
 
-    output = js_malloc(ctx, BLAKE2B_OUTBYTES);
+    output = js_malloc(ctx, BLAKE2B_HASH_SIZE);
     if (!output) return JS_ThrowOutOfMemory(ctx);
 
-    blake2b_final(hash, output, BLAKE2B_OUTBYTES);
-    return JS_NewArrayBuffer(ctx, output, BLAKE2B_OUTBYTES, free_hash_context, NULL, false);
+    blake2b_final(hash, output, BLAKE2B_HASH_SIZE);
+    return JS_NewArrayBuffer(ctx, output, BLAKE2B_HASH_SIZE, free_hash_context, NULL, false);
 }
 
 static const JSCFunctionListEntry js_blake2b_proto_funcs[] = {
-    JS_CFUNC_DEF("write", 1, js_blake2b_write),
+    JS_CFUNC_DEF("update", 1, js_blake2b_write),
     JS_CFUNC_DEF("finalize", 0, js_blake2b_finalize),
 };
 
@@ -373,11 +375,11 @@ static JSValue js_ripemd160_finalize(JSContext *ctx, JSValueConst this_val, int 
 }
 
 static const JSCFunctionListEntry js_ripemd160_proto_funcs[] = {
-    JS_CFUNC_DEF("write", 1, js_ripemd160_write),
+    JS_CFUNC_DEF("update", 1, js_ripemd160_write),
     JS_CFUNC_DEF("finalize", 0, js_ripemd160_finalize),
 };
 
-static int js_hash_init(JSContext *ctx, JSModuleDef *m) {
+int qjs_init_module_hash_lazy(JSContext *ctx, JSModuleDef *m) {
     JSValue proto, obj;
 
     // Initialize Sha256 class
@@ -435,10 +437,7 @@ static int js_hash_init(JSContext *ctx, JSModuleDef *m) {
     return 0;
 }
 
-int js_init_module_hash(JSContext *ctx) {
-    JSModuleDef *m;
-    m = JS_NewCModule(ctx, "hash", js_hash_init);
-    if (!m) return QJS_ERROR_GENERIC;
+int qjs_init_module_hash(JSContext *ctx, JSModuleDef *m) {
     JS_AddModuleExport(ctx, m, "Sha256");
     JS_AddModuleExport(ctx, m, "Keccak256");
     JS_AddModuleExport(ctx, m, "Blake2b");

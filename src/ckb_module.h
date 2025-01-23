@@ -7,7 +7,9 @@
 
 #include "quickjs.h"
 
-int js_init_module_ckb(JSContext *ctx);
+int qjs_init_module_ckb(JSContext *ctx, JSModuleDef *m);
+int qjs_init_module_ckb_lazy(JSContext *ctx, JSModuleDef *m);
+
 int read_local_file(char *buf, int size);
 
 int load_cell_code_info_explicit(size_t *buf_size, size_t *index, const uint8_t *code_hash, uint8_t hash_type);

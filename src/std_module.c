@@ -62,8 +62,6 @@ void js_std_add_helpers(JSContext *ctx, int argc, const char *argv[]) {
         }
         JS_SetPropertyStr(ctx, global_obj, "scriptArgs", args);
     }
-
-    JS_SetPropertyStr(ctx, global_obj, "print", JS_NewCFunction(ctx, js_print, "print", 1));
     JS_FreeValue(ctx, global_obj);
 }
 

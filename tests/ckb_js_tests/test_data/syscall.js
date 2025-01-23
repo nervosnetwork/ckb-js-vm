@@ -1,4 +1,4 @@
-import * as ckb from "ckb";
+import * as ckb from "@ckb-js-std/bindings";
 
 const ARRAY8 = [0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07];
 function expect_array(a, b) {
@@ -131,7 +131,7 @@ function test_misc() {
 function test_spawn() {
     console.log('test_spawn ...');
     const js_code = `
-    import * as ckb from 'ckb';
+    import * as ckb from "@ckb-js-std/bindings";
     let fds = ckb.inheritedFds();
     ckb.write(fds[0], new Uint8Array([0, 1, 2, 3]));
     ckb.close(fds[0]);

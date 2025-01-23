@@ -3,6 +3,7 @@
 
 #include <quickjs.h>
 
-int js_init_module_hash(JSContext *ctx);
+int qjs_init_module_hash(JSContext* ctx, JSModuleDef* m);
+int qjs_init_module_hash_lazy(JSContext* ctx, JSModuleDef* m);
 
 #endif /* HASH_MODULE_H */

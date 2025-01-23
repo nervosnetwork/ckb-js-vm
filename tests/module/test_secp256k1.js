@@ -1,6 +1,6 @@
-import * as secp256k1 from 'secp256k1';
-import * as ckb from 'ckb';
-import * as misc from 'misc';
+import { secp256k1 } from '@ckb-js-std/bindings';
+import * as ckb from "@ckb-js-std/bindings";
+import * as misc from "@ckb-js-std/bindings";
 
 function test_recovery(failure) {
     const recid = 1;

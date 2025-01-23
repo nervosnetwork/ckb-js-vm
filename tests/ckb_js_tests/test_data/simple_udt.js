@@ -1,4 +1,4 @@
-import * as ckb from "ckb";
+import * as ckb from "@ckb-js-std/bindings";
 
 const CKB_INDEX_OUT_OF_BOUND = 1;
 const ERROR_AMOUNT = -52;

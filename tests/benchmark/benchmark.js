@@ -1,4 +1,4 @@
-import * as ckb from 'ckb';
+import * as ckb from "@ckb-js-std/bindings";
 const MAX_ITERATE = 1;
 
 function bench(bench) {

@@ -314,6 +314,14 @@ static JSContext *JS_NewCustomContext(JSRuntime *rt) {
     return ctx;
 }
 
+static int init_func(JSContext *ctx, JSModuleDef *m) {
+    qjs_init_module_ckb_lazy(ctx, m);
+    qjs_init_module_hash_lazy(ctx, m);
+    qjs_init_module_misc_lazy(ctx, m);
+    qjs_init_module_secp256k1_lazy(ctx, m);
+    return 0;
+}
+
 static void print_help_message(void) {
     printf("Usage: ckb-js-vm [options]\n");
     printf("Options:\n");
@@ -390,15 +398,21 @@ int main(int argc, const char **argv) {
     JS_SetModuleLoaderFunc(rt, NULL, js_module_loader, NULL);
     // Now passing remaining arguments after the flags
     js_std_add_helpers(ctx, argc - optind, &argv[optind]);
-    err = js_init_module_ckb(ctx);
-    CHECK(err);
-    err = js_init_module_secp256k1(ctx);
-    CHECK(err);
-    err = js_init_module_hash(ctx);
-    CHECK(err);
-    err = js_init_module_misc(ctx);
-    CHECK(err);
 
+    JSModuleDef *m = JS_NewCModule(ctx, "@ckb-js-std/bindings", init_func);
+    qjs_init_module_ckb(ctx, m);
+    qjs_init_module_hash(ctx, m);
+    qjs_init_module_misc(ctx, m);
+    qjs_init_module_secp256k1(ctx, m);
+    const char *require_script =
+        "import * as ckb from '@ckb-js-std/bindings';\n"
+        "globalThis.__ckb_module = ckb;  \n"
+        "globalThis.require = function (name) { \n"
+        " if (name === '@ckb-js-std/bindings') { \n"
+        " return globalThis.__ckb_module; }\n"
+        " throw new Error('cannot find the module: ' + name); } \0";
+    err = eval_buf(ctx, require_script, strlen(require_script), "<require script>", false);
+    CHECK(err);
     // Replace the command-line handling logic
     if (c_flag) {
         JS_SetModuleLoaderFunc(rt, NULL, js_module_dummy_loader, NULL);

@@ -1,4 +1,4 @@
-import * as misc from 'misc';
+import * as misc from "@ckb-js-std/bindings";
 
 function main_1() {
     console.log("main_1() function");

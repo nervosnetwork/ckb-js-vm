@@ -161,24 +161,25 @@ static JSValue verify(JSContext *ctx, JSValueConst this_val, int argc, JSValueCo
     return JS_NewBool(ctx, result == 1);
 }
 
-static const JSCFunctionListEntry js_secp256k1_funcs[] = {
+static const JSCFunctionListEntry secp256k1_obj_funcs[] = {
     JS_CFUNC_DEF("recover", 3, recover),
     JS_CFUNC_DEF("serializePubkey", 2, serialize_pubkey),
     JS_CFUNC_DEF("parsePubkey", 1, parse_pubkey),
     JS_CFUNC_DEF("verify", 3, verify),
 };
 
-static int js_secp256k1_init(JSContext *ctx, JSModuleDef *m) {
-    JS_SetModuleExportList(ctx, m, js_secp256k1_funcs, countof(js_secp256k1_funcs));
+int qjs_init_module_secp256k1_lazy(JSContext *ctx, JSModuleDef *m) {
+    JSValue secp256k1_obj;
+
+    secp256k1_obj = JS_NewObject(ctx);
+    JS_SetPropertyFunctionList(ctx, secp256k1_obj, secp256k1_obj_funcs, countof(secp256k1_obj_funcs));
+    JS_SetModuleExport(ctx, m, "secp256k1", secp256k1_obj);
+
     return 0;
 }
 
-int js_init_module_secp256k1(JSContext *js_ctx) {
+int qjs_init_module_secp256k1(JSContext *js_ctx, JSModuleDef *m) {
     g_secp256k1_context = secp256k1_context_create(SECP256K1_CONTEXT_VERIFY);
-    JSModuleDef *m = JS_NewCModule(js_ctx, "secp256k1", js_secp256k1_init);
-    if (!m) {
-        return QJS_ERROR_GENERIC;
-    }
-    JS_AddModuleExportList(js_ctx, m, js_secp256k1_funcs, countof(js_secp256k1_funcs));
+    JS_AddModuleExport(js_ctx, m, "secp256k1");
     return 0;
 }

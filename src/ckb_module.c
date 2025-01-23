@@ -769,18 +769,18 @@ static JSValue js_parse_ext_json(JSContext *ctx, JSValueConst this_val, int argc
 static const JSCFunctionListEntry js_ckb_funcs[] = {
     JS_CFUNC_DEF("exit", 1, syscall_exit),
     JS_CFUNC_DEF("loadTxHash", 1, syscall_load_tx_hash),
-    JS_CFUNC_DEF("loadTransaction", 1, syscall_load_transaction),
+    JS_CFUNC_DEF("loadTransaction", 2, syscall_load_transaction),
     JS_CFUNC_DEF("loadScriptHash", 1, syscall_load_script_hash),
-    JS_CFUNC_DEF("loadScript", 1, syscall_load_script),
+    JS_CFUNC_DEF("loadScript", 2, syscall_load_script),
     JS_CFUNC_DEF("debug", 1, syscall_debug),
-    JS_CFUNC_DEF("loadCell", 3, syscall_load_cell),
-    JS_CFUNC_DEF("loadInput", 3, syscall_load_input),
-    JS_CFUNC_DEF("loadHeader", 3, syscall_load_header),
-    JS_CFUNC_DEF("loadWitness", 3, syscall_load_witness),
-    JS_CFUNC_DEF("loadCellData", 3, syscall_load_cell_data),
-    JS_CFUNC_DEF("loadCellByField", 4, syscall_load_cell_by_field),
-    JS_CFUNC_DEF("loadHeaderByField", 4, syscall_load_header_by_field),
-    JS_CFUNC_DEF("loadInputByField", 4, syscall_load_input_by_field),
+    JS_CFUNC_DEF("loadCell", 4, syscall_load_cell),
+    JS_CFUNC_DEF("loadInput", 4, syscall_load_input),
+    JS_CFUNC_DEF("loadHeader", 4, syscall_load_header),
+    JS_CFUNC_DEF("loadWitness", 4, syscall_load_witness),
+    JS_CFUNC_DEF("loadCellData", 4, syscall_load_cell_data),
+    JS_CFUNC_DEF("loadCellByField", 5, syscall_load_cell_by_field),
+    JS_CFUNC_DEF("loadHeaderByField", 5, syscall_load_header_by_field),
+    JS_CFUNC_DEF("loadInputByField", 5, syscall_load_input_by_field),
     JS_CFUNC_DEF("vmVersion", 0, syscall_vm_version),
     JS_CFUNC_DEF("currentCycles", 0, syscall_current_cycles),
     JS_CFUNC_DEF("execCell", 4, syscall_exec_cell),
@@ -826,18 +826,15 @@ static const JSCFunctionListEntry js_ckb_funcs[] = {
     JS_PROP_INT64_DEF("SCRIPT_HASH_TYPE_DATA2", 4, JS_PROP_ENUMERABLE),
 };
 
-static int js_ckb_init(JSContext *ctx, JSModuleDef *m) {
+int qjs_init_module_ckb_lazy(JSContext *ctx, JSModuleDef *m) {
     JS_SetModuleExportList(ctx, m, js_ckb_funcs, countof(js_ckb_funcs));
     JS_SetModuleExport(ctx, m, "SOURCE_GROUP_INPUT", JS_NewBigUint64(ctx, CKB_SOURCE_GROUP_INPUT));
     JS_SetModuleExport(ctx, m, "SOURCE_GROUP_OUTPUT", JS_NewBigUint64(ctx, CKB_SOURCE_GROUP_OUTPUT));
+
     return 0;
 }
 
-int js_init_module_ckb(JSContext *ctx) {
-    JSModuleDef *m = JS_NewCModule(ctx, "ckb", js_ckb_init);
-    if (!m) {
-        return QJS_ERROR_GENERIC;
-    }
+int qjs_init_module_ckb(JSContext *ctx, JSModuleDef *m) {
     JS_AddModuleExportList(ctx, m, js_ckb_funcs, countof(js_ckb_funcs));
     JS_AddModuleExport(ctx, m, "SOURCE_GROUP_INPUT");
     JS_AddModuleExport(ctx, m, "SOURCE_GROUP_OUTPUT");

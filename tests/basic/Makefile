@@ -36,9 +36,9 @@ syntax-error:
 	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e "ASDF ASDF" 2>&1 | grep "SyntaxError"
 
 syscalls:
-	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e 'import * as ckb from "ckb"; ckb.exit(0);'
-	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e 'import * as ckb from "ckb"; ckb.debug("hello, ckb");'
-	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e 'import * as ckb from "ckb"; console.log(ckb.vmVersion(), ckb.currentCycles())'
-	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e 'import * as ckb from "ckb"; console.log(ckb.SOURCE_INPUT, ckb.SOURCE_OUTPUT, ckb.CELL_FIELD_OCCUPIED_CAPACITY)'
-	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e 'import * as ckb from "ckb"; console.log(100.1, ckb.SOURCE_GROUP_INPUT, ckb.SOURCE_GROUP_OUTPUT)'
+	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e 'import * as ckb from "@ckb-js-std/bindings"; ckb.exit(0);'
+	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e 'import * as ckb from "@ckb-js-std/bindings"; ckb.debug("hello, ckb");'
+	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e 'import * as ckb from "@ckb-js-std/bindings"; console.log(ckb.vmVersion(), ckb.currentCycles())'
+	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e 'import * as ckb from "@ckb-js-std/bindings"; console.log(ckb.SOURCE_INPUT, ckb.SOURCE_OUTPUT, ckb.CELL_FIELD_OCCUPIED_CAPACITY)'
+	$(CKB-DEBUGGER) --bin $(BIN_PATH) -- -e 'import * as ckb from "@ckb-js-std/bindings"; console.log(100.1, ckb.SOURCE_GROUP_INPUT, ckb.SOURCE_GROUP_OUTPUT)'
 

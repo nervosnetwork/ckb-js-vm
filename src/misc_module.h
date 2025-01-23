@@ -7,6 +7,7 @@
 static JSClassID js_smt_class_id;
 
 // Module initialization
-int js_init_module_misc(JSContext *ctx);
+int qjs_init_module_misc(JSContext* ctx, JSModuleDef* m);
+int qjs_init_module_misc_lazy(JSContext* ctx, JSModuleDef* m);
 
 #endif

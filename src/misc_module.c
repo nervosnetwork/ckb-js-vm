@@ -505,7 +505,7 @@ static const JSCFunctionListEntry js_misc_funcs[] = {
     JS_CFUNC_DEF("printf", 1, js_std_printf),
 };
 
-static int js_misc_init(JSContext *ctx, JSModuleDef *m) {
+int qjs_init_module_misc_lazy(JSContext *ctx, JSModuleDef *m) {
     JSValue proto, obj;
 
     // Initialize SMT class
@@ -540,11 +540,7 @@ static int js_misc_init(JSContext *ctx, JSModuleDef *m) {
     return 0;
 }
 
-int js_init_module_misc(JSContext *ctx) {
-    JSModuleDef *m;
-    m = JS_NewCModule(ctx, "misc", js_misc_init);
-    if (!m) return QJS_ERROR_GENERIC;
-
+int qjs_init_module_misc(JSContext *ctx, JSModuleDef *m) {
     JS_AddModuleExport(ctx, m, "Smt");
     JS_AddModuleExport(ctx, m, "hex");
     JS_AddModuleExport(ctx, m, "base64");
