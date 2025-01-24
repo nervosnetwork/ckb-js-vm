@@ -1,6 +1,6 @@
 {
-    "extends": "../../tsconfig.base.json",
-    "compilerOptions": {
-      "types": [ "./index.d.ts" ]
-    }
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["./index.d.ts"]
+  }
 }

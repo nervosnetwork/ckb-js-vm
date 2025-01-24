@@ -11,7 +11,6 @@ export const SOURCE_OUTPUT: SourceType;
 export const SOURCE_GROUP_INPUT: SourceType;
 export const SOURCE_GROUP_OUTPUT: SourceType;
 
-
 /**
  * Field constants for loading cell data
  * Used to specify which field to load when using `loadCellByField`
@@ -92,7 +91,12 @@ export function loadScript(offset?: number, length?: number): ArrayBuffer;
  * @param length - Optional length of data to load (defaults to reading until the end)
  * @returns The loaded cell data as ArrayBuffer
  */
-export function loadCell(index: number, source: SourceType, offset?: number, length?: number): ArrayBuffer;
+export function loadCell(
+  index: number,
+  source: SourceType,
+  offset?: number,
+  length?: number,
+): ArrayBuffer;
 
 /**
  * Load input data from the transaction
@@ -102,7 +106,12 @@ export function loadCell(index: number, source: SourceType, offset?: number, len
  * @param length - Optional length of data to load (defaults to reading until the end)
  * @returns The loaded input data as ArrayBuffer
  */
-export function loadInput(index: number, source: SourceType, offset?: number, length?: number): ArrayBuffer;
+export function loadInput(
+  index: number,
+  source: SourceType,
+  offset?: number,
+  length?: number,
+): ArrayBuffer;
 
 /**
  * Load header data from the transaction
@@ -112,7 +121,12 @@ export function loadInput(index: number, source: SourceType, offset?: number, le
  * @param length - Optional length of data to load (defaults to reading until the end)
  * @returns The loaded header data as ArrayBuffer
  */
-export function loadHeader(index: number, source: SourceType, offset?: number, length?: number): ArrayBuffer;
+export function loadHeader(
+  index: number,
+  source: SourceType,
+  offset?: number,
+  length?: number,
+): ArrayBuffer;
 
 /**
  * Load witness data from the transaction
@@ -122,7 +136,12 @@ export function loadHeader(index: number, source: SourceType, offset?: number, l
  * @param length - Optional length of data to load (defaults to reading until the end)
  * @returns The loaded witness data as ArrayBuffer
  */
-export function loadWitness(index: number, source: SourceType, offset?: number, length?: number): ArrayBuffer;
+export function loadWitness(
+  index: number,
+  source: SourceType,
+  offset?: number,
+  length?: number,
+): ArrayBuffer;
 
 /**
  * Load cell data from the transaction
@@ -132,7 +151,12 @@ export function loadWitness(index: number, source: SourceType, offset?: number, 
  * @param length - Optional length of data to load (defaults to reading until the end)
  * @returns The loaded cell data as ArrayBuffer
  */
-export function loadCellData(index: number, source: SourceType, offset?: number, length?: number): ArrayBuffer;
+export function loadCellData(
+  index: number,
+  source: SourceType,
+  offset?: number,
+  length?: number,
+): ArrayBuffer;
 
 /**
  * Load cell data by specific field
@@ -143,7 +167,13 @@ export function loadCellData(index: number, source: SourceType, offset?: number,
  * @param length - Optional length of data to load (defaults to reading until the end)
  * @returns The loaded field data as ArrayBuffer
  */
-export function loadCellByField(index: number, source: SourceType, field: number, offset?: number, length?: number): ArrayBuffer;
+export function loadCellByField(
+  index: number,
+  source: SourceType,
+  field: number,
+  offset?: number,
+  length?: number,
+): ArrayBuffer;
 
 /**
  * Load header data by specific field
@@ -154,7 +184,13 @@ export function loadCellByField(index: number, source: SourceType, field: number
  * @param length - Optional length of data to load (defaults to reading until the end)
  * @returns The loaded field data as ArrayBuffer
  */
-export function loadHeaderByField(index: number, source: SourceType, field: number, offset?: number, length?: number): ArrayBuffer;
+export function loadHeaderByField(
+  index: number,
+  source: SourceType,
+  field: number,
+  offset?: number,
+  length?: number,
+): ArrayBuffer;
 
 /**
  * Load input data by specific field
@@ -165,7 +201,13 @@ export function loadHeaderByField(index: number, source: SourceType, field: numb
  * @param length - Optional length of data to load (defaults to reading until the end)
  * @returns The loaded field data as ArrayBuffer
  */
-export function loadInputByField(index: number, source: SourceType, field: number, offset?: number, length?: number): ArrayBuffer;
+export function loadInputByField(
+  index: number,
+  source: SourceType,
+  field: number,
+  offset?: number,
+  length?: number,
+): ArrayBuffer;
 
 /**
  * Get the current VM version
@@ -187,16 +229,22 @@ export function currentCycles(): number;
  * @param length - The length of code to execute (defaults to reading until the end)
  * @param args - Additional arguments to pass to the cell
  */
-export function execCell(codeHash: ArrayBuffer, hashType: number, offset: number, length: number, ...args: string[]): void;
+export function execCell(
+  codeHash: ArrayBuffer,
+  hashType: number,
+  offset: number,
+  length: number,
+  ...args: string[]
+): void;
 
 /**
  * Options for spawning a new cell process
  */
 export interface SpawnArgs {
-    /** Command line arguments to pass to the spawned process */
-    argv?: string[];
-    /** File descriptors to inherit in the spawned process */
-    inherited_fds?: number[];
+  /** Command line arguments to pass to the spawned process */
+  argv?: string[];
+  /** File descriptors to inherit in the spawned process */
+  inherited_fds?: number[];
 }
 
 /**
@@ -208,7 +256,13 @@ export interface SpawnArgs {
  * @param args - Spawn arguments including argv and inherited file descriptors
  * @returns The process ID of the spawned process
  */
-export function spawnCell(codeHash: ArrayBuffer, hashType: number, offset: number, length: number, args: SpawnArgs): number;
+export function spawnCell(
+  codeHash: ArrayBuffer,
+  hashType: number,
+  offset: number,
+  length: number,
+  args: SpawnArgs,
+): number;
 
 /**
  * Create a new pipe
@@ -270,7 +324,12 @@ export function processId(): number;
  * @param length - Optional length of data to load (defaults to reading until the end)
  * @returns The loaded block extension data as ArrayBuffer
  */
-export function loadBlockExtension(index: number, source: number, offset?: number, length?: number): ArrayBuffer;
+export function loadBlockExtension(
+  index: number,
+  source: number,
+  offset?: number,
+  length?: number,
+): ArrayBuffer;
 
 /**
  * Mount a file system
@@ -315,174 +374,182 @@ export function loadFile(path: string): string;
  * @param json - The JSON string to parse
  * @returns The parsed JSON object
  */
-export function parseExtJSON(json: string) : Object;
+export function parseExtJSON(json: string): Object;
 
 /**
  * SHA256 hash implementation
  */
 export class Sha256 {
-    constructor();
-    /**
-     * Update the hash with new data
-     * @param data - Data to be hashed
-     */
-    update(data: ArrayBuffer): void;
-    /**
-     * Finalize and get the hash result
-     * @returns The 32-byte hash result
-     */
-    finalize(): ArrayBuffer;
+  constructor();
+  /**
+   * Update the hash with new data
+   * @param data - Data to be hashed
+   */
+  update(data: ArrayBuffer): void;
+  /**
+   * Finalize and get the hash result
+   * @returns The 32-byte hash result
+   */
+  finalize(): ArrayBuffer;
 }
 
 /**
  * Keccak256 hash implementation
  */
 export class Keccak256 {
-    constructor();
-    /**
-     * Update the hash with new data
-     * @param data - Data to be hashed
-     */
-    update(data: ArrayBuffer): void;
-    /**
-     * Finalize and get the hash result
-     * @returns The 32-byte hash result
-     */
-    finalize(): ArrayBuffer;
+  constructor();
+  /**
+   * Update the hash with new data
+   * @param data - Data to be hashed
+   */
+  update(data: ArrayBuffer): void;
+  /**
+   * Finalize and get the hash result
+   * @returns The 32-byte hash result
+   */
+  finalize(): ArrayBuffer;
 }
 
 /**
  * Blake2b hash implementation
  */
 export class Blake2b {
-    /**
-     * Create a new Blake2b hash instance
-     * @param personal - Optional personalization string. It must have length with 16.
-     */
-    constructor(personal?: ArrayBuffer);
-    /**
-     * Update the hash with new data
-     * @param data - Data to be hashed
-     */
-    update(data: ArrayBuffer): void;
-    /**
-     * Finalize and get the hash result
-     * @returns The 32-byte hash result as ArrayBuffer
-     */
-    finalize(): ArrayBuffer;
+  /**
+   * Create a new Blake2b hash instance
+   * @param personal - Optional personalization string. It must have length with 16.
+   */
+  constructor(personal?: ArrayBuffer);
+  /**
+   * Update the hash with new data
+   * @param data - Data to be hashed
+   */
+  update(data: ArrayBuffer): void;
+  /**
+   * Finalize and get the hash result
+   * @returns The 32-byte hash result as ArrayBuffer
+   */
+  finalize(): ArrayBuffer;
 }
 
 /**
  * RIPEMD160 hash implementation
  */
 export class Ripemd160 {
-    constructor();
-    /**
-     * Update the hash with new data
-     * @param data - Data to be hashed
-     */
-    update(data: ArrayBuffer): void;
-    /**
-     * Finalize and get the hash result
-     * @returns The 20-byte hash result
-     */
-    finalize(): ArrayBuffer;
+  constructor();
+  /**
+   * Update the hash with new data
+   * @param data - Data to be hashed
+   */
+  update(data: ArrayBuffer): void;
+  /**
+   * Finalize and get the hash result
+   * @returns The 20-byte hash result
+   */
+  finalize(): ArrayBuffer;
 }
 
 /**
  * Secp256k1 cryptographic functions
  */
 export const secp256k1: {
-    /**
-     * Recover raw public key from signature and message hash
-     * @param signature - The 64-byte signature
-     * @param recoveryId - The recovery ID (0-3)
-     * @param messageHash - The 32-byte message hash
-     * @returns The recovered raw public key (64-bytes)
-     */
-    recover(signature: ArrayBuffer, recoveryId: number, messageHash: ArrayBuffer): ArrayBuffer;
+  /**
+   * Recover raw public key from signature and message hash
+   * @param signature - The 64-byte signature
+   * @param recoveryId - The recovery ID (0-3)
+   * @param messageHash - The 32-byte message hash
+   * @returns The recovered raw public key (64-bytes)
+   */
+  recover(
+    signature: ArrayBuffer,
+    recoveryId: number,
+    messageHash: ArrayBuffer,
+  ): ArrayBuffer;
 
-    /**
-     * Serialize a raw public key (64-bytes) to serialized format(compressed or uncompressed)
-     * @param pubkey - The raw public key to serialize
-     * @param compressed - Whether to use compressed format (33 bytes) or
-     * uncompressed (65 bytes)
-     * @returns The serialized public key (33 or 65 bytes)
-     */
-    serializePubkey(pubkey: ArrayBuffer, compressed?: boolean): ArrayBuffer;
+  /**
+   * Serialize a raw public key (64-bytes) to serialized format(compressed or uncompressed)
+   * @param pubkey - The raw public key to serialize
+   * @param compressed - Whether to use compressed format (33 bytes) or
+   * uncompressed (65 bytes)
+   * @returns The serialized public key (33 or 65 bytes)
+   */
+  serializePubkey(pubkey: ArrayBuffer, compressed?: boolean): ArrayBuffer;
 
-    /**
-     * Parse a serialized public key(compressed or uncompressed) to raw public key. It
-     * is the reverse function of serializePubkey.
-     * @param serializedPubkey - The serialized format public key (33 or 65 bytes)
-     * @returns The parsed raw public key (64-bytes)
-     */
-    parsePubkey(serializedPubkey: ArrayBuffer): ArrayBuffer;
+  /**
+   * Parse a serialized public key(compressed or uncompressed) to raw public key. It
+   * is the reverse function of serializePubkey.
+   * @param serializedPubkey - The serialized format public key (33 or 65 bytes)
+   * @returns The parsed raw public key (64-bytes)
+   */
+  parsePubkey(serializedPubkey: ArrayBuffer): ArrayBuffer;
 
-    /**
-     * Verify an ECDSA signature
-     * @param signature - The 64-byte signature
-     * @param messageHash - The 32-byte message hash
-     * @param pubkey - The raw public key (64-bytes)
-     * @returns True if signature is valid, false otherwise
-     */
-    verify(signature: ArrayBuffer, messageHash: ArrayBuffer, pubkey: ArrayBuffer): boolean;
+  /**
+   * Verify an ECDSA signature
+   * @param signature - The 64-byte signature
+   * @param messageHash - The 32-byte message hash
+   * @param pubkey - The raw public key (64-bytes)
+   * @returns True if signature is valid, false otherwise
+   */
+  verify(
+    signature: ArrayBuffer,
+    messageHash: ArrayBuffer,
+    pubkey: ArrayBuffer,
+  ): boolean;
 };
 
 /**
  * Sparse Merkle Tree implementation
  */
 export class Smt {
-    constructor();
-    /**
-     * Insert a key-value pair into the tree
-     * @param key - The key to insert (32 bytes)
-     * @param value - The value to insert (32 bytes)
-     */
-    insert(key: ArrayBuffer, value: ArrayBuffer): void;
-    /**
-     * Verify a Merkle proof
-     * @param root - The 32-byte Merkle root
-     * @param proof - The proof data
-     * @returns True if proof is valid, false otherwise
-     */
-    verify(root: ArrayBuffer, proof: ArrayBuffer): boolean;
+  constructor();
+  /**
+   * Insert a key-value pair into the tree
+   * @param key - The key to insert (32 bytes)
+   * @param value - The value to insert (32 bytes)
+   */
+  insert(key: ArrayBuffer, value: ArrayBuffer): void;
+  /**
+   * Verify a Merkle proof
+   * @param root - The 32-byte Merkle root
+   * @param proof - The proof data
+   * @returns True if proof is valid, false otherwise
+   */
+  verify(root: ArrayBuffer, proof: ArrayBuffer): boolean;
 }
 
 /**
  * Hex encoding utilities
  */
 export const hex: {
-    /**
-     * Encode binary data as hex string
-     * @param data - Data to encode
-     * @returns Hex string representation
-     */
-    encode(data: ArrayBuffer): string;
-    /**
-     * Decode hex string to binary data
-     * @param hex - Hex string to decode
-     * @returns Decoded binary data
-     */
-    decode(hex: string): ArrayBuffer;
+  /**
+   * Encode binary data as hex string
+   * @param data - Data to encode
+   * @returns Hex string representation
+   */
+  encode(data: ArrayBuffer): string;
+  /**
+   * Decode hex string to binary data
+   * @param hex - Hex string to decode
+   * @returns Decoded binary data
+   */
+  decode(hex: string): ArrayBuffer;
 };
 
 /**
  * Base64 encoding utilities
  */
 export const base64: {
-    /**
-     * Encode binary data as base64 string
-     * @param data - Data to encode
-     * @returns Base64 string representation
-     */
-    encode(data: ArrayBuffer): string;
-    /**
-     * Decode base64 string to binary data
-     * @param base64 - Base64 string to decode
-     * @returns Decoded binary data
-     */
-    decode(base64: string): ArrayBuffer;
+  /**
+   * Encode binary data as base64 string
+   * @param data - Data to encode
+   * @returns Base64 string representation
+   */
+  encode(data: ArrayBuffer): string;
+  /**
+   * Decode base64 string to binary data
+   * @param base64 - Base64 string to decode
+   * @returns Decoded binary data
+   */
+  decode(base64: string): ArrayBuffer;
 };
 
 /**
@@ -504,18 +571,18 @@ export function printf(format: string, ...args: any[]): void;
  * Console object for logging and assertions
  */
 export const console: {
-    /**
-     * Log messages to debug output
-     * @param args - Values to log
-     */
-    log(...args: any[]): void;
+  /**
+   * Log messages to debug output
+   * @param args - Values to log
+   */
+  log(...args: any[]): void;
 
-    /**
-     * Assert a condition, throw if false
-     * @param condition - Condition to check
-     * @param args - Values to log if assertion fails
-     */
-    assert(condition: boolean, ...args: any[]): void;
+  /**
+   * Assert a condition, throw if false
+   * @param condition - Condition to check
+   * @param args - Values to log if assertion fails
+   */
+  assert(condition: boolean, ...args: any[]): void;
 };
 
 /**
@@ -523,190 +590,202 @@ export const console: {
  */
 export const scriptArgs: string[];
 
-
 // TODO: double check and review BigFloat and BigDecimal
 
 /**
  * Rounding modes for BigFloat operations
  */
 export const enum BigFloatRoundingMode {
-    /** Round to nearest, with ties to even */
-    RNDN = 0,
-    /** Round to zero */
-    RNDZ = 1,
-    /** Round to -Infinity */
-    RNDD = 2,
-    /** Round to +Infinity */
-    RNDU = 3,
-    /** Round to nearest, with ties away from zero */
-    RNDNA = 4,
-    /** Round away from zero */
-    RNDA = 5,
-    /** Faithful rounding (non-deterministic) */
-    RNDF = 6,
+  /** Round to nearest, with ties to even */
+  RNDN = 0,
+  /** Round to zero */
+  RNDZ = 1,
+  /** Round to -Infinity */
+  RNDD = 2,
+  /** Round to +Infinity */
+  RNDU = 3,
+  /** Round to nearest, with ties away from zero */
+  RNDNA = 4,
+  /** Round away from zero */
+  RNDA = 5,
+  /** Faithful rounding (non-deterministic) */
+  RNDF = 6,
 }
 
 /**
  * Environment for BigFloat operations controlling precision and rounding
  */
 export interface BigFloatEnv {
-    // Static properties
-    readonly precMin: number;      // Minimum allowed precision (at least 2)
-    readonly precMax: number;      // Maximum allowed precision (at least 113)
-    readonly expBitsMin: number;   // Minimum allowed exponent bits (at least 3)
-    readonly expBitsMax: number;   // Maximum allowed exponent bits (at least 15)
+  // Static properties
+  readonly precMin: number; // Minimum allowed precision (at least 2)
+  readonly precMax: number; // Maximum allowed precision (at least 113)
+  readonly expBitsMin: number; // Minimum allowed exponent bits (at least 3)
+  readonly expBitsMax: number; // Maximum allowed exponent bits (at least 15)
 
-    // Static methods
-    setPrec(fn: Function, prec: number, expBits?: number): any;
+  // Static methods
+  setPrec(fn: Function, prec: number, expBits?: number): any;
 
-    // Instance properties
-    /** Precision in bits */
-    prec: number;
-    /** Exponent size in bits */
-    expBits: number;
-    /** Rounding mode */
-    rndMode: BigFloatRoundingMode;
-    /** Whether subnormal numbers are allowed */
-    subnormal: boolean;
+  // Instance properties
+  /** Precision in bits */
+  prec: number;
+  /** Exponent size in bits */
+  expBits: number;
+  /** Rounding mode */
+  rndMode: BigFloatRoundingMode;
+  /** Whether subnormal numbers are allowed */
+  subnormal: boolean;
 
-    // Status flags
-    /** Invalid operation flag */
-    invalidOperation: boolean;
-    /** Division by zero flag */
-    divideByZero: boolean;
-    /** Overflow flag */
-    overflow: boolean;
-    /** Underflow flag */
-    underflow: boolean;
-    /** Inexact flag */
-    inexact: boolean;
+  // Status flags
+  /** Invalid operation flag */
+  invalidOperation: boolean;
+  /** Division by zero flag */
+  divideByZero: boolean;
+  /** Overflow flag */
+  overflow: boolean;
+  /** Underflow flag */
+  underflow: boolean;
+  /** Inexact flag */
+  inexact: boolean;
 
-    // Methods
-    /** Clear all status flags */
-    clearStatus(): void;
+  // Methods
+  /** Clear all status flags */
+  clearStatus(): void;
 }
 
 /**
  * Constructor for BigFloatEnv
  */
 export interface BigFloatEnvConstructor {
-    new(): BigFloatEnv;
-    new(prec: number, rndMode?: BigFloatRoundingMode): BigFloatEnv;
+  new (): BigFloatEnv;
+  new (prec: number, rndMode?: BigFloatRoundingMode): BigFloatEnv;
 
-    readonly prototype: BigFloatEnv;
+  readonly prototype: BigFloatEnv;
 
-    // Static properties from the interface
-    readonly precMin: number;
-    readonly precMax: number;
-    readonly expBitsMin: number;
-    readonly expBitsMax: number;
+  // Static properties from the interface
+  readonly precMin: number;
+  readonly precMax: number;
+  readonly expBitsMin: number;
+  readonly expBitsMax: number;
 
-    // Static methods
-    setPrec(fn: Function, prec: number, expBits?: number): any;
+  // Static methods
+  setPrec(fn: Function, prec: number, expBits?: number): any;
 }
 
 export const BigFloatEnv: BigFloatEnvConstructor;
-
 
 /**
  * BigFloat provides arbitrary-precision floating-point arithmetic
  */
 export const BigFloat: {
-    // Constants
-    readonly PI: BigFloat;
-    readonly LN2: BigFloat;
-    readonly MIN_VALUE: BigFloat;
-    readonly MAX_VALUE: BigFloat;
-    readonly EPSILON: BigFloat;
+  // Constants
+  readonly PI: BigFloat;
+  readonly LN2: BigFloat;
+  readonly MIN_VALUE: BigFloat;
+  readonly MAX_VALUE: BigFloat;
+  readonly EPSILON: BigFloat;
 
-    /**
-     * Convert value to BigFloat. Cannot be used as constructor.
-     * If number: converts without rounding
-     * If string: converts using global floating point environment precision
-     */
-    (value: number | string | BigFloat): BigFloat;
+  /**
+   * Convert value to BigFloat. Cannot be used as constructor.
+   * If number: converts without rounding
+   * If string: converts using global floating point environment precision
+   */
+  (value: number | string | BigFloat): BigFloat;
 
-    /**
-     * Parse string as floating point number
-     * @param str - String to parse
-     * @param radix - Optional base (0 or 2-36, default 0)
-     * @param env - Optional floating point environment
-     */
-    parseFloat(str: string, radix?: number, env?: BigFloatEnv): BigFloat;
+  /**
+   * Parse string as floating point number
+   * @param str - String to parse
+   * @param radix - Optional base (0 or 2-36, default 0)
+   * @param env - Optional floating point environment
+   */
+  parseFloat(str: string, radix?: number, env?: BigFloatEnv): BigFloat;
 
-    /**
-     * Check if value is finite
-     */
-    isFinite(value: BigFloat): boolean;
+  /**
+   * Check if value is finite
+   */
+  isFinite(value: BigFloat): boolean;
 
-    /**
-     * Check if value is NaN
-     */
-    isNaN(value: BigFloat): boolean;
+  /**
+   * Check if value is NaN
+   */
+  isNaN(value: BigFloat): boolean;
 
-    /**
-     * Round according to floating point environment
-     * @param x - Value to round
-     * @param env - Optional floating point environment
-     */
-    fpRound(x: BigFloat, env?: BigFloatEnv): BigFloat;
+  /**
+   * Round according to floating point environment
+   * @param x - Value to round
+   * @param env - Optional floating point environment
+   */
+  fpRound(x: BigFloat, env?: BigFloatEnv): BigFloat;
 
-    // Arithmetic operations with optional environment
-    add(a: BigFloat, b: BigFloat, env?: BigFloatEnv): BigFloat;
-    sub(a: BigFloat, b: BigFloat, env?: BigFloatEnv): BigFloat;
-    mul(a: BigFloat, b: BigFloat, env?: BigFloatEnv): BigFloat;
-    div(a: BigFloat, b: BigFloat, env?: BigFloatEnv): BigFloat;
+  // Arithmetic operations with optional environment
+  add(a: BigFloat, b: BigFloat, env?: BigFloatEnv): BigFloat;
+  sub(a: BigFloat, b: BigFloat, env?: BigFloatEnv): BigFloat;
+  mul(a: BigFloat, b: BigFloat, env?: BigFloatEnv): BigFloat;
+  div(a: BigFloat, b: BigFloat, env?: BigFloatEnv): BigFloat;
 
-    // Integer rounding operations (no additional rounding)
-    floor(x: BigFloat): BigFloat;
-    ceil(x: BigFloat): BigFloat;
-    round(x: BigFloat): BigFloat;
-    trunc(x: BigFloat): BigFloat;
+  // Integer rounding operations (no additional rounding)
+  floor(x: BigFloat): BigFloat;
+  ceil(x: BigFloat): BigFloat;
+  round(x: BigFloat): BigFloat;
+  trunc(x: BigFloat): BigFloat;
 
-    /**
-     * Absolute value (no additional rounding)
-     */
-    abs(x: BigFloat): BigFloat;
+  /**
+   * Absolute value (no additional rounding)
+   */
+  abs(x: BigFloat): BigFloat;
 
-    // Remainder operations
-    fmod(x: BigFloat, y: BigFloat, env?: BigFloatEnv): BigFloat;
-    remainder(x: BigFloat, y: BigFloat, env?: BigFloatEnv): BigFloat;
+  // Remainder operations
+  fmod(x: BigFloat, y: BigFloat, env?: BigFloatEnv): BigFloat;
+  remainder(x: BigFloat, y: BigFloat, env?: BigFloatEnv): BigFloat;
 
-    // Transcendental operations with optional environment
-    sqrt(x: BigFloat, env?: BigFloatEnv): BigFloat;
-    sin(x: BigFloat, env?: BigFloatEnv): BigFloat;
-    cos(x: BigFloat, env?: BigFloatEnv): BigFloat;
-    tan(x: BigFloat, env?: BigFloatEnv): BigFloat;
-    asin(x: BigFloat, env?: BigFloatEnv): BigFloat;
-    acos(x: BigFloat, env?: BigFloatEnv): BigFloat;
-    atan(x: BigFloat, env?: BigFloatEnv): BigFloat;
-    atan2(y: BigFloat, x: BigFloat, env?: BigFloatEnv): BigFloat;
-    exp(x: BigFloat, env?: BigFloatEnv): BigFloat;
-    log(x: BigFloat, env?: BigFloatEnv): BigFloat;
-    pow(x: BigFloat, y: BigFloat, env?: BigFloatEnv): BigFloat;
+  // Transcendental operations with optional environment
+  sqrt(x: BigFloat, env?: BigFloatEnv): BigFloat;
+  sin(x: BigFloat, env?: BigFloatEnv): BigFloat;
+  cos(x: BigFloat, env?: BigFloatEnv): BigFloat;
+  tan(x: BigFloat, env?: BigFloatEnv): BigFloat;
+  asin(x: BigFloat, env?: BigFloatEnv): BigFloat;
+  acos(x: BigFloat, env?: BigFloatEnv): BigFloat;
+  atan(x: BigFloat, env?: BigFloatEnv): BigFloat;
+  atan2(y: BigFloat, x: BigFloat, env?: BigFloatEnv): BigFloat;
+  exp(x: BigFloat, env?: BigFloatEnv): BigFloat;
+  log(x: BigFloat, env?: BigFloatEnv): BigFloat;
+  pow(x: BigFloat, y: BigFloat, env?: BigFloatEnv): BigFloat;
 };
 
 // Represents a BigFloat value
 export interface BigFloat {
-    toString(): string;
-    valueOf(): number;
-    toPrecision(precision: number, mode?: BigFloatRoundingMode, radix?: number): string;
-    toFixed(digits: number, mode?: BigFloatRoundingMode, radix?: number): string;
-    toExponential(fractionDigits: number, mode?: BigFloatRoundingMode, radix?: number): string;
+  toString(): string;
+  valueOf(): number;
+  toPrecision(
+    precision: number,
+    mode?: BigFloatRoundingMode,
+    radix?: number,
+  ): string;
+  toFixed(digits: number, mode?: BigFloatRoundingMode, radix?: number): string;
+  toExponential(
+    fractionDigits: number,
+    mode?: BigFloatRoundingMode,
+    radix?: number,
+  ): string;
 }
 
 /**
  * Rounding mode for BigDecimal operations
  */
-export type BigDecimalRoundingMode = "floor" | "ceiling" | "down" | "up" | "half-even" | "half-up";
+export type BigDecimalRoundingMode =
+  | "floor"
+  | "ceiling"
+  | "down"
+  | "up"
+  | "half-even"
+  | "half-up";
 
 /**
  * Rounding configuration for BigDecimal operations
  */
 export interface BigDecimalRounding {
-    roundingMode: BigDecimalRoundingMode;
-    maximumSignificantDigits?: number;
-    maximumFractionDigits?: number;
+  roundingMode: BigDecimalRoundingMode;
+  maximumSignificantDigits?: number;
+  maximumFractionDigits?: number;
 }
 
 /**
@@ -714,22 +793,21 @@ export interface BigDecimalRounding {
  * It provides a subset of the methods from the BigDecimal class in QuickJS.
  */
 export interface BigDecimal {
-    // Arithmetic operations
-    add(x: BigDecimal, y: BigDecimal, rounding?: BigDecimalRounding): BigDecimal;
-    sub(x: BigDecimal, y: BigDecimal, rounding?: BigDecimalRounding): BigDecimal;
-    mul(x: BigDecimal, y: BigDecimal, rounding?: BigDecimalRounding): BigDecimal;
-    div(x: BigDecimal, y: BigDecimal, rounding?: BigDecimalRounding): BigDecimal;
-    mod(x: BigDecimal, y: BigDecimal, rounding?: BigDecimalRounding): BigDecimal;
+  // Arithmetic operations
+  add(x: BigDecimal, y: BigDecimal, rounding?: BigDecimalRounding): BigDecimal;
+  sub(x: BigDecimal, y: BigDecimal, rounding?: BigDecimalRounding): BigDecimal;
+  mul(x: BigDecimal, y: BigDecimal, rounding?: BigDecimalRounding): BigDecimal;
+  div(x: BigDecimal, y: BigDecimal, rounding?: BigDecimalRounding): BigDecimal;
+  mod(x: BigDecimal, y: BigDecimal, rounding?: BigDecimalRounding): BigDecimal;
 
-    // Mathematical functions
-    round(x: BigDecimal, rounding: BigDecimalRounding): BigDecimal;
-    sqrt(x: BigDecimal, rounding: BigDecimalRounding): BigDecimal;
+  // Mathematical functions
+  round(x: BigDecimal, rounding: BigDecimalRounding): BigDecimal;
+  sqrt(x: BigDecimal, rounding: BigDecimalRounding): BigDecimal;
 
-    // Formatting methods from QuickJS implementation
-    toString(): string;
-    valueOf(): string;
-    toPrecision(precision: number): string;
-    toFixed(digits: number): string;
-    toExponential(fractionDigits: number): string;
+  // Formatting methods from QuickJS implementation
+  toString(): string;
+  valueOf(): string;
+  toPrecision(precision: number): string;
+  toFixed(digits: number): string;
+  toExponential(fractionDigits: number): string;
 }
-
