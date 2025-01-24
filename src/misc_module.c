@@ -10,6 +10,10 @@
 #include "qjs.h"
 #include "utils.h"
 
+static JSClassID js_smt_class_id;
+static JSClassID js_text_decoder_class_id;
+static JSClassID js_text_encoder_class_id;
+
 typedef struct {
     uint8_t key[SMT_KEY_BYTES];
     uint8_t value[SMT_VALUE_BYTES];
