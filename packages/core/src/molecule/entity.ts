@@ -130,8 +130,7 @@ export abstract class Entity {
   }
 
   abstract toBytes(): Bytes;
-  // TODO
-  //   abstract hash(): Hex;
+  abstract hash(): Bytes;
   abstract clone(): Entity;
 }
 
