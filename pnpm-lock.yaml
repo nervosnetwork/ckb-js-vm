@@ -26,11 +26,23 @@ importers:
 
   packages/bindings: {}
 
+  packages/core:
+    dependencies:
+      '@ckb-js-std/bindings':
+        specifier: workspace:*
+        version: link:../bindings
+      '@ckb-js-std/core':
+        specifier: 'link:'
+        version: 'link:'
+
   packages/examples:
     dependencies:
       '@ckb-js-std/bindings':
         specifier: workspace:*
         version: link:../bindings
+      '@ckb-js-std/core':
+        specifier: workspace:*
+        version: link:../core
       '@ckb-js-std/examples':
         specifier: 'link:'
         version: 'link:'

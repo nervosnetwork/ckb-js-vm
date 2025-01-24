@@ -4,7 +4,6 @@
         "module": "ESNext",
         /* Use esbuild to bundle the code */
         "moduleResolution": "Bundler",
-        "outDir": "./dist",
         "target": "ES2022",
         "incremental": true,
         "allowJs": true,

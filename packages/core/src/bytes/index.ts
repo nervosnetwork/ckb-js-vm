@@ -39,15 +39,12 @@ export function bytesEq(a: BytesLike, b: BytesLike): boolean {
     return true;
   }
 
-  const x = bytesFrom(a);
-  const y = bytesFrom(b);
-
-  if (x.length !== y.length) {
+  if (a.length !== b.length) {
     return false;
   }
 
-  for (let i = 0; i < x.length; i++) {
-    if (x[i] !== y[i]) {
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) {
       return false;
     }
   }

@@ -59,32 +59,32 @@ export const BoolVec = vector(Bool);
 
 export const Byte4: Codec<BytesLike, _Bytes> = Codec.from({
   byteLength: 4,
-  encode: (value) => bytesFrom(value),
-  decode: (buffer) => bytesFrom(buffer),
+  encode: bytesFrom,
+  decode: bytesFrom,
 });
 export const Byte4Opt = option(Byte4);
 export const Byte4Vec = vector(Byte4);
 
 export const Byte8: Codec<BytesLike, _Bytes> = Codec.from({
   byteLength: 8,
-  encode: (value) => bytesFrom(value),
-  decode: (buffer) => bytesFrom(buffer),
+  encode: bytesFrom,
+  decode: bytesFrom,
 });
 export const Byte8Opt = option(Byte8);
 export const Byte8Vec = vector(Byte8);
 
 export const Byte16: Codec<BytesLike, _Bytes> = Codec.from({
   byteLength: 16,
-  encode: (value) => bytesFrom(value),
-  decode: (buffer) => bytesFrom(buffer),
+  encode: bytesFrom,
+  decode: bytesFrom,
 });
 export const Byte16Opt = option(Byte16);
 export const Byte16Vec = vector(Byte16);
 
 export const Byte32: Codec<BytesLike, _Bytes> = Codec.from({
   byteLength: 32,
-  encode: (value) => bytesFrom(value),
-  decode: (buffer) => bytesFrom(buffer),
+  encode: bytesFrom,
+  decode: bytesFrom,
 });
 export const Byte32Opt = option(Byte32);
 export const Byte32Vec = vector(Byte32);

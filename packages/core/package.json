@@ -13,16 +13,20 @@
   "sideEffects": false,
   "main": "./dist/index.js",
   "module": "./dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./barrel": "./dist/barrel.js"
+  },
   "scripts": {
-    "build": "tsc --noEmit",
+    "build": "tsc",
     "format": "prettier --write .",
     "clean": "rm -f dist/*"
   },
-  "devDependencies": {},
   "publishConfig": {
     "access": "public"
   },
   "dependencies": {
-    "@ckb-js-std/bindings": "workspace:*"
+    "@ckb-js-std/bindings": "workspace:*",
+    "@ckb-js-std/core": "link:"
   }
 }

@@ -1,5 +1,5 @@
-import { Bytes, BytesLike, bytesFrom } from "../bytes/index.js";
-import { mol } from "../molecule/index.js";
+import { Bytes, BytesLike, bytesFrom } from "../bytes/index";
+import { mol } from "../molecule/index";
 
 export const HashTypeCodec: mol.Codec<HashTypeLike, HashType> = mol.Codec.from({
   byteLength: 1,

@@ -1,2 +1,2 @@
-export * from "./barrel.js";
-export * as ckb from "./barrel.js";
+export * from "./barrel";
+export * as ckb from "./barrel";
