@@ -4,9 +4,9 @@
 
 #include "ckb_cell_fs.h"
 
-static CellFileSystem *CELL_FILE_SYSTEM = NULL;
+static FSCell *CELL_FILE_SYSTEM = NULL;
 
-int get_file(const CellFileSystem *fs, const char *filename, FSFile **f) {
+static int get_file(const FSCell *fs, const char *filename, FSFile **f) {
     if (fs == NULL) {
         return -1;
     }
@@ -14,8 +14,8 @@ int get_file(const CellFileSystem *fs, const char *filename, FSFile **f) {
     if (file == 0) {
         return -1;
     }
-    CellFileSystem *cfs = (CellFileSystem *)fs;
-    CellFileSystemNode *node = cfs->current;
+    FSCell *cfs = (FSCell *)fs;
+    FSCellNode *node = cfs->current;
     while (node != NULL) {
         if (strncmp(node->prefix + 1, filename, strlen(node->prefix) - 1) != 0) {
             if (cfs->next == NULL) {
@@ -53,17 +53,17 @@ int get_file(const CellFileSystem *fs, const char *filename, FSFile **f) {
 
 int ckb_get_file(const char *filename, FSFile **file) { return get_file(CELL_FILE_SYSTEM, filename, file); }
 
-int load_fs(CellFileSystem **fs, const char *prefix, void *buf, uint64_t buflen) {
+static int load_fs(FSCell **fs, const char *prefix, void *buf, uint64_t buflen) {
     if (fs == NULL || buf == NULL) {
         return -1;
     }
 
-    CellFileSystemNode *node = (CellFileSystemNode *)malloc(sizeof(CellFileSystemNode));
+    FSCellNode *node = (FSCellNode *)malloc(sizeof(FSCellNode));
     if (node == NULL) {
         return -1;
     }
 
-    CellFileSystem *newfs = (CellFileSystem *)malloc(sizeof(CellFileSystem));
+    FSCell *newfs = (FSCell *)malloc(sizeof(FSCell));
     if (newfs == NULL) {
         free(node);
         return -1;
