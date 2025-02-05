@@ -26,7 +26,7 @@ jobs:
     - name: Build
       run: make all
     - name: Install node dependencies
-      run: pnpm run install
+      run: pnpm install
     - name: Build all packages
       run: pnpm run build
     - name: Run examples

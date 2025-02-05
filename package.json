@@ -4,7 +4,6 @@
     "packages/*"
   ],
   "scripts": {
-    "install": "pnpm -r --filter !. install",
     "build": "pnpm -r run build",
     "format": "pnpm -r run format",
     "check:format": "pnpm -r run check:format",
