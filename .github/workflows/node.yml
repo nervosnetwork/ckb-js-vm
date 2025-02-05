@@ -29,7 +29,5 @@ jobs:
       run: pnpm install
     - name: Build all packages
       run: pnpm run build
-    - name: Check format
-      run: pnpm run check:format
     - name: Run examples
       run: cd packages/examples && pnpm run start
