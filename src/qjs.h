@@ -20,23 +20,23 @@ typedef enum {
     QJS_ERROR_FS = -14,
 } QJSErrorCode;
 
-#define CHECK2(cond, code)                                                           \
-    do {                                                                             \
-        if (!(cond)) {                                                               \
-            err = code;                                                              \
-            printf("checking failed on %s:%d, code = %d", __FILE__, __LINE__, code); \
-            goto exit;                                                               \
-        }                                                                            \
+#define CHECK2(cond, code)                                                                                     \
+    do {                                                                                                       \
+        if (!(cond)) {                                                                                         \
+            err = code;                                                                                        \
+            if (err != 1 && err != 2) printf("checking failed on %s:%d, code = %d", __FILE__, __LINE__, code); \
+            goto exit;                                                                                         \
+        }                                                                                                      \
     } while (0)
 
-#define CHECK(_code)                                                                 \
-    do {                                                                             \
-        int code = (_code);                                                          \
-        if (code != QJS_SUCCESS) {                                                   \
-            err = code;                                                              \
-            printf("checking failed on %s:%d, code = %d", __FILE__, __LINE__, code); \
-            goto exit;                                                               \
-        }                                                                            \
+#define CHECK(_code)                                                                                           \
+    do {                                                                                                       \
+        int code = (_code);                                                                                    \
+        if (code != QJS_SUCCESS) {                                                                             \
+            err = code;                                                                                        \
+            if (err != 1 && err != 2) printf("checking failed on %s:%d, code = %d", __FILE__, __LINE__, code); \
+            goto exit;                                                                                         \
+        }                                                                                                      \
     } while (0)
 
 #ifdef CONFIG_BIGNUM
