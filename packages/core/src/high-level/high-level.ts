@@ -1,6 +1,6 @@
 /**
  * @module HighLevel
- * High-level APIs.
+ * High-level APIs for CKB-VM script development.
  *
  * This module provides convenient wrappers around low-level `bindings` functions,
  * offering type-safe interfaces for common CKB operations like:
@@ -10,6 +10,7 @@
  *
  * Some low-level functions from `bindings` (e.g., loadWitness, loadScriptHash, exec)
  * can be used directly when needed.
+ *
  */
 
 import * as bindings from "@ckb-js-std/bindings";
@@ -24,6 +25,22 @@ import {
 import { bigintFromBytes } from "../num";
 import { bytesEq } from "../bytes";
 
+/**
+ * Load cell
+ *
+ * @param index - The index of the cell to load
+ * @param source - The source to load the cell from
+ * @returns The loaded cell output
+ * @throws Error if there's a system error or if the cell cannot be found
+ *
+ * @example
+ * ```typescript
+ * const cellOutput = loadCell(0, SourceType.INPUT);
+ * ```
+ *
+ * **Note:** This function can throw if the underlying data is too large,
+ * potentially causing an out-of-memory error.
+ */
 export function loadCell(
   index: number,
   source: bindings.SourceType,
@@ -32,6 +49,19 @@ export function loadCell(
   return CellOutput.fromBytes(new Uint8Array(bytes));
 }
 
+/**
+ * Load input
+ *
+ * @param index - The index of the input to load
+ * @param source - The source to load the input from
+ * @returns The loaded cell input
+ * @throws Error if there's a system error or if the input cannot be found
+ *
+ * @example
+ * ```typescript
+ * const input = loadInput(0, SourceType.INPUT);
+ * ```
+ */
 export function loadInput(
   index: number,
   source: bindings.SourceType,
@@ -40,6 +70,22 @@ export function loadInput(
   return CellInput.fromBytes(new Uint8Array(bytes));
 }
 
+/**
+ * Load witness args
+ *
+ * @param index - The index of the witness to load
+ * @param source - The source to load the witness from
+ * @returns The loaded witness args
+ * @throws Error if there's a system error or if the witness cannot be found
+ *
+ * @example
+ * ```typescript
+ * const witnessArgs = loadWitnessArgs(0, SourceType.INPUT);
+ * ```
+ *
+ * **Note:** This function can throw if the underlying data is too large,
+ * potentially causing an out-of-memory error.
+ */
 export function loadWitnessArgs(
   index: number,
   source: bindings.SourceType,
@@ -48,11 +94,38 @@ export function loadWitnessArgs(
   return WitnessArgs.fromBytes(new Uint8Array(bytes));
 }
 
+/**
+ * Load transaction
+ *
+ * @returns The current transaction
+ * @throws Error if there's a system error
+ *
+ * @example
+ * ```typescript
+ * const tx = loadTransaction();
+ * ```
+ *
+ * **Note:** This function can throw if the underlying data is too large,
+ * potentially causing an out-of-memory error.
+ */
 export function loadTransaction(): Transaction {
   let bytes = bindings.loadTransaction();
   return Transaction.fromBytes(new Uint8Array(bytes));
 }
 
+/**
+ * Load cell capacity
+ *
+ * @param index - The index of the cell to load
+ * @param source - The source to load the cell from
+ * @returns The capacity of the cell
+ * @throws Error if there's a system error or if the cell cannot be found
+ *
+ * @example
+ * ```typescript
+ * const capacity = loadCellCapacity(0, SourceType.INPUT);
+ * ```
+ */
 export function loadCellCapacity(
   index: number,
   source: bindings.SourceType,
@@ -65,6 +138,19 @@ export function loadCellCapacity(
   return bigintFromBytes(new Uint8Array(bytes));
 }
 
+/**
+ * Load cell occupied capacity
+ *
+ * @param index - The index of the cell to load
+ * @param source - The source to load the cell from
+ * @returns The occupied capacity of the cell
+ * @throws Error if there's a system error or if the cell cannot be found
+ *
+ * @example
+ * ```typescript
+ * const occupiedCapacity = loadCellOccupiedCapacity(0, SourceType.INPUT);
+ * ```
+ */
 export function loadCellOccupiedCapacity(
   index: number,
   source: bindings.SourceType,
@@ -77,6 +163,22 @@ export function loadCellOccupiedCapacity(
   return bigintFromBytes(new Uint8Array(bytes));
 }
 
+/**
+ * Load cell type hash
+ *
+ * @param index - The index of the cell to load
+ * @param source - The source to load the cell from
+ * @returns The type hash of the cell, or null if the cell has no type script
+ * @throws Error if there's a system error or if the cell cannot be found
+ *
+ * @example
+ * ```typescript
+ * const typeHash = loadCellTypeHash(0, SourceType.INPUT);
+ * if (typeHash !== null) {
+ *   // Cell has a type script
+ * }
+ * ```
+ */
 export function loadCellTypeHash(
   index: number,
   source: bindings.SourceType,
@@ -97,6 +199,19 @@ export function loadCellTypeHash(
   }
 }
 
+/**
+ * Load cell lock
+ *
+ * @param index - The index of the cell to load
+ * @param source - The source to load the cell from
+ * @returns The lock script of the cell
+ * @throws Error if there's a system error or if the cell cannot be found
+ *
+ * @example
+ * ```typescript
+ * const lock = loadCellLock(0, SourceType.INPUT);
+ * ```
+ */
 export function loadCellLock(
   index: number,
   source: bindings.SourceType,
@@ -105,6 +220,22 @@ export function loadCellLock(
   return Script.fromBytes(new Uint8Array(bytes));
 }
 
+/**
+ * Load cell type
+ *
+ * @param index - The index of the cell to load
+ * @param source - The source to load the cell from
+ * @returns The type script of the cell, or null if the cell has no type script
+ * @throws Error if there's a system error or if the cell cannot be found
+ *
+ * @example
+ * ```typescript
+ * const type = loadCellType(0, SourceType.INPUT);
+ * if (type !== null) {
+ *   // Cell has a type script
+ * }
+ * ```
+ */
 export function loadCellType(
   index: number,
   source: bindings.SourceType,
@@ -125,6 +256,19 @@ export function loadCellType(
   }
 }
 
+/**
+ * Load header epoch number
+ *
+ * @param index - The index of the header to load
+ * @param source - The source to load the header from
+ * @returns The epoch number of the header
+ * @throws Error if there's a system error or if the header cannot be found
+ *
+ * @example
+ * ```typescript
+ * const epochNumber = loadHeaderEpochNumber(0, SourceType.INPUT);
+ * ```
+ */
 export function loadHeaderEpochNumber(
   index: number,
   source: bindings.SourceType,
@@ -137,6 +281,19 @@ export function loadHeaderEpochNumber(
   return bigintFromBytes(new Uint8Array(bytes));
 }
 
+/**
+ * Load header epoch start block number
+ *
+ * @param index - The index of the header to load
+ * @param source - The source to load the header from
+ * @returns The epoch start block number of the header
+ * @throws Error if there's a system error or if the header cannot be found
+ *
+ * @example
+ * ```typescript
+ * const epochStartBlockNumber = loadHeaderEpochStartBlockNumber(0, SourceType.INPUT);
+ * ```
+ */
 export function loadHeaderEpochStartBlockNumber(
   index: number,
   source: bindings.SourceType,
@@ -149,6 +306,19 @@ export function loadHeaderEpochStartBlockNumber(
   return bigintFromBytes(new Uint8Array(bytes));
 }
 
+/**
+ * Load header epoch length
+ *
+ * @param index - The index of the header to load
+ * @param source - The source to load the header from
+ * @returns The epoch length of the header
+ * @throws Error if there's a system error or if the header cannot be found
+ *
+ * @example
+ * ```typescript
+ * const epochLength = loadHeaderEpochLength(0, SourceType.INPUT);
+ * ```
+ */
 export function loadHeaderEpochLength(
   index: number,
   source: bindings.SourceType,
@@ -161,6 +331,19 @@ export function loadHeaderEpochLength(
   return bigintFromBytes(new Uint8Array(bytes));
 }
 
+/**
+ * Load input since
+ *
+ * @param index - The index of the input to load
+ * @param source - The source to load the input from
+ * @returns The since value of the input
+ * @throws Error if there's a system error or if the input cannot be found
+ *
+ * @example
+ * ```typescript
+ * const since = loadInputSince(0, SourceType.INPUT);
+ * ```
+ */
 export function loadInputSince(
   index: number,
   source: bindings.SourceType,
@@ -173,6 +356,19 @@ export function loadInputSince(
   return bigintFromBytes(new Uint8Array(bytes));
 }
 
+/**
+ * Load input out point
+ *
+ * @param index - The index of the input to load
+ * @param source - The source to load the input from
+ * @returns The out point of the input
+ * @throws Error if there's a system error or if the input cannot be found
+ *
+ * @example
+ * ```typescript
+ * const outPoint = loadInputOutPoint(0, SourceType.INPUT);
+ * ```
+ */
 export function loadInputOutPoint(
   index: number,
   source: bindings.SourceType,
@@ -185,6 +381,17 @@ export function loadInputOutPoint(
   return OutPoint.fromBytes(new Uint8Array(bytes));
 }
 
+/**
+ * Load script
+ *
+ * @returns The current script
+ * @throws Error if there's a system error
+ *
+ * @example
+ * ```typescript
+ * const script = loadScript();
+ * ```
+ */
 export function loadScript(): Script {
   let bytes = bindings.loadScript();
   return Script.fromBytes(new Uint8Array(bytes));
@@ -199,6 +406,21 @@ type QueryFunction<T> = (index: number, source: bindings.SourceType) => T;
 /**
  * QueryIter provides iteration over CKB query functions
  * It handles the common pattern of querying cells/inputs/headers by index
+ *
+ * @example
+ * ```typescript
+ * import { loadCellCapacity } from './high-level';
+ * // Calculate all inputs capacity
+ * const iter = new QueryIter(loadCellCapacity, SourceType.INPUT);
+ * const inputsCapacity = iter.toArray().reduce((sum, cap) => sum + cap, 0n);
+ *
+ * // Calculate all outputs capacity
+ * const outputsCapacity = new QueryIter(loadCellCapacity, SourceType.OUTPUT)
+ *   .toArray()
+ *   .reduce((sum, cap) => sum + cap, 0n);
+ *
+ * console.assert(inputsCapacity === outputsCapacity);
+ * ```
  */
 export class QueryIter<T> implements Iterator<T> {
   private queryFn: QueryFunction<T>;
@@ -209,13 +431,6 @@ export class QueryIter<T> implements Iterator<T> {
    * Creates a new QueryIter
    * @param queryFn - A high level query function, which accepts (index, source) as args
    * @param source - The source to query from
-   *
-   * @example
-   * ```typescript
-   * import { loadCell } from './high-level';
-   * // iterate all input cells
-   * const iter = new QueryIter(loadCell, SourceType.INPUT);
-   * ```
    */
   constructor(queryFn: QueryFunction<T>, source: bindings.SourceType) {
     this.queryFn = queryFn;
