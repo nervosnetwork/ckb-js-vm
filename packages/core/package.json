@@ -1,0 +1,32 @@
+{
+  "name": "@ckb-js-std/core",
+  "version": "0.1.0",
+  "description": "Write scripts in JavaScript on CKB-VM",
+  "author": "CKB-VM Team",
+  "license": "MIT",
+  "private": false,
+  "homepage": "https://github.com/nervosnetwork/ckb-js-vm",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nervosnetwork/ckb-js-vm.git"
+  },
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./barrel": "./dist/barrel.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "format": "prettier --write .",
+    "clean": "rm -f dist/*"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@ckb-js-std/bindings": "workspace:*",
+    "@ckb-js-std/core": "link:"
+  }
+}

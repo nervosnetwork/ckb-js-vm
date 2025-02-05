@@ -10,6 +10,10 @@
 #include "qjs.h"
 #include "utils.h"
 
+static JSClassID js_smt_class_id;
+static JSClassID js_text_decoder_class_id;
+static JSClassID js_text_encoder_class_id;
+
 typedef struct {
     uint8_t key[SMT_KEY_BYTES];
     uint8_t value[SMT_VALUE_BYTES];
@@ -505,6 +509,62 @@ static const JSCFunctionListEntry js_misc_funcs[] = {
     JS_CFUNC_DEF("printf", 1, js_std_printf),
 };
 
+// TextDecoder decode method
+static JSValue js_text_decoder_decode(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv) {
+    size_t data_len;
+    uint8_t *data;
+
+    data = JS_GetArrayBuffer(ctx, &data_len, argv[0]);
+
+    if (!data) {
+        return JS_ThrowTypeError(ctx, "Failed to get array buffer data");
+    }
+
+    // UTF-8 decoding
+    return JS_NewStringLen(ctx, (char *)data, data_len);
+}
+
+// TextEncoder encode method
+static JSValue js_text_encoder_encode(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv) {
+    size_t str_len;
+    const char *str = JS_ToCStringLen(ctx, &str_len, argv[0]);
+    if (!str) {
+        return JS_ThrowTypeError(ctx, "Expected string");
+    }
+    JSValue uint8_array = JS_NewArrayBufferCopy(ctx, (uint8_t *)str, str_len);
+    JS_FreeCString(ctx, str);
+    return uint8_array;
+}
+
+// TextDecoder constructor
+static JSValue js_text_decoder_constructor(JSContext *ctx, JSValueConst new_target, int argc, JSValueConst *argv) {
+    return JS_NewObjectClass(ctx, js_text_decoder_class_id);
+}
+
+// TextEncoder constructor
+static JSValue js_text_encoder_constructor(JSContext *ctx, JSValueConst new_target, int argc, JSValueConst *argv) {
+    return JS_NewObjectClass(ctx, js_text_encoder_class_id);
+}
+
+// TextDecoder class definition
+static const JSCFunctionListEntry js_text_decoder_proto_funcs[] = {
+    JS_CFUNC_DEF("decode", 1, js_text_decoder_decode),
+};
+
+static const JSClassDef js_text_decoder_class = {
+    "TextDecoder",
+};
+
+// TextEncoder class definition
+static const JSCFunctionListEntry js_text_encoder_proto_funcs[] = {
+    JS_CFUNC_DEF("encode", 1, js_text_encoder_encode),
+};
+
+static const JSClassDef js_text_encoder_class = {
+    "TextEncoder",
+};
+
+// Update the init function to include TextEncoder and TextDecoder
 int qjs_init_module_misc_lazy(JSContext *ctx, JSModuleDef *m) {
     JSValue proto, obj;
 
@@ -534,6 +594,26 @@ int qjs_init_module_misc_lazy(JSContext *ctx, JSModuleDef *m) {
     JS_SetPropertyFunctionList(ctx, base64, js_base64_funcs, countof(js_base64_funcs));
     JS_SetModuleExport(ctx, m, "base64", base64);
 
+    // Initialize TextDecoder class
+    JS_NewClassID(&js_text_decoder_class_id);
+    JS_NewClass(JS_GetRuntime(ctx), js_text_decoder_class_id, &js_text_decoder_class);
+    proto = JS_NewObject(ctx);
+    JS_SetPropertyFunctionList(ctx, proto, js_text_decoder_proto_funcs, countof(js_text_decoder_proto_funcs));
+    obj = JS_NewCFunction2(ctx, js_text_decoder_constructor, "TextDecoder", 0, JS_CFUNC_constructor, 0);
+    JS_SetConstructor(ctx, obj, proto);
+    JS_SetClassProto(ctx, js_text_decoder_class_id, proto);
+    JS_SetModuleExport(ctx, m, "TextDecoder", obj);
+
+    // Initialize TextEncoder class
+    JS_NewClassID(&js_text_encoder_class_id);
+    JS_NewClass(JS_GetRuntime(ctx), js_text_encoder_class_id, &js_text_encoder_class);
+    proto = JS_NewObject(ctx);
+    JS_SetPropertyFunctionList(ctx, proto, js_text_encoder_proto_funcs, countof(js_text_encoder_proto_funcs));
+    obj = JS_NewCFunction2(ctx, js_text_encoder_constructor, "TextEncoder", 0, JS_CFUNC_constructor, 0);
+    JS_SetConstructor(ctx, obj, proto);
+    JS_SetClassProto(ctx, js_text_encoder_class_id, proto);
+    JS_SetModuleExport(ctx, m, "TextEncoder", obj);
+
     // functions without submodule
     JS_SetModuleExportList(ctx, m, js_misc_funcs, countof(js_misc_funcs));
 
@@ -544,6 +624,8 @@ int qjs_init_module_misc(JSContext *ctx, JSModuleDef *m) {
     JS_AddModuleExport(ctx, m, "Smt");
     JS_AddModuleExport(ctx, m, "hex");
     JS_AddModuleExport(ctx, m, "base64");
+    JS_AddModuleExport(ctx, m, "TextDecoder");
+    JS_AddModuleExport(ctx, m, "TextEncoder");
     JS_AddModuleExportList(ctx, m, js_misc_funcs, countof(js_misc_funcs));
     return 0;
 }
