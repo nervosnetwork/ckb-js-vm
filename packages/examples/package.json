@@ -1,33 +1,34 @@
 {
-    "name": "@ckb-js-std/examples",
-    "version": "0.1.0",
-    "description": "Write scripts in JavaScript on CKB-VM",
-    "author": "CKB-VM Team",
-    "license": "MIT",
-    "private": false,
-    "homepage": "https://github.com/nervosnetwork/ckb-js-vm",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/nervosnetwork/ckb-js-vm.git"
-    },
-    "sideEffects": false,
-    "main": "./dist/index.js",
-    "module": "./dist/index.js",
-    "scripts": {
-        "start": "ckb-debugger --read-file dist/index.js --bin ../../build/ckb-js-vm -- -r",
-        "build": "tsc --noEmit && esbuild --platform=neutral --minify --bundle --external:@ckb-js-std/bindings --target=es2022 src/index.ts --outfile=dist/index.js",
-        "compile": "ckb-debugger --read-file dist/index.js --bin ../../build/ckb-js-vm -- -c | awk -f ../../tools/compile.awk | xxd -r -p > dist/index.bc",
-        "start:bc": "ckb-debugger --read-file dist/index.bc --bin ../../build/ckb-js-vm -- -r",
-        "clean": "rm -f dist/*"
-    },
-    "devDependencies": {
-    },
-    "publishConfig": {
-        "access": "public"
-    },
-    "dependencies": {
-        "@ckb-js-std/bindings": "workspace:*",
-        "@ckb-js-std/core": "workspace:*",
-        "@ckb-js-std/examples": "link:"
-    }
+  "name": "@ckb-js-std/examples",
+  "version": "0.1.0",
+  "description": "Write scripts in JavaScript on CKB-VM",
+  "author": "CKB-VM Team",
+  "license": "MIT",
+  "private": false,
+  "homepage": "https://github.com/nervosnetwork/ckb-js-vm",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nervosnetwork/ckb-js-vm.git"
+  },
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "scripts": {
+    "start": "ckb-debugger --read-file dist/index.js --bin ../../build/ckb-js-vm -- -r",
+    "build": "tsc --noEmit && esbuild --platform=neutral --minify --bundle --external:@ckb-js-std/bindings --target=es2022 src/index.ts --outfile=dist/index.js",
+    "compile": "ckb-debugger --read-file dist/index.js --bin ../../build/ckb-js-vm -- -c | awk -f ../../tools/compile.awk | xxd -r -p > dist/index.bc",
+    "start:bc": "ckb-debugger --read-file dist/index.bc --bin ../../build/ckb-js-vm -- -r",
+    "format": "prettier --write .",
+    "check:format": "prettier --check .",
+    "clean": "rm -f dist/*"
+  },
+  "devDependencies": {},
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@ckb-js-std/bindings": "workspace:*",
+    "@ckb-js-std/core": "workspace:*",
+    "@ckb-js-std/examples": "link:"
+  }
 }
