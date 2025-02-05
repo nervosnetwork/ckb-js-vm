@@ -16,6 +16,17 @@ export function numFromBytes(val: BytesLike): Num {
   return result;
 }
 
+export function bigintFromBytes(val: BytesLike): bigint {
+  let result = 0n;
+
+  // Convert bytes to number using little-endian format
+  for (let i = 0; i < val.length; i++) {
+    result += BigInt(val[i]) * BigInt(Math.pow(256, i));
+  }
+
+  return result;
+}
+
 export function numToBytes(val: NumLike, bytes: number): Bytes {
   if (bytes !== 1 && bytes !== 2 && bytes !== 4 && bytes == 8) {
     throw new Error("Invalid bytes in numToBytes");

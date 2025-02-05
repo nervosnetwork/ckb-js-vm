@@ -14,7 +14,7 @@ ifeq ($(UNAME), Darwin)
 endif
 
 CFLAGS_TARGET = --target=riscv64 -march=rv64imc_zba_zbb_zbc_zbs
-CFLAGS_OPTIMIZE = -g -Oz -fdata-sections -ffunction-sections
+CFLAGS_OPTIMIZE = -g -O3 -fdata-sections -ffunction-sections
 CFLAGS_WARNNING = -Wno-incompatible-library-redeclaration -Wno-invalid-noreturn -Wno-implicit-const-int-float-conversion
 CFLAGS_NO_BUILTIN = -fno-builtin-printf -fno-builtin-memcmp
 CFLAGS_DEFINE = -D__BYTE_ORDER=1234 \
