@@ -11,7 +11,8 @@
     "url": "https://github.com/nervosnetwork/ckb-js-vm.git"
   },
   "scripts": {
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "check:format": "prettier --check ."
   },
   "sideEffects": false,
   "types": "./index.d.ts"
