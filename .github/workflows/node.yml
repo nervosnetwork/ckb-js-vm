@@ -1,4 +1,4 @@
-name: ckb-js-vm
+name: ckb-js-std
 
 on: [push, pull_request]
 
@@ -21,11 +21,13 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '22'
-    - name: Build
-      run: make all
     - name: Install tools
       run: make install
-    - name: Tests
-      run: make test
-    - name: Benchmark
-      run: make benchmark
+    - name: Build
+      run: make all
+    - name: Install node dependencies
+      run: pnpm install
+    - name: Build all packages
+      run: pnpm run build
+    - name: Run examples
+      run: cd packages/examples && pnpm run start

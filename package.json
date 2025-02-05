@@ -4,9 +4,9 @@
     "packages/*"
   ],
   "scripts": {
-    "build:prepare": "pnpm -r install",
     "build": "pnpm -r run build",
     "format": "pnpm -r run format",
+    "check:format": "pnpm -r run check:format",
     "docs": "typedoc"
   },
   "devDependencies": {
