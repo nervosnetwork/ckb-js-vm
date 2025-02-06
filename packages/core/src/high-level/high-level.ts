@@ -182,7 +182,7 @@ export function loadCellOccupiedCapacity(
 export function loadCellTypeHash(
   index: number,
   source: bindings.SourceType,
-): ArrayBuffer | null {
+): Uint8Array | null {
   try {
     let bytes = bindings.loadCellByField(
       index,
@@ -502,10 +502,7 @@ export function findCellByDataHash(
         bindings.CELL_FIELD_DATA_HASH,
       );
       const hashArray = new Uint8Array(hash);
-      if (
-        hashArray.length === dataHash.length &&
-        bytesEq(hashArray, dataHash)
-      ) {
+      if (bytesEq(hashArray, dataHash)) {
         return i;
       }
     } catch (err: any) {
