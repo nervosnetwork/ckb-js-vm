@@ -1,5 +1,6 @@
 import * as ckb from "@ckb-js-std/bindings";
-import { Script } from "@ckb-js-std/core";
+import { Script, HighLevel } from "@ckb-js-std/core";
+import { loadCellLock, QueryIter } from "../../core/dist/high-level/high-level";
 
 function report_cycles() {
   let cycles = ckb.currentCycles();
@@ -16,6 +17,15 @@ function main() {
   console.log("script code_hash = ", script_obj.codeHash);
   console.log("script hash_type = ", script_obj.hashType);
   console.log("script args = ", script_obj.args);
+  report_cycles();
+  let cell = HighLevel.loadCell(0, ckb.SOURCE_INPUT);
+  console.log(`cell capacity is ${cell.capacity}`);
+  report_cycles();
+
+  let iter = new QueryIter(loadCellLock, ckb.SOURCE_INPUT);
+  for (let item of iter) {
+    console.log("lock script's code hash is", item.codeHash);
+  }
   report_cycles();
 }
 

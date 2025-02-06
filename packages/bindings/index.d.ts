@@ -47,6 +47,16 @@ export const SCRIPT_HASH_TYPE_TYPE: number;
 export const SCRIPT_HASH_TYPE_DATA1: number;
 export const SCRIPT_HASH_TYPE_DATA2: number;
 
+export const INDEX_OUT_OF_BOUND: number;
+export const ITEM_MISSING: number;
+export const LENGTH_NOT_ENOUGH: number;
+export const INVALID_DATA: number;
+export const WAIT_FAILURE: number;
+export const INVALID_FD: number;
+export const OTHER_END_CLOSED: number;
+export const MAX_VMS_SPAWNED: number;
+export const MAX_FDS_CREATED: number;
+
 /**
  * Exit the current script with a status code
  * @param status - The exit status code
