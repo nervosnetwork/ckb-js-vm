@@ -1,1 +1,1 @@
-export * as HighLevel from "./high-level";
+export * as HighLevel from "./barrel";
