@@ -1,4 +1,5 @@
 import { Bytes, bytesEq, BytesLike } from "../bytes/index";
+import { hashCkb } from "../hasher";
 import { Constructor } from "../utils/index";
 import { Codec } from "./codec";
 
@@ -13,22 +14,21 @@ export abstract class Entity {
    * @public
    */
   static Base<SubTypeLike, SubType = SubTypeLike>() {
+    /** @internal */
     abstract class Impl {
       /**
        * The bytes length of the entity, if it is fixed, otherwise undefined
        * @public
-       * @static
        */
       static byteLength?: number;
       /**
        * Encode the entity into bytes
        * @public
-       * @static
-       * @param _ - The entity to encode
+       * @param entity - The entity to encode
        * @returns The encoded bytes
        * @throws Will throw an error if the entity is not serializable
        */
-      static encode(_: SubTypeLike): Bytes {
+      static encode(entity: SubTypeLike): Bytes {
         throw new Error(
           "encode not implemented, use @ccc.mol.codec to decorate your type",
         );
@@ -36,12 +36,11 @@ export abstract class Entity {
       /**
        * Decode the entity from bytes
        * @public
-       * @static
-       * @param _ - The bytes to decode
+       * @param bytes - The bytes to decode
        * @returns The decoded entity
        * @throws Will throw an error if the entity is not serializable
        */
-      static decode(_: BytesLike): SubType {
+      static decode(bytes: BytesLike): SubType {
         throw new Error(
           "decode not implemented, use @ccc.mol.codec to decorate your type",
         );
@@ -50,12 +49,11 @@ export abstract class Entity {
       /**
        * Create an entity from bytes
        * @public
-       * @static
-       * @param _ - The bytes to create the entity from
+       * @param bytes - The bytes to create the entity from
        * @returns The created entity
        * @throws Will throw an error if the entity is not serializable
        */
-      static fromBytes(_bytes: BytesLike): SubType {
+      static fromBytes(bytes: BytesLike): SubType {
         throw new Error(
           "fromBytes not implemented, use @ccc.mol.codec to decorate your type",
         );
@@ -64,12 +62,11 @@ export abstract class Entity {
       /**
        * Create an entity from a serializable object
        * @public
-       * @static
-       * @param _ - The serializable object to create the entity from
+       * @param entity - The serializable object to create the entity from
        * @returns The created entity
        * @throws Will throw an error if the entity is not serializable
        */
-      static from(_: SubTypeLike): SubType {
+      static from(entity: SubTypeLike): SubType {
         throw new Error("from not implemented");
       }
 
@@ -121,9 +118,9 @@ export abstract class Entity {
        * @public
        * @returns The hash of the entity
        */
-      //   hash(): Hex {
-      //     return hashCkb(this.toBytes());
-      //   }
+      hash(): Bytes {
+        return hashCkb(this.toBytes());
+      }
     }
 
     return Impl;

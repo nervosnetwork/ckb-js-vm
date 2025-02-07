@@ -640,13 +640,12 @@ export class Transaction extends mol.Entity.Base<
    * Computes the signing hash information for a given script.
    *
    * @param scriptLike - The script associated with the transaction, represented as a ScriptLike object.
-   * @param client - The client for complete extra infos in the transaction.
    * @returns A promise that resolves to an object containing the signing message and the witness position,
    *          or undefined if no matching input is found.
    *
    * @example
    * ```typescript
-   * const signHashInfo = await tx.getSignHashInfo(scriptLike, client);
+   * const signHashInfo = tx.getSignHashInfo(scriptLike, client);
    * if (signHashInfo) {
    *   console.log(signHashInfo.message); // Outputs the signing message
    *   console.log(signHashInfo.position); // Outputs the witness position
@@ -664,7 +663,7 @@ export class Transaction extends mol.Entity.Base<
     for (let i = 0; i < this.witnesses.length; i += 1) {
       const input = this.inputs[i];
       if (input) {
-        // await input.completeExtraInfos(client);
+        // input.completeExtraInfos(client);
 
         if (!input.cellOutput) {
           throw new Error("Unable to complete input");
@@ -703,7 +702,7 @@ export class Transaction extends mol.Entity.Base<
    *
    * @example
    * ```typescript
-   * const witnessArgs = await tx.getWitnessArgsAt(0);
+   * const witnessArgs = tx.getWitnessArgsAt(0);
    * ```
    */
   getWitnessArgsAt(index: number): WitnessArgs | undefined {
@@ -721,7 +720,7 @@ export class Transaction extends mol.Entity.Base<
    *
    * @example
    * ```typescript
-   * await tx.setWitnessArgsAt(0, witnessArgs);
+   * tx.setWitnessArgsAt(0, witnessArgs);
    * ```
    */
   setWitnessArgsAt(index: number, witness: WitnessArgs): void {
@@ -765,7 +764,7 @@ export class Transaction extends mol.Entity.Base<
    *
    * @example
    * ```typescript
-   * await tx.prepareSighashAllWitness(scriptLike, 85, client);
+   * tx.prepareSighashAllWitness(scriptLike, 85, client);
    * ```
    */
   prepareSighashAllWitness(scriptLike: ScriptLike, lockLen: number): void {

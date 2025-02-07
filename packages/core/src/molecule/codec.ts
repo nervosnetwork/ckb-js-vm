@@ -399,7 +399,7 @@ export function table<
   });
 }
 
-type UnionEncodable<
+export type UnionEncodable<
   T extends Record<string, CodecLike<any, any>>,
   K extends keyof T = keyof T,
 > = K extends unknown
@@ -408,7 +408,8 @@ type UnionEncodable<
       value: EncodableType<T[K]>;
     }
   : never;
-type UnionDecoded<
+
+export type UnionDecoded<
   T extends Record<string, CodecLike<any, any>>,
   K extends keyof T = keyof T,
 > = K extends unknown

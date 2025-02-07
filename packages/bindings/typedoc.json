@@ -1,0 +1,6 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["./index.d.ts"],
+  "extends": ["../../typedoc.base.json"],
+  "name": "@ckb-js-std/bindings"
+}

@@ -1,26 +1,39 @@
 # ckb-js-vm
-The objective of this project is to develop scripts in JavaScript for CKB-VM, by
-adapting [quickjs](https://bellard.org/quickjs/).
 
+A JavaScript/TypeScript runtime environment for CKB-VM, built by adapting [QuickJS](https://bellard.org/quickjs/). This project consists of two main components:
 
-## Build
-The clang version 18 is required.
+1. **ckb-js-vm**: An on-chain script runtime engine that executes JavaScript code or bytecode
+2. **ckb-js-std**: TypeScript packages providing helper utilities for writing on-chain script
+
+## Prerequisites
+
+Ensure you have the following installed:
+
+- [pnpm](https://pnpm.io/)
+- [ckb-debugger](https://github.com/nervosnetwork/ckb-standalone-debugger)
+- clang-18
+
+## Installation
+
+### Building ckb-js-vm (On-chain Script)
 
 ```shell
 git submodule update --init
 make all
 ```
 
-## Documents
-* [Introduction](./docs/intro.md)
-* [CKB Syscall Bindings](./docs/syscalls.md)
-* [Simple File System and JavaScript Module](./docs/fs.md)
+### Building ckb-js-std (TypeScript Packages)
 
+```shell
+pnpm install
+pnpm build
+```
 
-## Examples
+## Getting Started
 
-* [Demo Script: Simple UDT](./tests/ckb_js_tests/test_data/simple_udt.js)
-* [Fibonacci Number](./tests/examples/fib.js)
-* [Calculate PI](./tests/examples/pi_bigint.js)
+To run the example project:
 
-More [tests and examples](./tests/).
+```shell
+cd packages/examples
+pnpm run start
+```
