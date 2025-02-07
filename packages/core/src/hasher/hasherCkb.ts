@@ -43,15 +43,15 @@ export class HasherCkb implements Hasher {
   }
 
   /**
-   * Finalizes the hash and returns the digest as a hexadecimal string.
+   * Finalizes the hash and returns the digest.
    *
-   * @returns The hexadecimal string representation of the hash.
+   * @returns The hash.
    *
    * @example
    * ```typescript
    * const hasher = new Hasher();
    * hasher.update("some data");
-   * const hash = hasher.digest(); // Outputs something like "0x..."
+   * const hash = hasher.digest();
    * ```
    */
 
@@ -66,11 +66,11 @@ export class HasherCkb implements Hasher {
  * @public
  *
  * @param data - The data to hash.
- * @returns The hexadecimal string representation of the hash.
+ * @returns The hash.
  *
  * @example
  * ```typescript
- * const hash = hashCkb("some data"); // Outputs something like "0x..."
+ * const hash = hashCkb("some data");
  * ```
  */
 
@@ -84,13 +84,13 @@ export function hashCkb(...data: BytesLike[]): Bytes {
  * Computes the Type ID hash of the given data.
  * @public
  *
- * @param cellInputLike - The first cell input of the transaction.
+ * @param cellInputLike - A input cell of the transaction.
  * @param outputIndex - The output index of the Type ID cell.
- * @returns The hexadecimal string representation of the hash.
+ * @returns The hash.
  *
  * @example
  * ```typescript
- * const hash = hashTypeId(cellInput, outputIndex); // Outputs something like "0x..."
+ * const hash = hashTypeId(cellInput, outputIndex);
  * ```
  */
 
