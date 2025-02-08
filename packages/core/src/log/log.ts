@@ -1,13 +1,13 @@
 import { sprintf, printf } from "@ckb-js-std/bindings";
 
 export enum LogLevel {
-  debug = 1,
-  info = 2,
-  warn = 3,
-  error = 4,
+  Debug = 1,
+  Info = 2,
+  Warn = 3,
+  Error = 4,
 }
 
-let CURRENT_LEVEL = LogLevel.info;
+let CURRENT_LEVEL = LogLevel.Info;
 
 /**
  * Logs a debug message if the current log level is set to debug or lower
@@ -17,7 +17,7 @@ let CURRENT_LEVEL = LogLevel.info;
  * debug("Processing item %d", 123);
  */
 export function debug(format: string, ...args: any[]) {
-  if (CURRENT_LEVEL <= LogLevel.debug) {
+  if (CURRENT_LEVEL <= LogLevel.Debug) {
     let log = sprintf(format, ...args);
     printf("[DEBUG] %s", log);
   }
@@ -31,7 +31,7 @@ export function debug(format: string, ...args: any[]) {
  * info("Operation completed with %d items", count);
  */
 export function info(format: string, ...args: any[]) {
-  if (CURRENT_LEVEL <= LogLevel.info) {
+  if (CURRENT_LEVEL <= LogLevel.Info) {
     let log = sprintf(format, ...args);
     printf("[INFO] %s", log);
   }
@@ -45,7 +45,7 @@ export function info(format: string, ...args: any[]) {
  * warn("Deprecated feature used: %s", featureName);
  */
 export function warn(format: string, ...args: any[]) {
-  if (CURRENT_LEVEL <= LogLevel.warn) {
+  if (CURRENT_LEVEL <= LogLevel.Warn) {
     let log = sprintf(format, ...args);
     printf("[WARN] %s", log);
   }
@@ -59,7 +59,7 @@ export function warn(format: string, ...args: any[]) {
  * error("Failed to process: %s", errorMessage);
  */
 export function error(format: string, ...args: any[]) {
-  if (CURRENT_LEVEL <= LogLevel.error) {
+  if (CURRENT_LEVEL <= LogLevel.Error) {
     let log = sprintf(format, ...args);
     printf("[ERROR] %s", log);
   }

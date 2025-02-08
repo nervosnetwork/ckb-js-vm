@@ -10,7 +10,7 @@ function report_cycles() {
 }
 
 function main() {
-  log.setLevel(log.LogLevel.debug);
+  log.setLevel(log.LogLevel.Debug);
   report_cycles();
   let script = ckb.loadScript();
   log.debug(`script length is ${script.byteLength}`);
