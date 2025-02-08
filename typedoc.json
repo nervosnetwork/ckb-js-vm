@@ -1,0 +1,21 @@
+{
+    "$schema": "https://typedoc.org/schema.json",
+    "name": "ckb-js-vm Docs",
+    "entryPoints": [
+        "packages/core",
+        "packages/bindings",
+    ],
+    "entryPointStrategy": "packages",
+    "githubPages": true,
+    "navigationLinks": {
+        "GitHub": "https://github.com/nervosnetwork/ckb-js-vm",
+    },
+    "plugin": [
+        "typedoc-material-theme"
+    ],
+    "themeColor": "#434343",
+    // "favicon": "assets/logo.svg",
+    // "customDescription": "Docs for ckb-js-vm",
+    "out": "typedoc",
+    // "footerLastModified": true
+}

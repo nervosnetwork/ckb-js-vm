@@ -8,7 +8,7 @@
  *
  * For more details, see the {@link https://github.com/nervosnetwork/rfcs/blob/master/rfcs/0022-transaction-structure/0022-transaction-structure.md#type-id | Type ID RFC}.
  *
- * @note Type ID cells are allowed to be burned.
+ * Type ID cells are allowed to be burned.
  */
 
 import {
@@ -72,7 +72,7 @@ function locateIndex(): number {
  *
  * @param typeId - 32-byte Uint8Array representing the Type ID to validate
  *
- * @throws {@link SysError}
+ * @throws Error
  * Throws with TypeIDError code if validation fails
  *
  * @remarks
@@ -133,7 +133,7 @@ function loadIdFromArgs(offset: number): Uint8Array {
  *
  * @param offset - Byte offset in script args where Type ID starts
  *
- * @throws {@link SysError}
+ * @throws Error
  * Throws with TypeIDError code if validation fails or ID cannot be retrieved
  *
  * @remarks

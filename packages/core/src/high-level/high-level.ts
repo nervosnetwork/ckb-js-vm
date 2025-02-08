@@ -401,7 +401,10 @@ export function loadScript(): Script {
  * Generic type for query functions that can be used with QueryIter
  * F is a function that takes (index: number, source: SourceType) and returns T
  */
-type QueryFunction<T> = (index: number, source: bindings.SourceType) => T;
+export type QueryFunction<T> = (
+  index: number,
+  source: bindings.SourceType,
+) => T;
 
 /**
  * QueryIter provides iteration over CKB query functions
