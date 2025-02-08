@@ -28,7 +28,6 @@
   },
   "dependencies": {
     "@ckb-js-std/bindings": "workspace:*",
-    "@ckb-js-std/core": "workspace:*",
-    "@ckb-js-std/examples": "link:"
+    "@ckb-js-std/core": "workspace:*"
   }
 }
