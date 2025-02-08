@@ -9,6 +9,13 @@ export enum LogLevel {
 
 let CURRENT_LEVEL = LogLevel.info;
 
+/**
+ * Logs a debug message if the current log level is set to debug or lower
+ * @param format - The format string for the log message
+ * @param args - Arguments to be formatted into the message
+ * @example
+ * debug("Processing item %d", 123);
+ */
 export function debug(format: string, ...args: any[]) {
   if (CURRENT_LEVEL <= LogLevel.debug) {
     let log = sprintf(format, ...args);
@@ -16,6 +23,13 @@ export function debug(format: string, ...args: any[]) {
   }
 }
 
+/**
+ * Logs an info message if the current log level is set to info or lower
+ * @param format - The format string for the log message
+ * @param args - Arguments to be formatted into the message
+ * @example
+ * info("Operation completed with %d items", count);
+ */
 export function info(format: string, ...args: any[]) {
   if (CURRENT_LEVEL <= LogLevel.info) {
     let log = sprintf(format, ...args);
@@ -23,6 +37,13 @@ export function info(format: string, ...args: any[]) {
   }
 }
 
+/**
+ * Logs a warning message if the current log level is set to warn or lower
+ * @param format - The format string for the log message
+ * @param args - Arguments to be formatted into the message
+ * @example
+ * warn("Deprecated feature used: %s", featureName);
+ */
 export function warn(format: string, ...args: any[]) {
   if (CURRENT_LEVEL <= LogLevel.warn) {
     let log = sprintf(format, ...args);
@@ -30,6 +51,13 @@ export function warn(format: string, ...args: any[]) {
   }
 }
 
+/**
+ * Logs an error message if the current log level is set to error or lower
+ * @param format - The format string for the log message
+ * @param args - Arguments to be formatted into the message
+ * @example
+ * error("Failed to process: %s", errorMessage);
+ */
 export function error(format: string, ...args: any[]) {
   if (CURRENT_LEVEL <= LogLevel.error) {
     let log = sprintf(format, ...args);
@@ -37,6 +65,12 @@ export function error(format: string, ...args: any[]) {
   }
 }
 
+/**
+ * Sets the minimum log level for the logger
+ * @param level - The minimum log level to display (debug, info, warn, or error)
+ * @example
+ * setLevel(LogLevel.debug);
+ */
 export function setLevel(level: LogLevel) {
   CURRENT_LEVEL = level;
 }
