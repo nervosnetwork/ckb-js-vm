@@ -1,13 +1,6 @@
 import * as bindings from "@ckb-js-std/bindings";
 import { log, bytesEq, HighLevel } from "@ckb-js-std/core";
 
-function loadCellLockHash(
-  index: number,
-  source: bindings.SourceType,
-): ArrayBuffer {
-  return bindings.loadCellByField(index, source, bindings.CELL_FIELD_LOCK_HASH);
-}
-
 function main() {
   log.setLevel(log.LogLevel.Debug);
   log.debug("simple UDT ...");
@@ -16,7 +9,8 @@ function main() {
   // ckb-js-vm has leading 35 bytes args
   let real_args = script.args.slice(35);
   for (let lock_hash of new HighLevel.QueryIter(
-    loadCellLockHash,
+    (index, source) =>
+      bindings.loadCellByField(index, source, bindings.CELL_FIELD_LOCK_HASH),
     bindings.SOURCE_INPUT,
   )) {
     if (bytesEq(new Uint8Array(lock_hash), real_args)) {
