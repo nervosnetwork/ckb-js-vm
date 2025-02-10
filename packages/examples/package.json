@@ -15,8 +15,8 @@
   "module": "./dist/index.js",
   "scripts": {
     "start": "ckb-debugger --read-file dist/index.bc --bin ../../build/ckb-js-vm -- -r",
-    "build": "tsc --noEmit && esbuild --platform=neutral --minify --bundle --external:@ckb-js-std/bindings --target=es2022 src/index.ts --outfile=dist/index.js && ckb-debugger --read-file dist/index.js --bin ../../build/ckb-js-vm -- -c | gawk -f ../../tools/compile.awk | xxd -r -p > dist/index.bc",
-    "build:simple_udt": "tsc --noEmit && esbuild --platform=neutral --minify --bundle --external:@ckb-js-std/bindings --target=es2022 src/simple_udt.ts --outfile=dist/simple_udt.js && ckb-debugger --read-file dist/simple_udt.js --bin ../../build/ckb-js-vm -- -c | gawk -f ../../tools/compile.awk | xxd -r -p > dist/simple_udt.bc",
+    "build": "tsc --noEmit && esbuild --platform=neutral --minify --bundle --external:@ckb-js-std/bindings --target=es2022 src/index.ts --outfile=dist/index.js && ckb-debugger --read-file dist/index.js --bin ../../build/ckb-js-vm -- -c dist/index.bc",
+    "build:simple_udt": "tsc --noEmit && esbuild --platform=neutral --minify --bundle --external:@ckb-js-std/bindings --target=es2022 src/simple_udt.ts --outfile=dist/simple_udt.js && ckb-debugger --read-file dist/simple_udt.js --bin ../../build/ckb-js-vm -- -c dist/simple_udt.bc",
     "format": "prettier --write .",
     "check:format": "prettier --check .",
     "clean": "rm -f dist/*"
