@@ -165,7 +165,7 @@ checksum: all
 
 install:
 # TODO: use release version
-	cargo install --git https://github.com/nervosnetwork/ckb-standalone-debugger --rev a41ba74 ckb-debugger
+	cargo install --git https://github.com/XuJiandong/ckb-standalone-debugger.git --rev 5e53d80 ckb-debugger
 	npm install -g pnpm
 
 .phony: all clean
