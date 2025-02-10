@@ -25,6 +25,8 @@ jobs:
       run: make install
     - name: Build
       run: make all
+    - name: Build qjsc
+      run: make -f qjsc.mak
     - name: Install node dependencies
       run: pnpm install
     - name: Build all packages

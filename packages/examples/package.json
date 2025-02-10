@@ -14,10 +14,8 @@
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "scripts": {
-    "start": "ckb-debugger --read-file dist/index.js --bin ../../build/ckb-js-vm -- -r",
-    "build": "tsc --noEmit && esbuild --platform=neutral --minify --bundle --external:@ckb-js-std/bindings --target=es2022 src/index.ts --outfile=dist/index.js",
-    "compile": "ckb-debugger --read-file dist/index.js --bin ../../build/ckb-js-vm -- -c | gawk -f ../../tools/compile.awk | xxd -r -p > dist/index.bc",
-    "start:bc": "ckb-debugger --read-file dist/index.bc --bin ../../build/ckb-js-vm -- -r",
+    "start": "ckb-debugger --read-file dist/index.bc --bin ../../build/ckb-js-vm -- -r",
+    "build": "tsc --noEmit && esbuild --platform=neutral --minify --bundle --external:@ckb-js-std/bindings --target=es2022 src/index.ts --outfile=dist/index.js && ../../build/qjsc/qjsc dist/index.js dist/index.bc",
     "format": "prettier --write .",
     "check:format": "prettier --check .",
     "clean": "rm -f dist/*"

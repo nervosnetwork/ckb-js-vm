@@ -59,3 +59,7 @@ dist/
 
 
 typedoc/
+
+deps/quickjs/qjs
+deps/quickjs/qjsc
+deps/quickjs/run-test262
