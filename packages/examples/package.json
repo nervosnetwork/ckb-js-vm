@@ -16,7 +16,7 @@
   "scripts": {
     "start": "ckb-debugger --read-file dist/index.js --bin ../../build/ckb-js-vm -- -r",
     "build": "tsc --noEmit && esbuild --platform=neutral --minify --bundle --external:@ckb-js-std/bindings --target=es2022 src/index.ts --outfile=dist/index.js",
-    "compile": "ckb-debugger --read-file dist/index.js --bin ../../build/ckb-js-vm -- -c | awk -f ../../tools/compile.awk | xxd -r -p > dist/index.bc",
+    "compile": "ckb-debugger --read-file dist/index.js --bin ../../build/ckb-js-vm -- -c | gawk -f ../../tools/compile.awk | xxd -r -p > dist/index.bc",
     "start:bc": "ckb-debugger --read-file dist/index.bc --bin ../../build/ckb-js-vm -- -r",
     "format": "prettier --write .",
     "check:format": "prettier --check .",
