@@ -21,7 +21,7 @@
     "cell_deps": [
       {
         "output": {
-          "capacity": "0x10000000",            
+          "capacity": "0x10000000",
           "lock": {
               "args": "0x00AE9DF3447C404A645BC48BEA4B7643B95AC5C3AE",
               "code_hash": "0x0000000000000000000000000000000000000000000000000000000000000000",
@@ -41,7 +41,7 @@
           },
           "type": "{{ def_type js-code-file }}"
         },
-        "data": "0x{{ data ../test_data/simple_udt.js }}"
+        "data": "0x{{ data ../../../packages/examples/dist/simple_udt.bc }}"
       }
     ],
     "header_deps": []
