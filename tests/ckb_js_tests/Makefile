@@ -17,7 +17,6 @@ endef
 all: out \
 	cargo_test \
 	syscall \
-	simple_udt \
 	fs_mount \
 	fs_bytecode \
 	cell_target \
