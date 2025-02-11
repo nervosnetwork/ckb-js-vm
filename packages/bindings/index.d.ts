@@ -80,6 +80,12 @@ export function loadScript(offset?: number, length?: number): ArrayBuffer;
 export function loadTransaction(offset?: number, length?: number): ArrayBuffer;
 
 /**
+ * Load transaction hash
+ * @returns The loaded transaction hash as ArrayBuffer
+ */
+export function loadTxHash(): ArrayBuffer;
+
+/**
  * Load script hash
  * @returns The loaded script hash as ArrayBuffer
  */
@@ -428,7 +434,7 @@ export class Blake2b {
    * Create a new Blake2b hash instance
    * @param personal - Optional personalization string. It must have length with 16.
    */
-  constructor(personal?: ArrayBuffer);
+  constructor(personal?: string);
   /**
    * Update the hash with new data
    * @param data - Data to be hashed

@@ -38,7 +38,7 @@ export class HasherCkb implements Hasher {
    */
 
   update(data: BytesLike): HasherCkb {
-    this.hasher.update(data);
+    this.hasher.update(data.buffer);
     return this;
   }
 
