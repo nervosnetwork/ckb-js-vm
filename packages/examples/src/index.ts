@@ -15,10 +15,10 @@ function main() {
   let script = ckb.loadScript();
   log.debug(`script length is ${script.byteLength}`);
   report_cycles();
-  let script_obj = Script.decode(new Uint8Array(script));
-  log.debug("script code_hash = ", script_obj.codeHash);
-  log.debug("script hash_type = ", script_obj.hashType);
-  log.debug("script args = ", script_obj.args);
+  let script_obj = Script.decode(script);
+  log.debug(`script code_hash = ${new Uint8Array(script_obj.codeHash)}`);
+  log.debug(`script hash_type = ${script_obj.hashType}`);
+  log.debug(`script args = ${new Uint8Array(script_obj.args)}`);
   report_cycles();
   let cell = HighLevel.loadCell(0, ckb.SOURCE_INPUT);
   log.debug(`cell capacity is ${cell.capacity}`);
@@ -26,7 +26,7 @@ function main() {
 
   let iter = new QueryIter(loadCellLock, ckb.SOURCE_INPUT);
   for (let item of iter) {
-    log.debug("lock script's code hash is", item.codeHash);
+    log.debug(`lock script's code hash is ${new Uint8Array(item.codeHash)}`);
   }
   report_cycles();
 }

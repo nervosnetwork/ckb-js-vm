@@ -49,6 +49,6 @@ export class HasherKeecak256 implements Hasher {
    */
 
   digest(): Bytes {
-    return new Uint8Array(this.hasher.finalize());
+    return this.hasher.finalize();
   }
 }

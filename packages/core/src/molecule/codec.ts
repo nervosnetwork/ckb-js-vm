@@ -110,7 +110,7 @@ export function fixedItemVec<Encodable, Decoded>(
   return Codec.from({
     encode(userDefinedItems) {
       try {
-        let result = new Uint8Array(0);
+        let result = new ArrayBuffer(0);
         result = bytesConcatTo(result, uint32To(userDefinedItems.length));
         for (const item of userDefinedItems) {
           result = bytesConcatTo(result, itemCodec.encode(item));
@@ -161,8 +161,8 @@ export function dynItemVec<Encodable, Decoded>(
     encode(userDefinedItems) {
       try {
         let offset = 4 + userDefinedItems.length * 4;
-        let header = new Uint8Array(0);
-        let body = new Uint8Array(0);
+        let header = new ArrayBuffer(0);
+        let body = new ArrayBuffer(0);
 
         for (const item of userDefinedItems) {
           const encoded = itemCodec.encode(item);
@@ -171,7 +171,9 @@ export function dynItemVec<Encodable, Decoded>(
           offset += encoded.byteLength;
         }
 
-        const packedTotalSize = uint32To(header.length + body.length + 4);
+        const packedTotalSize = uint32To(
+          header.byteLength + body.byteLength + 4,
+        );
         return bytesConcat(packedTotalSize, header, body);
       } catch (e) {
         throw new Error(`dynItemVec(${e?.toString()})`);
@@ -243,7 +245,7 @@ export function option<Encodable, Decoded>(
   return Codec.from({
     encode(userDefinedOrNull) {
       if (!userDefinedOrNull) {
-        return new Uint8Array(0);
+        return new ArrayBuffer(0);
       }
       try {
         return innerCodec.encode(userDefinedOrNull);
@@ -346,8 +348,8 @@ export function table<
   return Codec.from({
     encode(object) {
       let offset = 4 + keys.length * 4;
-      let header = new Uint8Array(0);
-      let body = new Uint8Array(0);
+      let header = new ArrayBuffer(0);
+      let body = new ArrayBuffer(0);
 
       for (const key of keys) {
         try {
@@ -360,7 +362,7 @@ export function table<
         }
       }
 
-      const packedTotalSize = uint32To(header.length + body.length + 4);
+      const packedTotalSize = uint32To(header.byteLength + body.byteLength + 4);
       return bytesConcat(packedTotalSize, header, body);
     },
     decode(buffer) {
@@ -516,7 +518,7 @@ export function struct<
       return acc + codec.byteLength;
     }, 0),
     encode(object) {
-      let bytes = new Uint8Array(0);
+      let bytes = new ArrayBuffer(0);
       for (const key of keys) {
         try {
           const encoded = codecLayout[key].encode((object as any)[key]);
@@ -566,7 +568,7 @@ export function array<Encodable, Decoded>(
     byteLength,
     encode(items) {
       try {
-        let bytes = new Uint8Array(0);
+        let bytes = new ArrayBuffer(0);
         for (const item of items) {
           bytes = bytesConcatTo(bytes, itemCodec.encode(item));
         }

@@ -40,7 +40,7 @@ export const Bool: Codec<boolean> = Codec.from({
   byteLength: 1,
   encode: (value) =>
     bytesFrom(value ? new Uint8Array([1]) : new Uint8Array([0])),
-  decode: (buffer) => bytesFrom(buffer)[0] !== 0,
+  decode: (buffer) => new Uint8Array(buffer)[0] !== 0,
 });
 export const BoolOpt = option(Bool);
 export const BoolVec = vector(Bool);

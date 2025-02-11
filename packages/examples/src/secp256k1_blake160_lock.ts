@@ -8,19 +8,18 @@ import {
   HighLevel,
   WitnessArgs,
   HasherCkb,
-  bytesFrom,
   BytesLike,
   Hasher,
   numToBytes,
   hashCkb,
   bytesEq,
   log,
+  Bytes,
 } from "@ckb-js-std/core";
 
 function hashWitnessToHasher(witness: BytesLike, hasher: Hasher): void {
-  const raw = bytesFrom(witness);
-  hasher.update(numToBytes(raw.length, 8));
-  hasher.update(raw);
+  hasher.update(numToBytes(witness.byteLength, 8));
+  hasher.update(witness);
 }
 
 /**
@@ -28,11 +27,11 @@ function hashWitnessToHasher(witness: BytesLike, hasher: Hasher): void {
  * @returns The 32-byte sighash
  * @throws Error if witness args are invalid or system error occurs
  */
-export function generateSighashAll(): Uint8Array {
+export function generateSighashAll(): Bytes {
   const hasher = new HasherCkb();
   // Hash transaction
   const tx_hash = bindings.loadTxHash();
-  hasher.update(new Uint8Array(tx_hash));
+  hasher.update(tx_hash);
 
   // Handle first witness (from group input)
   const firstWitnessArgs = HighLevel.loadWitnessArgs(
@@ -44,7 +43,7 @@ export function generateSighashAll(): Uint8Array {
   }
 
   // Create zero-filled lock bytes of same length
-  const zeroLock = new Uint8Array(firstWitnessArgs.lock.length);
+  const zeroLock = new ArrayBuffer(firstWitnessArgs.lock.byteLength);
   const modifiedWitnessArgs = WitnessArgs.from({
     ...firstWitnessArgs,
     lock: zeroLock,
@@ -52,14 +51,14 @@ export function generateSighashAll(): Uint8Array {
 
   // Hash first witness
   const firstWitnessBytes = modifiedWitnessArgs.toBytes();
-  hasher.update(firstWitnessBytes);
+  hashWitnessToHasher(firstWitnessBytes, hasher);
 
   // Hash remaining group input witnesses
   let index = 1;
   while (true) {
     try {
       const witness = bindings.loadWitness(index, bindings.SOURCE_GROUP_INPUT);
-      hashWitnessToHasher(new Uint8Array(witness), hasher);
+      hashWitnessToHasher(witness, hasher);
       index++;
     } catch (err: any) {
       if (err.errorCode === bindings.INDEX_OUT_OF_BOUND) {
@@ -90,7 +89,7 @@ export function generateSighashAll(): Uint8Array {
   for (let i = inputsLength; ; i++) {
     try {
       const witness = bindings.loadWitness(i, bindings.SOURCE_INPUT);
-      hashWitnessToHasher(new Uint8Array(witness), hasher);
+      hashWitnessToHasher(witness, hasher);
     } catch (err: any) {
       if (err.errorCode === bindings.INDEX_OUT_OF_BOUND) {
         break;
@@ -106,7 +105,7 @@ function main(): number {
   log.setLevel(log.LogLevel.Debug);
   log.debug("secp256k1_blake160_lock");
   const message = generateSighashAll();
-  log.debug(`message = ${message}`);
+  log.debug(`message = ${new Uint8Array(message)}`);
   const script = HighLevel.loadScript();
   const expected_pubkey_hash = script.args.slice(35);
 
@@ -120,20 +119,16 @@ function main(): number {
   }
 
   const signature = witness.lock.slice(0, 64);
-  log.debug(`signature = ${signature}`);
-  const rec_id = witness.lock.at(64);
+  log.debug(`signature = ${new Uint8Array(signature)}`);
+  const rec_id = new Uint8Array(witness.lock)[64];
   log.debug(`rec_id = ${rec_id}`);
   if (rec_id === undefined) {
     throw new Error("Invalid recovery ID in witness lock");
   }
 
-  const pubkey = bindings.secp256k1.recover(
-    signature.buffer,
-    rec_id,
-    message.buffer,
-  );
+  const pubkey = bindings.secp256k1.recover(signature, rec_id, message);
   const comp_pubkey = bindings.secp256k1.serializePubkey(pubkey, true);
-  const pubkey_hash = hashCkb(new Uint8Array(comp_pubkey)).slice(0, 20);
+  const pubkey_hash = hashCkb(comp_pubkey).slice(0, 20);
 
   return bytesEq(expected_pubkey_hash, pubkey_hash) ? 0 : 1;
 }
