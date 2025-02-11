@@ -96,6 +96,8 @@ function test_misc() {
     console.log('test_misc ....');
     let hash = ckb.loadTxHash();
     console.assert(hash.byteLength == 32);
+
+    // script
     let script = ckb.loadScript();
     console.assert(script.byteLength == 88, "script.byteLength != 88");
     let script1 = ckb.loadScript(1);
@@ -103,7 +105,17 @@ function test_misc() {
     let script_length = ckb.loadScript(0, 0);
     console.assert(script_length == 88, "script_length != 88");
     let script2 = ckb.loadScript(1, 10);
-    console.assert(script2.byteLength == 10, "script2.byteLength != 10");
+    console.assert(script2.byteLength == 10, 'script2.byteLength != 10');
+    // transaction
+    let tx = ckb.loadTransaction();
+    console.assert(tx.byteLength > 100, "tx.byteLength > 100");
+    let tx1 = ckb.loadTransaction(1);
+    console.assert(tx1.byteLength > 100, "tx1.byteLength > 100");
+    let tx_length = ckb.loadTransaction(0, 0);
+    console.assert(tx_length > 100, "tx_length > 100");
+    let tx2 = ckb.loadTransaction(1, 10);
+    console.assert(tx2.byteLength == 10, 'tx2.byteLength != 10');
+
     hash = ckb.loadScriptHash();
     console.assert(hash.byteLength == 32);
     let version = ckb.vmVersion();
@@ -166,7 +178,6 @@ test_partial_loading(ckb.loadWitness);
 test_partial_loading(ckb.loadCellData);
 test_partial_loading_without_comparing(ckb.loadWitness);
 test_partial_loading_without_comparing(ckb.loadCellData);
-test_partial_loading_without_comparing(ckb.loadTransaction);
 test_partial_loading_without_comparing(ckb.loadCell);
 test_partial_loading_field_without_comparing(ckb.loadCellByField, ckb.CELL_FIELD_CAPACITY);
 test_partial_loading_field_without_comparing(ckb.loadInputByField, ckb.INPUT_FIELD_OUT_POINT);

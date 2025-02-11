@@ -42,6 +42,10 @@ export function generateSighashAll(): Bytes {
     throw new Error("Wrong witness args");
   }
 
+  log.debug(
+    `first witness is ${bindings.hex.encode(firstWitnessArgs.toBytes())}`,
+  );
+
   // Create zero-filled lock bytes of same length
   const zeroLock = new ArrayBuffer(firstWitnessArgs.lock.byteLength);
   const modifiedWitnessArgs = WitnessArgs.from({
