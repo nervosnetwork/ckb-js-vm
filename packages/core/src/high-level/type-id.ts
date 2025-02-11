@@ -58,10 +58,7 @@ function locateIndex(): number {
 
   const index = query
     .toArray()
-    .findIndex(
-      (typeHash) =>
-        typeHash && bytesEq(new Uint8Array(typeHash), new Uint8Array(hash)),
-    );
+    .findIndex((typeHash) => typeHash && bytesEq(typeHash, hash));
 
   if (index === -1) throw new Error("TypeIDError");
   return index;
