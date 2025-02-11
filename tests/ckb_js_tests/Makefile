@@ -9,9 +9,7 @@ JS_SOURCE_DIR = $(ROOT_DIR)/test_data/fs_module_mount
 BYTECODE_FILES = index.bc fib_module.bc a/fib_module.bc b/fib_module.bc
 
 define compile_js_to_bc
-	$(CKB_DEBUGGER) --read-file $(1) --bin $(BIN_PATH) -- -c | \
-		awk -f $(ROOT_DIR)/../../tools/compile.awk | \
-		xxd -r -p > $(2)
+	$(CKB_DEBUGGER) --read-file $(1) --bin $(BIN_PATH) -- -c $(2)
 endef
 
 all: out \

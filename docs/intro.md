@@ -69,7 +69,7 @@ folder.
 When `-c` is provided, it can compile a JavaScript source file into JavaScript bytecode with
 output as hexadecimal. Below is a recipe about how to compile JavaScript source file:
 ```shell
-ckb-debugger --read-file hello.js --bin build/ckb-js-vm -- -c | awk -f $(ROOT_DIR)/../../tools/compile.awk | xxd -r -p > hello.bc
+ckb-debugger --read-file hello.js --bin build/ckb-js-vm -- -c hello.bc
 ```
 It reads `hello.js` and then compiles the JavaScript source file into bytecode in hex
 formatting. Then, using the power of `awk` and `xxd`, it can be converted into

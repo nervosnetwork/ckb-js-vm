@@ -94,7 +94,43 @@ int js_std_loop(JSContext *ctx) {
     return ret;
 }
 
-int compile_from_file(JSContext *ctx) {
+static inline long syscall(long n, long _a0, long _a1, long _a2,
+                                      long _a3, long _a4, long _a5) {
+    register long a0 asm("a0") = _a0;
+    register long a1 asm("a1") = _a1;
+    register long a2 asm("a2") = _a2;
+    register long a3 asm("a3") = _a3;
+    register long a4 asm("a4") = _a4;
+    register long a5 asm("a5") = _a5;
+    register long syscall_id asm("a7") = n;
+
+    asm volatile("scall"
+                 : "+r"(a0)
+                 : "r"(a1), "r"(a2), "r"(a3), "r"(a4), "r"(a5),
+                   "r"(syscall_id));
+    /*
+     * Syscalls might modify memory sent as pointer, adding a barrier here
+     * ensures gcc won't do incorrect optimization.
+     */
+    asm volatile("fence" ::: "memory");
+
+    return a0;
+}
+
+// syscalls only enabled in ckb-debugger
+long ckb_debugger_fopen(const char* file_name, const char* mode) {
+    return syscall(9003, (long)file_name, (long)mode, 0, 0, 0, 0);
+}
+
+void ckb_debugger_fclose(long handle) {
+    syscall(9009, (long)handle, 0, 0, 0, 0, 0);
+}
+
+int ckb_debugger_fwrite(const void * ptr, size_t size, size_t nitems, long stream) {
+    return syscall(9012, (long)ptr, (long)size, (long)nitems, (long)stream, 0, 0);
+}
+
+int compile_from_file(JSContext *ctx, const char* bytecode_filename) {
     enable_local_access(1);
     char buf[1024 * 512];
     int buf_len = read_local_file(buf, sizeof(buf));
@@ -118,13 +154,14 @@ int compile_from_file(JSContext *ctx) {
     size_t out_buf_len;
     out_buf = JS_WriteObject(ctx, &out_buf_len, val, JS_WRITE_OBJ_BYTECODE);
     if (!out_buf) return QJS_ERROR_MEMORY_ALLOCATION;
-    char msg_buf[65];
-    for (int i = 0; i < out_buf_len; i += 32) {
-        uint32_t size = i + 32 > out_buf_len ? out_buf_len - i : 32;
-        _exec_bin2hex(&out_buf[i], size, msg_buf, 65, &size, true);
-        msg_buf[size - 1] = 0;
-        printf("%s\n", msg_buf);
+    long handle = ckb_debugger_fopen(bytecode_filename, "wb");
+    int written = ckb_debugger_fwrite(out_buf, 1, out_buf_len, handle);
+    if (written != out_buf_len) {
+        ckb_debugger_fclose(handle);
+        printf("Error while writing to file %s", bytecode_filename);
+        return QJS_ERROR_GENERIC;
     }
+    ckb_debugger_fclose(handle);
     return 0;
 }
 
@@ -345,6 +382,7 @@ int main(int argc, const char **argv) {
     bool f_flag = false;         // use filesystem flag
     const char *e_value = NULL;  // eval argument
     const char *t_value = NULL;  // target argument
+    const char *bytecode_filename = NULL;
 
     for (int i = 0; i < argc; i++) {
         const char *arg = argv[i];
@@ -354,7 +392,8 @@ int main(int argc, const char **argv) {
             return 0;
         } else if (strcmp(arg, "-c") == 0) {
             c_flag = true;
-            optind = i + 1;
+            bytecode_filename = argv[i+1];
+            optind = i + 2;
         } else if (strcmp(arg, "-e") == 0) {
             if (i + 1 < argc) {
                 e_value = argv[++i];
@@ -416,7 +455,7 @@ int main(int argc, const char **argv) {
     // Replace the command-line handling logic
     if (c_flag) {
         JS_SetModuleLoaderFunc(rt, NULL, js_module_dummy_loader, NULL);
-        err = compile_from_file(ctx);
+        err = compile_from_file(ctx, bytecode_filename);
     } else if (e_value) {
         err = eval_buf(ctx, e_value, strlen(e_value), "<cmdline>", true);
     } else if (r_flag && f_flag) {
