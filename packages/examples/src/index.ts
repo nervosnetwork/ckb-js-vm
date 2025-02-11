@@ -29,6 +29,12 @@ function main() {
     log.debug(`lock script's code hash is ${new Uint8Array(item.codeHash)}`);
   }
   report_cycles();
+
+  let tx = HighLevel.loadTransaction();
+  tx.outputs.forEach((output) => {
+    log.debug(`output capacity is ${output.capacity}`);
+  });
+  report_cycles();
 }
 
 main();

@@ -15,11 +15,13 @@ export function numFromBytes(bytes: BytesLike): Num {
   } else {
     let result = 0;
     let view = new DataView(bytes);
-    console.assert(
-      view.getUint8(7) === 0,
-      "the value is too big to fit in a number, use bigintFromBytes instead",
-    );
     for (let i = 0; i < view.byteLength; i++) {
+      if (i >= 7) {
+        console.assert(
+          view.getUint8(i) === 0,
+          "the value is too big to fit in a number, use bigintFromBytes instead",
+        );
+      }
       result += view.getUint8(i) * Math.pow(256, i);
     }
     return result;

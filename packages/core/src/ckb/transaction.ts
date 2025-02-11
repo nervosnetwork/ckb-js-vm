@@ -1,6 +1,12 @@
 import { Bytes, BytesLike } from "../bytes/index";
 import { mol } from "../molecule/index";
-import { Num, NumLike, numFromBytes, numToBytes } from "../num/index";
+import {
+  Num,
+  NumLike,
+  bigintFromBytes,
+  numFromBytes,
+  numToBytes,
+} from "../num/index";
 import { apply } from "../utils/index";
 import { Script, ScriptLike, ScriptOpt } from "./script";
 
@@ -400,9 +406,9 @@ export class WitnessArgs extends mol.Entity.Base<
 /**
  * @public
  */
-export function udtBalanceFrom(dataLike: BytesLike): Num {
+export function udtBalanceFrom(dataLike: BytesLike): bigint {
   const data = dataLike.slice(0, 16);
-  return numFromBytes(data);
+  return bigintFromBytes(data);
 }
 
 export const RawTransaction = mol.table({
@@ -473,5 +479,39 @@ export class Transaction extends mol.Entity.Base<
     public witnesses: Bytes[],
   ) {
     super();
+  }
+  static from(tx: TransactionLike): Transaction {
+    if (tx instanceof Transaction) {
+      return tx;
+    }
+    const outputs =
+      tx.outputs?.map((output, i) => {
+        const o = CellOutput.from({
+          ...output,
+          capacity: output.capacity ?? 0,
+        });
+        if (o.capacity === 0) {
+          o.capacity = o.occupiedSize + (tx.outputsData?.[i]?.byteLength ?? 0);
+        }
+        return o;
+      }) ?? [];
+    const outputsData = outputs.map(
+      (_, i) => tx.outputsData?.[i] ?? new ArrayBuffer(0),
+    );
+    if (tx.outputsData != null && outputsData.length < tx.outputsData.length) {
+      outputsData.push(
+        ...tx.outputsData.slice(outputsData.length).map((d) => d),
+      );
+    }
+
+    return new Transaction(
+      tx.version ?? 0,
+      tx.cellDeps?.map((cellDep) => CellDep.from(cellDep)) ?? [],
+      tx.headerDeps ?? [],
+      tx.inputs?.map((input) => CellInput.from(input)) ?? [],
+      outputs,
+      outputsData,
+      tx.witnesses ?? [],
+    );
   }
 }

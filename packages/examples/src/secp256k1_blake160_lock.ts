@@ -122,10 +122,6 @@ function main(): number {
   log.debug(`signature = ${new Uint8Array(signature)}`);
   const rec_id = new Uint8Array(witness.lock)[64];
   log.debug(`rec_id = ${rec_id}`);
-  if (rec_id === undefined) {
-    throw new Error("Invalid recovery ID in witness lock");
-  }
-
   const pubkey = bindings.secp256k1.recover(signature, rec_id, message);
   const comp_pubkey = bindings.secp256k1.serializePubkey(pubkey, true);
   const pubkey_hash = hashCkb(comp_pubkey).slice(0, 20);
