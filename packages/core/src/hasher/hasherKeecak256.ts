@@ -1,4 +1,4 @@
-import { Bytes, BytesLike, bytesFrom } from "../bytes/index.js";
+import { Bytes, BytesLike } from "../bytes/index.js";
 import { Hasher } from "./hasher.js";
 import { Keccak256 } from "@ckb-js-std/bindings";
 

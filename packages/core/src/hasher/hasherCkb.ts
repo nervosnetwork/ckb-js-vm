@@ -1,4 +1,4 @@
-import { Bytes, BytesLike, bytesFrom } from "../bytes/index";
+import { Bytes, BytesLike } from "../bytes/index";
 import { CellInput, CellInputLike } from "../ckb/index";
 import { NumLike, numToBytes } from "../num/index";
 import { CKB_BLAKE2B_PERSONAL } from "./advanced";

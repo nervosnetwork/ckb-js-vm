@@ -1,4 +1,4 @@
-import { Bytes, BytesLike, bytesFrom } from "../bytes/index";
+import { Bytes, BytesLike } from "../bytes/index";
 import { mol } from "../molecule/index";
 import { Num, NumLike, numFromBytes, numToBytes } from "../num/index";
 import { apply } from "../utils/index";
@@ -50,7 +50,7 @@ export class OutPoint extends mol.Entity.Base<OutPointLike, OutPoint>() {
     if (outPoint instanceof OutPoint) {
       return outPoint;
     }
-    return new OutPoint(bytesFrom(outPoint.txHash), outPoint.index);
+    return new OutPoint(outPoint.txHash, outPoint.index);
   }
 }
 
@@ -163,7 +163,7 @@ export class Cell {
     return new Cell(
       OutPoint.from(cell.outPoint),
       CellOutput.from(cell.cellOutput),
-      bytesFrom(cell.outputData),
+      cell.outputData,
     );
   }
 
@@ -253,7 +253,7 @@ export class CellInput extends mol.Entity.Base<CellInputLike, CellInput>() {
       OutPoint.from(cellInput.previousOutput),
       cellInput.since ?? 0,
       apply(CellOutput.from, cellInput.cellOutput),
-      apply(bytesFrom, cellInput.outputData),
+      cellInput.outputData ?? undefined,
     );
   }
 }
@@ -390,9 +390,9 @@ export class WitnessArgs extends mol.Entity.Base<
     }
 
     return new WitnessArgs(
-      apply(bytesFrom, witnessArgs.lock),
-      apply(bytesFrom, witnessArgs.inputType),
-      apply(bytesFrom, witnessArgs.outputType),
+      witnessArgs.lock ?? undefined,
+      witnessArgs.inputType ?? undefined,
+      witnessArgs.outputType ?? undefined,
     );
   }
 }
@@ -401,7 +401,7 @@ export class WitnessArgs extends mol.Entity.Base<
  * @public
  */
 export function udtBalanceFrom(dataLike: BytesLike): Num {
-  const data = bytesFrom(dataLike).slice(0, 16);
+  const data = dataLike.slice(0, 16);
   return numFromBytes(data);
 }
 

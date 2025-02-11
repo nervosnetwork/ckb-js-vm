@@ -30,10 +30,6 @@ export function bytesConcatTo(result: Bytes, ...args: Bytes[]): Bytes {
   return newResult.buffer;
 }
 
-export function bytesFrom(bytes: BytesLike): Bytes {
-  return bytes;
-}
-
 export function bytesEq(a: BytesLike, b: BytesLike): boolean {
   if (a === b) {
     return true;

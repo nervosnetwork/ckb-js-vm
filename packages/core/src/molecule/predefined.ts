@@ -1,4 +1,4 @@
-import { bytesFrom, BytesLike, Bytes as _Bytes } from "../bytes/index";
+import { BytesLike, Bytes as _Bytes } from "../bytes/index";
 import { byteVec, Codec, option, uint, uintNumber, vector } from "./codec";
 
 export const Uint8 = uintNumber(1, true);
@@ -30,8 +30,8 @@ export const Uint512Opt = option(Uint512);
 export const Uint512Vec = vector(Uint512);
 
 export const Bytes: Codec<BytesLike, _Bytes> = byteVec({
-  encode: (value) => bytesFrom(value),
-  decode: (buffer) => bytesFrom(buffer),
+  encode: (value) => value,
+  decode: (buffer) => buffer,
 });
 export const BytesOpt = option(Bytes);
 export const BytesVec = vector(Bytes);
@@ -39,7 +39,7 @@ export const BytesVec = vector(Bytes);
 export const Bool: Codec<boolean> = Codec.from({
   byteLength: 1,
   encode: (value) =>
-    bytesFrom(value ? new Uint8Array([1]) : new Uint8Array([0])),
+    value ? new Uint8Array([1]).buffer : new Uint8Array([0]).buffer,
   decode: (buffer) => new Uint8Array(buffer)[0] !== 0,
 });
 export const BoolOpt = option(Bool);
@@ -47,32 +47,32 @@ export const BoolVec = vector(Bool);
 
 export const Byte4: Codec<BytesLike, _Bytes> = Codec.from({
   byteLength: 4,
-  encode: bytesFrom,
-  decode: bytesFrom,
+  encode: (value) => value,
+  decode: (buffer) => buffer,
 });
 export const Byte4Opt = option(Byte4);
 export const Byte4Vec = vector(Byte4);
 
 export const Byte8: Codec<BytesLike, _Bytes> = Codec.from({
   byteLength: 8,
-  encode: bytesFrom,
-  decode: bytesFrom,
+  encode: (value) => value,
+  decode: (buffer) => buffer,
 });
 export const Byte8Opt = option(Byte8);
 export const Byte8Vec = vector(Byte8);
 
 export const Byte16: Codec<BytesLike, _Bytes> = Codec.from({
   byteLength: 16,
-  encode: bytesFrom,
-  decode: bytesFrom,
+  encode: (value) => value,
+  decode: (buffer) => buffer,
 });
 export const Byte16Opt = option(Byte16);
 export const Byte16Vec = vector(Byte16);
 
 export const Byte32: Codec<BytesLike, _Bytes> = Codec.from({
   byteLength: 32,
-  encode: bytesFrom,
-  decode: bytesFrom,
+  encode: (value) => value,
+  decode: (buffer) => buffer,
 });
 export const Byte32Opt = option(Byte32);
 export const Byte32Vec = vector(Byte32);

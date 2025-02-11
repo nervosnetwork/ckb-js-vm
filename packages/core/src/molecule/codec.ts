@@ -1,11 +1,5 @@
 // migrated from ccc
-import {
-  Bytes,
-  bytesConcat,
-  bytesConcatTo,
-  bytesFrom,
-  BytesLike,
-} from "../bytes/index";
+import { Bytes, bytesConcat, bytesConcatTo, BytesLike } from "../bytes/index";
 import { Num, numFromBytes, NumLike, numToBytes } from "../num/index";
 
 export type CodecLike<Encodable, Decoded = Encodable> = {
@@ -36,7 +30,7 @@ export class Codec<Encodable, Decoded = Encodable> {
         return encoded;
       },
       (decodable) => {
-        const decodableBytes = bytesFrom(decodable);
+        const decodableBytes = decodable;
         if (
           byteLength !== undefined &&
           decodableBytes.byteLength !== byteLength
@@ -121,7 +115,7 @@ export function fixedItemVec<Encodable, Decoded>(
       }
     },
     decode(buffer) {
-      const value = bytesFrom(buffer);
+      const value = buffer;
       if (value.byteLength < 4) {
         throw new Error(
           `fixedItemVec: too short buffer, expected at least 4 bytes, but got ${value.byteLength}`,
@@ -180,7 +174,7 @@ export function dynItemVec<Encodable, Decoded>(
       }
     },
     decode(buffer) {
-      const value = bytesFrom(buffer);
+      const value = buffer;
       if (value.byteLength < 4) {
         throw new Error(
           `dynItemVec: too short buffer, expected at least 4 bytes, but got ${value.byteLength}`,
@@ -254,7 +248,7 @@ export function option<Encodable, Decoded>(
       }
     },
     decode(buffer) {
-      const value = bytesFrom(buffer);
+      const value = buffer;
       if (value.byteLength === 0) {
         return undefined;
       }
@@ -277,7 +271,7 @@ export function byteVec<Encodable, Decoded>(
   return Codec.from({
     encode(userDefined) {
       try {
-        const payload = bytesFrom(codec.encode(userDefined));
+        const payload = codec.encode(userDefined);
         const byteLength = uint32To(payload.byteLength);
         return bytesConcat(byteLength, payload);
       } catch (e) {
@@ -285,7 +279,7 @@ export function byteVec<Encodable, Decoded>(
       }
     },
     decode(buffer) {
-      const value = bytesFrom(buffer);
+      const value = buffer;
       if (value.byteLength < 4) {
         throw new Error(
           `byteVec: too short buffer, expected at least 4 bytes, but got ${value.byteLength}`,
@@ -366,7 +360,7 @@ export function table<
       return bytesConcat(packedTotalSize, header, body);
     },
     decode(buffer) {
-      const value = bytesFrom(buffer);
+      const value = buffer;
       if (value.byteLength < 4) {
         throw new Error(
           `table: too short buffer, expected at least 4 bytes, but got ${value.byteLength}`,
@@ -462,7 +456,7 @@ export function union<T extends Record<string, CodecLike<any, any>>>(
       }
     },
     decode(buffer) {
-      const value = bytesFrom(buffer);
+      const value = buffer;
       const fieldIndex = uint32From(value.slice(0, 4));
       const keys = Object.keys(codecLayout);
 
@@ -528,10 +522,10 @@ export function struct<
         }
       }
 
-      return bytesFrom(bytes);
+      return bytes;
     },
     decode(buffer) {
-      const value = bytesFrom(buffer);
+      const value = buffer;
       const object = {};
       let offset = 0;
       Object.entries(codecLayout).forEach(([key, codec]) => {
@@ -573,13 +567,13 @@ export function array<Encodable, Decoded>(
           bytes = bytesConcatTo(bytes, itemCodec.encode(item));
         }
 
-        return bytesFrom(bytes);
+        return bytes;
       } catch (e: unknown) {
         throw new Error(`array(${e?.toString()})`);
       }
     },
     decode(buffer) {
-      const value = bytesFrom(buffer);
+      const value = buffer;
       if (value.byteLength != byteLength) {
         throw new Error(
           `array: invalid buffer size, expected ${byteLength}, but got ${value.byteLength}`,
