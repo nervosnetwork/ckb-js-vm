@@ -66,3 +66,32 @@ export function numToBytes(val: NumLike, bytes: number): Bytes {
 
   return result;
 }
+
+export function bigintToBytes(val: bigint, bytes: number): Bytes {
+  if (
+    bytes !== 1 &&
+    bytes !== 2 &&
+    bytes !== 4 &&
+    bytes !== 8 &&
+    bytes !== 16
+  ) {
+    throw new Error("Invalid bytes in bigintToBytes");
+  }
+  const result = new ArrayBuffer(bytes);
+  const view = new DataView(result);
+
+  if (bytes === 1) {
+    view.setUint8(0, Number(val));
+  } else if (bytes === 2) {
+    view.setUint16(0, Number(val), true);
+  } else if (bytes === 4) {
+    view.setUint32(0, Number(val), true);
+  } else if (bytes === 8) {
+    view.setBigUint64(0, val, true);
+  } else {
+    view.setBigUint64(0, val, true);
+    view.setBigUint64(8, val >> 64n, true);
+  }
+
+  return result;
+}
