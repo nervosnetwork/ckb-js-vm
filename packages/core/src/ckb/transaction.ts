@@ -1,12 +1,6 @@
 import { Bytes, BytesLike } from "../bytes/index";
 import { mol } from "../molecule/index";
-import {
-  Num,
-  NumLike,
-  bigintFromBytes,
-  numFromBytes,
-  numToBytes,
-} from "../num/index";
+import { Num, NumLike, bigintFromBytes } from "../num/index";
 import { apply } from "../utils/index";
 import { Script, ScriptLike, ScriptOpt } from "./script";
 
