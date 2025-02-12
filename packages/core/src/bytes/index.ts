@@ -1,37 +1,33 @@
 // migrated from ccc
-export type Bytes = Uint8Array;
+export type Bytes = ArrayBuffer;
 
-export type BytesLike = Uint8Array;
+export type BytesLike = ArrayBuffer;
 
 export function bytesConcat(...args: BytesLike[]): Bytes {
-  return bytesConcatTo(new Uint8Array(0), ...args);
+  return bytesConcatTo(new ArrayBuffer(0), ...args);
 }
 
 export function bytesConcatTo(result: Bytes, ...args: Bytes[]): Bytes {
   // Calculate total length needed
   const totalLength = args.reduce(
-    (sum, arr) => sum + arr.length,
-    result.length,
+    (sum, arr) => sum + arr.byteLength,
+    result.byteLength,
   );
 
   // Create new array with exact size needed
   const newResult = new Uint8Array(totalLength);
 
   // Copy initial result
-  newResult.set(result, 0);
+  newResult.set(new Uint8Array(result), 0);
 
   // Copy each argument at the correct offset
-  let offset = result.length;
+  let offset = result.byteLength;
   for (const arg of args) {
-    newResult.set(arg, offset);
-    offset += arg.length;
+    newResult.set(new Uint8Array(arg), offset);
+    offset += arg.byteLength;
   }
 
-  return newResult;
-}
-
-export function bytesFrom(bytes: BytesLike): Bytes {
-  return bytes;
+  return newResult.buffer;
 }
 
 export function bytesEq(a: BytesLike, b: BytesLike): boolean {
@@ -39,15 +35,30 @@ export function bytesEq(a: BytesLike, b: BytesLike): boolean {
     return true;
   }
 
-  if (a.length !== b.length) {
+  if (a.byteLength !== b.byteLength) {
     return false;
   }
+  if (a.byteLength % 8 == 0) {
+    const aBigUint64Array = new BigUint64Array(a);
+    const bBigUint64Array = new BigUint64Array(b);
 
-  for (let i = 0; i < a.length; i++) {
-    if (a[i] !== b[i]) {
-      return false;
+    for (let i = 0; i < aBigUint64Array.length; i++) {
+      if (aBigUint64Array[i] !== bBigUint64Array[i]) {
+        return false;
+      }
     }
-  }
 
-  return true;
+    return true;
+  } else {
+    const aUint8Array = new Uint8Array(a);
+    const bUint8Array = new Uint8Array(b);
+
+    for (let i = 0; i < aUint8Array.length; i++) {
+      if (aUint8Array[i] !== bUint8Array[i]) {
+        return false;
+      }
+    }
+
+    return true;
+  }
 }

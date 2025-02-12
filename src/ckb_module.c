@@ -174,10 +174,21 @@ static int _load_transaction(void *addr, uint64_t *len, LoadData *data) {
 
 static JSValue syscall_load_transaction(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv) {
     LoadData data = {0};
-    JSValue ret = parse_args(ctx, &data, false, argc, argv, _load_transaction);
-    if (JS_IsException(ret)) {
-        return ret;
+    data.offset = NO_VALUE;
+    data.length = NO_VALUE;
+    if (argc > 0) {
+        if (qjs_bad_int_arg(ctx, argv[0], 0)) {
+            return JS_EXCEPTION;
+        }
+        JS_ToInt64(ctx, (int64_t *)&data.offset, argv[0]);
     }
+    if (argc > 1) {
+        if (qjs_bad_int_arg(ctx, argv[1], 1)) {
+            return JS_EXCEPTION;
+        }
+        JS_ToInt64(ctx, (int64_t *)&data.length, argv[1]);
+    }
+    data.func = _load_transaction;
     return syscall_load(ctx, &data);
 }
 

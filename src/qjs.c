@@ -94,8 +94,7 @@ int js_std_loop(JSContext *ctx) {
     return ret;
 }
 
-static inline long syscall(long n, long _a0, long _a1, long _a2,
-                                      long _a3, long _a4, long _a5) {
+static inline long syscall(long n, long _a0, long _a1, long _a2, long _a3, long _a4, long _a5) {
     register long a0 asm("a0") = _a0;
     register long a1 asm("a1") = _a1;
     register long a2 asm("a2") = _a2;
@@ -104,10 +103,7 @@ static inline long syscall(long n, long _a0, long _a1, long _a2,
     register long a5 asm("a5") = _a5;
     register long syscall_id asm("a7") = n;
 
-    asm volatile("scall"
-                 : "+r"(a0)
-                 : "r"(a1), "r"(a2), "r"(a3), "r"(a4), "r"(a5),
-                   "r"(syscall_id));
+    asm volatile("scall" : "+r"(a0) : "r"(a1), "r"(a2), "r"(a3), "r"(a4), "r"(a5), "r"(syscall_id));
     /*
      * Syscalls might modify memory sent as pointer, adding a barrier here
      * ensures gcc won't do incorrect optimization.
@@ -118,19 +114,17 @@ static inline long syscall(long n, long _a0, long _a1, long _a2,
 }
 
 // syscalls only enabled in ckb-debugger
-long ckb_debugger_fopen(const char* file_name, const char* mode) {
+long ckb_debugger_fopen(const char *file_name, const char *mode) {
     return syscall(9003, (long)file_name, (long)mode, 0, 0, 0, 0);
 }
 
-void ckb_debugger_fclose(long handle) {
-    syscall(9009, (long)handle, 0, 0, 0, 0, 0);
-}
+void ckb_debugger_fclose(long handle) { syscall(9009, (long)handle, 0, 0, 0, 0, 0); }
 
-int ckb_debugger_fwrite(const void * ptr, size_t size, size_t nitems, long stream) {
+int ckb_debugger_fwrite(const void *ptr, size_t size, size_t nitems, long stream) {
     return syscall(9012, (long)ptr, (long)size, (long)nitems, (long)stream, 0, 0);
 }
 
-int compile_from_file(JSContext *ctx, const char* bytecode_filename) {
+int compile_from_file(JSContext *ctx, const char *bytecode_filename) {
     enable_local_access(1);
     char buf[1024 * 512];
     int buf_len = read_local_file(buf, sizeof(buf));
@@ -392,7 +386,7 @@ int main(int argc, const char **argv) {
             return 0;
         } else if (strcmp(arg, "-c") == 0) {
             c_flag = true;
-            bytecode_filename = argv[i+1];
+            bytecode_filename = argv[i + 1];
             optind = i + 2;
         } else if (strcmp(arg, "-e") == 0) {
             if (i + 1 < argc) {

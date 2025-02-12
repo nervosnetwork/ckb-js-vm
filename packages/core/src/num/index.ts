@@ -5,39 +5,59 @@ import { BytesLike, Bytes } from "../bytes/index";
 export type Num = number;
 export type NumLike = number;
 
-export function numFromBytes(val: BytesLike): Num {
-  let result = 0;
-
-  // Convert bytes to number using little-endian format
-  for (let i = 0; i < val.length; i++) {
-    result += val[i] * Math.pow(256, i);
+export function numFromBytes(bytes: BytesLike): Num {
+  if (bytes.byteLength === 1) {
+    return new Uint8Array(bytes)[0];
+  } else if (bytes.byteLength === 2) {
+    return new DataView(bytes).getUint16(0, true);
+  } else if (bytes.byteLength === 4) {
+    return new DataView(bytes).getUint32(0, true);
+  } else {
+    let result = 0;
+    let view = new DataView(bytes);
+    for (let i = 0; i < view.byteLength; i++) {
+      if (i >= 7) {
+        console.assert(
+          view.getUint8(i) === 0,
+          "the value is too big to fit in a number, use bigintFromBytes instead",
+        );
+      }
+      result += view.getUint8(i) * Math.pow(256, i);
+    }
+    return result;
   }
-
-  return result;
 }
 
-export function bigintFromBytes(val: BytesLike): bigint {
+export function bigintFromBytes(bytes: BytesLike): bigint {
   let result = 0n;
-
-  // Convert bytes to number using little-endian format
-  for (let i = 0; i < val.length; i++) {
-    result += BigInt(val[i]) * BigInt(Math.pow(256, i));
+  if (bytes.byteLength === 1) {
+    result = BigInt(new Uint8Array(bytes)[0]);
+  } else if (bytes.byteLength === 2) {
+    result = BigInt(new DataView(bytes).getUint16(0, true));
+  } else if (bytes.byteLength === 4) {
+    result = BigInt(new DataView(bytes).getUint32(0, true));
+  } else if (bytes.byteLength === 8) {
+    result = new DataView(bytes).getBigUint64(0, true);
+  } else {
+    let view = new DataView(bytes);
+    for (let i = 0; i < view.byteLength; i++) {
+      result += BigInt(view.getUint8(i)) * BigInt(Math.pow(256, i));
+    }
   }
-
   return result;
 }
 
 export function numToBytes(val: NumLike, bytes: number): Bytes {
-  if (bytes !== 1 && bytes !== 2 && bytes !== 4 && bytes == 8) {
+  if (bytes !== 1 && bytes !== 2 && bytes !== 4 && bytes !== 8) {
     throw new Error("Invalid bytes in numToBytes");
   }
-  const result = new Uint8Array(bytes);
-  const view = new DataView(result.buffer);
+  const result = new ArrayBuffer(bytes);
+  const view = new DataView(result);
 
   if (bytes === 1) {
     view.setUint8(0, val);
   } else if (bytes === 2) {
-    view.setUint16(0, val, true); // true for little-endian
+    view.setUint16(0, val, true);
   } else if (bytes === 4) {
     view.setUint32(0, val, true);
   } else {

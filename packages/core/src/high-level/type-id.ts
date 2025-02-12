@@ -58,10 +58,7 @@ function locateIndex(): number {
 
   const index = query
     .toArray()
-    .findIndex(
-      (typeHash) =>
-        typeHash && bytesEq(new Uint8Array(typeHash), new Uint8Array(hash)),
-    );
+    .findIndex((typeHash) => typeHash && bytesEq(typeHash, hash));
 
   if (index === -1) throw new Error("TypeIDError");
   return index;
@@ -70,7 +67,7 @@ function locateIndex(): number {
 /**
  * Validates the Type ID in a flexible manner
  *
- * @param typeId - 32-byte Uint8Array representing the Type ID to validate
+ * @param typeId - 32-byte ArrayBuffer representing the Type ID to validate
  *
  * @throws Error
  * Throws with TypeIDError code if validation fails
@@ -85,7 +82,6 @@ function locateIndex(): number {
  * ```typescript
  * import { HighLevel } from "@ckb-js-std/core";
  *
- * const typeId = new Uint8Array(32);
  * try {
  *   HighLevel.validateTypeId(typeId);
  * } catch (error) {
@@ -93,7 +89,7 @@ function locateIndex(): number {
  * }
  * ```
  */
-export function validateTypeId(typeId: Uint8Array): void {
+export function validateTypeId(typeId: ArrayBuffer): void {
   if (
     isCellPresent(1, SOURCE_GROUP_INPUT) ||
     isCellPresent(1, SOURCE_GROUP_OUTPUT)
@@ -117,11 +113,11 @@ export function validateTypeId(typeId: Uint8Array): void {
  * Loads Type ID from script arguments
  * @internal
  */
-function loadIdFromArgs(offset: number): Uint8Array {
+function loadIdFromArgs(offset: number): ArrayBuffer {
   const script = loadScript();
   const args = script.args;
 
-  if (offset + 32 > args.length) {
+  if (offset + 32 > args.byteLength) {
     throw new Error("loadIdFromArgs error");
   }
 

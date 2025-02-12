@@ -23,7 +23,7 @@ import {
   OutPoint,
 } from "../ckb";
 import { bigintFromBytes } from "../num";
-import { bytesEq } from "../bytes";
+import { Bytes, bytesEq } from "../bytes";
 
 /**
  * Load cell
@@ -46,7 +46,7 @@ export function loadCell(
   source: bindings.SourceType,
 ): CellOutput {
   let bytes = bindings.loadCell(index, source);
-  return CellOutput.fromBytes(new Uint8Array(bytes));
+  return CellOutput.fromBytes(bytes);
 }
 
 /**
@@ -67,7 +67,7 @@ export function loadInput(
   source: bindings.SourceType,
 ): CellInput {
   let bytes = bindings.loadInput(index, source);
-  return CellInput.fromBytes(new Uint8Array(bytes));
+  return CellInput.fromBytes(bytes);
 }
 
 /**
@@ -91,7 +91,7 @@ export function loadWitnessArgs(
   source: bindings.SourceType,
 ): WitnessArgs {
   let bytes = bindings.loadWitness(index, source);
-  return WitnessArgs.fromBytes(new Uint8Array(bytes));
+  return WitnessArgs.fromBytes(bytes);
 }
 
 /**
@@ -110,7 +110,7 @@ export function loadWitnessArgs(
  */
 export function loadTransaction(): Transaction {
   let bytes = bindings.loadTransaction();
-  return Transaction.fromBytes(new Uint8Array(bytes));
+  return Transaction.fromBytes(bytes);
 }
 
 /**
@@ -135,7 +135,7 @@ export function loadCellCapacity(
     source,
     bindings.CELL_FIELD_CAPACITY,
   );
-  return bigintFromBytes(new Uint8Array(bytes));
+  return bigintFromBytes(bytes);
 }
 
 /**
@@ -160,7 +160,7 @@ export function loadCellOccupiedCapacity(
     source,
     bindings.CELL_FIELD_OCCUPIED_CAPACITY,
   );
-  return bigintFromBytes(new Uint8Array(bytes));
+  return bigintFromBytes(bytes);
 }
 
 /**
@@ -182,14 +182,14 @@ export function loadCellOccupiedCapacity(
 export function loadCellTypeHash(
   index: number,
   source: bindings.SourceType,
-): Uint8Array | null {
+): ArrayBuffer | null {
   try {
     let bytes = bindings.loadCellByField(
       index,
       source,
       bindings.CELL_FIELD_TYPE_HASH,
     );
-    return new Uint8Array(bytes);
+    return bytes;
   } catch (e: any) {
     if (e.errorCode === bindings.ITEM_MISSING) {
       return null;
@@ -217,7 +217,7 @@ export function loadCellLock(
   source: bindings.SourceType,
 ): Script {
   let bytes = bindings.loadCellByField(index, source, bindings.CELL_FIELD_LOCK);
-  return Script.fromBytes(new Uint8Array(bytes));
+  return Script.fromBytes(bytes);
 }
 
 /**
@@ -246,7 +246,7 @@ export function loadCellType(
       source,
       bindings.CELL_FIELD_TYPE,
     );
-    return Script.fromBytes(new Uint8Array(bytes));
+    return Script.fromBytes(bytes);
   } catch (e: any) {
     if (e.errorCode === bindings.ITEM_MISSING) {
       return null;
@@ -278,7 +278,7 @@ export function loadHeaderEpochNumber(
     source,
     bindings.HEADER_FIELD_EPOCH_NUMBER,
   );
-  return bigintFromBytes(new Uint8Array(bytes));
+  return bigintFromBytes(bytes);
 }
 
 /**
@@ -303,7 +303,7 @@ export function loadHeaderEpochStartBlockNumber(
     source,
     bindings.HEADER_FIELD_EPOCH_START_BLOCK_NUMBER,
   );
-  return bigintFromBytes(new Uint8Array(bytes));
+  return bigintFromBytes(bytes);
 }
 
 /**
@@ -328,7 +328,7 @@ export function loadHeaderEpochLength(
     source,
     bindings.HEADER_FIELD_EPOCH_LENGTH,
   );
-  return bigintFromBytes(new Uint8Array(bytes));
+  return bigintFromBytes(bytes);
 }
 
 /**
@@ -353,7 +353,7 @@ export function loadInputSince(
     source,
     bindings.INPUT_FIELD_SINCE,
   );
-  return bigintFromBytes(new Uint8Array(bytes));
+  return bigintFromBytes(bytes);
 }
 
 /**
@@ -378,7 +378,7 @@ export function loadInputOutPoint(
     source,
     bindings.INPUT_FIELD_OUT_POINT,
   );
-  return OutPoint.fromBytes(new Uint8Array(bytes));
+  return OutPoint.fromBytes(bytes);
 }
 
 /**
@@ -394,7 +394,7 @@ export function loadInputOutPoint(
  */
 export function loadScript(): Script {
   let bytes = bindings.loadScript();
-  return Script.fromBytes(new Uint8Array(bytes));
+  return Script.fromBytes(bytes);
 }
 
 /**
@@ -490,10 +490,10 @@ export class QueryIter<T> implements Iterator<T> {
  * @throws Error if dataHash is not 32 bytes or if there's a system error
  */
 export function findCellByDataHash(
-  dataHash: Uint8Array,
+  dataHash: Bytes,
   source: bindings.SourceType,
 ): number | null {
-  if (dataHash.length !== 32) {
+  if (dataHash.byteLength !== 32) {
     throw new Error("dataHash must be 32 bytes");
   }
 
@@ -504,8 +504,7 @@ export function findCellByDataHash(
         source,
         bindings.CELL_FIELD_DATA_HASH,
       );
-      const hashArray = new Uint8Array(hash);
-      if (bytesEq(hashArray, dataHash)) {
+      if (bytesEq(hash, dataHash)) {
         return i;
       }
     } catch (err: any) {
@@ -526,11 +525,8 @@ export function findCellByDataHash(
  * @returns The index of the found cell
  * @throws Error if codeHash is not 32 bytes, if cell is not found, or if there's a system error
  */
-export function lookForDepWithHash2(
-  codeHash: Uint8Array,
-  hashType: number,
-): number {
-  if (codeHash.length !== 32) {
+export function lookForDepWithHash2(codeHash: Bytes, hashType: number): number {
+  if (codeHash.byteLength !== 32) {
     throw new Error("codeHash must be 32 bytes");
   }
 
@@ -547,8 +543,7 @@ export function lookForDepWithHash2(
         bindings.SOURCE_CELL_DEP,
         field,
       );
-      const hashArray = new Uint8Array(hash);
-      if (bytesEq(hashArray, codeHash)) {
+      if (bytesEq(hash, codeHash)) {
         return current;
       }
     } catch (err: any) {
@@ -571,6 +566,6 @@ export function lookForDepWithHash2(
  * @returns The index of the found cell
  * @throws Error if dataHash is not 32 bytes, if cell is not found, or if there's a system error
  */
-export function lookForDepWithDataHash(dataHash: Uint8Array): number {
+export function lookForDepWithDataHash(dataHash: Bytes): number {
   return lookForDepWithHash2(dataHash, bindings.SCRIPT_HASH_TYPE_DATA);
 }

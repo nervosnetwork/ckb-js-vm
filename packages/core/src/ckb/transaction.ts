@@ -1,9 +1,14 @@
-import { Bytes, BytesLike, bytesFrom } from "../bytes/index";
+import { Bytes, BytesLike } from "../bytes/index";
 import { mol } from "../molecule/index";
-import { Num, NumLike, numFromBytes, numToBytes } from "../num/index";
+import {
+  Num,
+  NumLike,
+  bigintFromBytes,
+  numFromBytes,
+  numToBytes,
+} from "../num/index";
 import { apply } from "../utils/index";
 import { Script, ScriptLike, ScriptOpt } from "./script";
-import { hashCkb, Hasher, HasherCkb } from "../hasher";
 
 /**
  * @public
@@ -51,7 +56,7 @@ export class OutPoint extends mol.Entity.Base<OutPointLike, OutPoint>() {
     if (outPoint instanceof OutPoint) {
       return outPoint;
     }
-    return new OutPoint(bytesFrom(outPoint.txHash), outPoint.index);
+    return new OutPoint(outPoint.txHash, outPoint.index);
   }
 }
 
@@ -164,7 +169,7 @@ export class Cell {
     return new Cell(
       OutPoint.from(cell.outPoint),
       CellOutput.from(cell.cellOutput),
-      bytesFrom(cell.outputData),
+      cell.outputData,
     );
   }
 
@@ -254,7 +259,7 @@ export class CellInput extends mol.Entity.Base<CellInputLike, CellInput>() {
       OutPoint.from(cellInput.previousOutput),
       cellInput.since ?? 0,
       apply(CellOutput.from, cellInput.cellOutput),
-      apply(bytesFrom, cellInput.outputData),
+      cellInput.outputData ?? undefined,
     );
   }
 }
@@ -391,9 +396,9 @@ export class WitnessArgs extends mol.Entity.Base<
     }
 
     return new WitnessArgs(
-      apply(bytesFrom, witnessArgs.lock),
-      apply(bytesFrom, witnessArgs.inputType),
-      apply(bytesFrom, witnessArgs.outputType),
+      witnessArgs.lock ?? undefined,
+      witnessArgs.inputType ?? undefined,
+      witnessArgs.outputType ?? undefined,
     );
   }
 }
@@ -401,9 +406,9 @@ export class WitnessArgs extends mol.Entity.Base<
 /**
  * @public
  */
-export function udtBalanceFrom(dataLike: BytesLike): Num {
-  const data = bytesFrom(dataLike).slice(0, 16);
-  return numFromBytes(data);
+export function udtBalanceFrom(dataLike: BytesLike): bigint {
+  const data = dataLike.slice(0, 16);
+  return bigintFromBytes(data);
 }
 
 export const RawTransaction = mol.table({
@@ -475,60 +480,6 @@ export class Transaction extends mol.Entity.Base<
   ) {
     super();
   }
-
-  /**
-   * Creates a default Transaction instance with empty fields.
-   *
-   * @returns A default Transaction instance.
-   *
-   * @example
-   * ```typescript
-   * const defaultTx = Transaction.default();
-   * ```
-   */
-  static default(): Transaction {
-    return new Transaction(0, [], [], [], [], [], []);
-  }
-
-  /**
-   * Copy every properties from another transaction.
-   *
-   * @example
-   * ```typescript
-   * this.copy(Transaction.default());
-   * ```
-   */
-  copy(txLike: TransactionLike) {
-    const tx = Transaction.from(txLike);
-    this.version = tx.version;
-    this.cellDeps = tx.cellDeps;
-    this.headerDeps = tx.headerDeps;
-    this.inputs = tx.inputs;
-    this.outputs = tx.outputs;
-    this.outputsData = tx.outputsData;
-    this.witnesses = tx.witnesses;
-  }
-
-  /**
-   * Creates a Transaction instance from a TransactionLike object.
-   *
-   * @param tx - A TransactionLike object or an instance of Transaction.
-   * @returns A Transaction instance.
-   *
-   * @example
-   * ```typescript
-   * const transaction = Transaction.from({
-   *   version: 0,
-   *   cellDeps: [],
-   *   headerDeps: [],
-   *   inputs: [],
-   *   outputs: [],
-   *   outputsData: [],
-   *   witnesses: []
-   * });
-   * ```
-   */
-
   static from(tx: TransactionLike): Transaction {
     if (tx instanceof Transaction) {
       return tx;
@@ -540,241 +491,27 @@ export class Transaction extends mol.Entity.Base<
           capacity: output.capacity ?? 0,
         });
         if (o.capacity === 0) {
-          o.capacity =
-            o.occupiedSize +
-            (apply(bytesFrom, tx.outputsData?.[i])?.length ?? 0);
+          o.capacity = o.occupiedSize + (tx.outputsData?.[i]?.byteLength ?? 0);
         }
         return o;
       }) ?? [];
-    const outputsData = outputs.map((_, i) =>
-      bytesFrom(tx.outputsData?.[i] ?? new Uint8Array(0)),
+    const outputsData = outputs.map(
+      (_, i) => tx.outputsData?.[i] ?? new ArrayBuffer(0),
     );
     if (tx.outputsData != null && outputsData.length < tx.outputsData.length) {
       outputsData.push(
-        ...tx.outputsData.slice(outputsData.length).map((d) => bytesFrom(d)),
+        ...tx.outputsData.slice(outputsData.length).map((d) => d),
       );
     }
 
     return new Transaction(
       tx.version ?? 0,
       tx.cellDeps?.map((cellDep) => CellDep.from(cellDep)) ?? [],
-      tx.headerDeps?.map(bytesFrom) ?? [],
+      tx.headerDeps ?? [],
       tx.inputs?.map((input) => CellInput.from(input)) ?? [],
       outputs,
       outputsData,
-      tx.witnesses?.map(bytesFrom) ?? [],
+      tx.witnesses ?? [],
     );
-  }
-
-  stringify(): string {
-    return JSON.stringify(this, (_, value) => {
-      if (typeof value === "bigint") {
-        return numToBytes(Number(value), 8);
-      }
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-      return value;
-    });
-  }
-
-  /**
-   * Converts the raw transaction data to bytes.
-   *
-   * @returns A Uint8Array containing the raw transaction bytes.
-   *
-   * @example
-   * ```typescript
-   * const rawTxBytes = transaction.rawToBytes();
-   * ```
-   */
-  rawToBytes(): Bytes {
-    return RawTransaction.encode(this);
-  }
-
-  /**
-   * Calculates the hash of the transaction without witnesses. This is the transaction hash in the usual sense.
-   * To calculate the hash of the whole transaction including the witnesses, use transaction.hashFull() instead.
-   *
-   * @returns The hash of the transaction.
-   *
-   * @example
-   * ```typescript
-   * const txHash = transaction.hash();
-   * ```
-   */
-  hash(): Bytes {
-    return hashCkb(this.rawToBytes());
-  }
-
-  /**
-   * Calculates the hash of the transaction with witnesses.
-   *
-   * @returns The hash of the transaction with witnesses.
-   *
-   * @example
-   * ```typescript
-   * const txFullHash = transaction.hashFull();
-   * ```
-   */
-  hashFull(): Bytes {
-    return hashCkb(this.toBytes());
-  }
-
-  /**
-   * Hashes a witness and updates the hasher.
-   *
-   * @param witness - The witness to hash.
-   * @param hasher - The hasher instance to update.
-   *
-   * @example
-   * ```typescript
-   * Transaction.hashWitnessToHasher("0x...", hasher);
-   * ```
-   */
-  static hashWitnessToHasher(witness: BytesLike, hasher: Hasher) {
-    const raw = bytesFrom(witness);
-    hasher.update(numToBytes(raw.length, 8));
-    hasher.update(raw);
-  }
-
-  /**
-   * Computes the signing hash information for a given script.
-   *
-   * @param scriptLike - The script associated with the transaction, represented as a ScriptLike object.
-   * @returns A promise that resolves to an object containing the signing message and the witness position,
-   *          or undefined if no matching input is found.
-   *
-   * @example
-   * ```typescript
-   * const signHashInfo = tx.getSignHashInfo(scriptLike, client);
-   * if (signHashInfo) {
-   *   console.log(signHashInfo.message); // Outputs the signing message
-   *   console.log(signHashInfo.position); // Outputs the witness position
-   * }
-   * ```
-   */
-  getSignHashInfo(
-    scriptLike: ScriptLike,
-    hasher: Hasher = new HasherCkb(),
-  ): { message: Bytes; position: number } | undefined {
-    const script = Script.from(scriptLike);
-    let position = -1;
-    hasher.update(this.hash());
-
-    for (let i = 0; i < this.witnesses.length; i += 1) {
-      const input = this.inputs[i];
-      if (input) {
-        // input.completeExtraInfos(client);
-
-        if (!input.cellOutput) {
-          throw new Error("Unable to complete input");
-        }
-
-        if (!script.eq(input.cellOutput.lock)) {
-          continue;
-        }
-
-        if (position === -1) {
-          position = i;
-        }
-      }
-
-      if (position === -1) {
-        return undefined;
-      }
-
-      Transaction.hashWitnessToHasher(this.witnesses[i], hasher);
-    }
-
-    if (position === -1) {
-      return undefined;
-    }
-
-    return {
-      message: hasher.digest(),
-      position,
-    };
-  }
-  /**
-   * Get witness at index as WitnessArgs
-   *
-   * @param index - The index of the witness.
-   * @returns The witness parsed as WitnessArgs.
-   *
-   * @example
-   * ```typescript
-   * const witnessArgs = tx.getWitnessArgsAt(0);
-   * ```
-   */
-  getWitnessArgsAt(index: number): WitnessArgs | undefined {
-    const rawWitness = this.witnesses[index];
-    return rawWitness.length > 0
-      ? WitnessArgs.fromBytes(rawWitness)
-      : undefined;
-  }
-
-  /**
-   * Set witness at index by WitnessArgs
-   *
-   * @param index - The index of the witness.
-   * @param witness - The WitnessArgs to set.
-   *
-   * @example
-   * ```typescript
-   * tx.setWitnessArgsAt(0, witnessArgs);
-   * ```
-   */
-  setWitnessArgsAt(index: number, witness: WitnessArgs): void {
-    if (this.witnesses.length < index) {
-      this.witnesses.push(
-        ...Array.from(
-          new Array(index - this.witnesses.length),
-          (): Bytes => new Uint8Array(0),
-        ),
-      );
-    }
-
-    this.witnesses[index] = witness.toBytes();
-  }
-
-  findInputIndexByLock(scriptIdLike: ScriptLike): number | undefined {
-    const script = Script.from(scriptIdLike);
-
-    for (let i = 0; i < this.inputs.length; i += 1) {
-      const input = this.inputs[i];
-      if (!input.cellOutput) {
-        throw new Error("Unable to complete input");
-      }
-
-      if (
-        script.codeHash === input.cellOutput.lock.codeHash &&
-        script.hashType === input.cellOutput.lock.hashType
-      ) {
-        return i;
-      }
-    }
-    return undefined;
-  }
-
-  /**
-   * Prepare dummy witness for sighash all method
-   *
-   * @param scriptLike - The script associated with the transaction, represented as a ScriptLike object.
-   * @param lockLen - The length of dummy lock bytes.
-   * @returns A promise that resolves to the prepared transaction
-   *
-   * @example
-   * ```typescript
-   * tx.prepareSighashAllWitness(scriptLike, 85, client);
-   * ```
-   */
-  prepareSighashAllWitness(scriptLike: ScriptLike, lockLen: number): void {
-    const position = this.findInputIndexByLock(scriptLike);
-    if (position === undefined) {
-      return;
-    }
-
-    const witness = this.getWitnessArgsAt(position) ?? WitnessArgs.from({});
-    witness.lock = new Uint8Array(lockLen);
-    this.setWitnessArgsAt(position, witness);
   }
 }

@@ -13,7 +13,7 @@ function main() {
       bindings.loadCellByField(index, source, bindings.CELL_FIELD_LOCK_HASH),
     bindings.SOURCE_INPUT,
   )) {
-    if (bytesEq(new Uint8Array(lock_hash), real_args)) {
+    if (bytesEq(lock_hash, real_args)) {
       // owner mode, return immediately
       return 0;
     }

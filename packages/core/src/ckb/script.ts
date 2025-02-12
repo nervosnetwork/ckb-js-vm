@@ -1,4 +1,4 @@
-import { Bytes, BytesLike, bytesFrom } from "../bytes/index";
+import { Bytes, BytesLike } from "../bytes/index";
 import { mol } from "../molecule/index";
 
 export const HashTypeCodec: mol.Codec<HashTypeLike, HashType> = mol.Codec.from({
@@ -37,7 +37,7 @@ export function hashTypeFrom(val: HashTypeLike): HashType {
  */
 
 export function hashTypeToBytes(hashType: HashTypeLike): Bytes {
-  return bytesFrom(new Uint8Array([hashTypeFrom(hashType)]));
+  return new Uint8Array([hashTypeFrom(hashType)]).buffer;
 }
 
 /**
@@ -56,7 +56,7 @@ export function hashTypeToBytes(hashType: HashTypeLike): Bytes {
  */
 
 export function hashTypeFromBytes(bytes: BytesLike): HashType {
-  return hashTypeFrom(bytesFrom(bytes)[0]);
+  return hashTypeFrom(new Uint8Array(bytes)[0]);
 }
 
 /**
@@ -94,7 +94,7 @@ export class Script extends mol.Entity.Base<ScriptLike, Script>() {
   }
 
   get occupiedSize(): number {
-    return 33 + bytesFrom(this.args).length;
+    return 33 + this.args.byteLength;
   }
 
   /**
@@ -133,9 +133,9 @@ export class Script extends mol.Entity.Base<ScriptLike, Script>() {
     }
 
     return new Script(
-      bytesFrom(script.codeHash),
+      script.codeHash,
       hashTypeFrom(script.hashType),
-      bytesFrom(script.args),
+      script.args,
     );
   }
 }

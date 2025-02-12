@@ -1,4 +1,4 @@
-import { Bytes, BytesLike, bytesFrom } from "../bytes/index";
+import { Bytes, BytesLike } from "../bytes/index";
 import { CellInput, CellInputLike } from "../ckb/index";
 import { NumLike, numToBytes } from "../num/index";
 import { CKB_BLAKE2B_PERSONAL } from "./advanced";
@@ -37,7 +37,7 @@ export class HasherCkb implements Hasher {
    * ```
    */
 
-  update(data: BytesLike): HasherCkb {
+  update(data: Bytes): HasherCkb {
     this.hasher.update(data);
     return this;
   }
@@ -57,7 +57,7 @@ export class HasherCkb implements Hasher {
 
   digest(): Bytes {
     let result = this.hasher.finalize();
-    return new Uint8Array(result).slice(0, this.outLength);
+    return result.slice(0, this.outLength);
   }
 }
 

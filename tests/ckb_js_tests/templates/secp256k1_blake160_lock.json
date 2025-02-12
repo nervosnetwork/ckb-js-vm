@@ -1,0 +1,80 @@
+{
+  "mock_info": {
+    "inputs": [
+      {
+        "output": {
+          "capacity": "0x10000000",
+          "lock": {
+            "args": "0x0000{{ ref_type js-code-file }}010000000000000000000000000000000000000000",
+            "code_hash": "0x{{ ref_type ckb-js-vm }}",
+            "hash_type": "type"
+          }
+        },
+        "data": "0x11000000000000000000000000000000"
+      }
+    ],
+    "cell_deps": [
+      {
+        "output": {
+          "capacity": "0x10000000",
+          "lock": {
+              "args": "0x00AE9DF3447C404A645BC48BEA4B7643B95AC5C3AE",
+              "code_hash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+              "hash_type": "data1"
+          },
+          "type": "{{ def_type ckb-js-vm }}"
+        },
+        "data": "0x{{ data ../../../build/ckb-js-vm }}"
+      },
+      {
+        "output": {
+          "capacity": "0x10000000",
+          "lock": {
+              "args": "0x00AE9DF3447C404A645BC48BEA4B7643B95AC5C3AE",
+              "code_hash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+              "hash_type": "data1"
+          },
+          "type": "{{ def_type js-code-file }}"
+        },
+        "data": "0x{{ data ../../../packages/examples/dist/secp256k1_blake160_lock.bc }}"
+      }
+    ],
+    "header_deps": []
+  },
+  "tx": {
+    "outputs": [
+      {
+        "capacity": "0x0",
+        "lock": {
+          "args": "0x",
+          "code_hash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "hash_type": "type"
+        }
+      },
+      {
+        "capacity": "0x0",
+        "lock": {
+          "args": "0x",
+          "code_hash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "hash_type": "type"
+        }
+      },
+      {
+        "capacity": "0x0",
+        "lock": {
+          "args": "0x",
+          "code_hash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "hash_type": "type"
+        }
+      }
+    ],
+    "witnesses": [
+      "0x5500000010000000550000005500000041000000725e20eeee617616f881e65773fdb8d0f2d91619a71cfe18121f3fef67f9cfcb0c019c66ebf67ef2f41123443a786c554a5287ff2a3e92725fa14634c4f1550f01"
+    ],
+    "outputs_data": [
+      "0x10000000000000000000000000000000",
+      "0x01000000000000000000000000000000",
+      "0x00000000000000000000000000000000"
+    ]
+  }
+}

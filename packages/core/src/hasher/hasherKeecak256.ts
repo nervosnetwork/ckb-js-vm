@@ -1,4 +1,4 @@
-import { Bytes, BytesLike, bytesFrom } from "../bytes/index.js";
+import { Bytes, BytesLike } from "../bytes/index.js";
 import { Hasher } from "./hasher.js";
 import { Keccak256 } from "@ckb-js-std/bindings";
 
@@ -49,6 +49,6 @@ export class HasherKeecak256 implements Hasher {
    */
 
   digest(): Bytes {
-    return new Uint8Array(this.hasher.finalize());
+    return this.hasher.finalize();
   }
 }
