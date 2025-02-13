@@ -42,9 +42,7 @@ export function generateSighashAll(): Bytes {
     throw new Error("Wrong witness args");
   }
 
-  log.debug(
-    `first witness is ${bindings.hex.encode(firstWitnessArgs.toBytes())}`,
-  );
+  log.debug(`first witness is ${JSON.stringify(firstWitnessArgs)}`);
 
   // Create zero-filled lock bytes of same length
   const zeroLock = new ArrayBuffer(firstWitnessArgs.lock.byteLength);
@@ -109,8 +107,9 @@ function main(): number {
   log.setLevel(log.LogLevel.Debug);
   log.debug("secp256k1_blake160_lock");
   const message = generateSighashAll();
-  log.debug(`message = ${new Uint8Array(message)}`);
+  log.debug(`message = ${JSON.stringify(message)}`);
   const script = HighLevel.loadScript();
+  log.debug(`script = ${JSON.stringify(script, null, 2)}`);
   const expected_pubkey_hash = script.args.slice(35);
 
   if (expected_pubkey_hash.byteLength !== 20) {
@@ -123,7 +122,7 @@ function main(): number {
   }
 
   const signature = witness.lock.slice(0, 64);
-  log.debug(`signature = ${new Uint8Array(signature)}`);
+  log.debug(`signature = ${JSON.stringify(signature)}`);
   const rec_id = new Uint8Array(witness.lock)[64];
   log.debug(`rec_id = ${rec_id}`);
   const pubkey = bindings.secp256k1.recover(signature, rec_id, message);

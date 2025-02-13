@@ -1,7 +1,21 @@
+import { hex } from "@ckb-js-std/bindings";
+
 // migrated from ccc
 export type Bytes = ArrayBuffer;
 
 export type BytesLike = ArrayBuffer;
+
+// Add toJSON method to ArrayBuffer prototype
+if (!ArrayBuffer.prototype.hasOwnProperty("toJSON")) {
+  Object.defineProperty(ArrayBuffer.prototype, "toJSON", {
+    value: function (this: ArrayBuffer) {
+      return `0x${hex.encode(this)}`;
+    },
+    enumerable: false,
+    writable: true,
+    configurable: true,
+  });
+}
 
 export function bytesConcat(...args: BytesLike[]): Bytes {
   return bytesConcatTo(new ArrayBuffer(0), ...args);

@@ -10,16 +10,17 @@ function report_cycles() {
 function main() {
   log.setLevel(log.LogLevel.Debug);
   report_cycles();
+
   let script = bindings.loadScript();
-  log.debug(`script length is ${script.byteLength}`);
+  log.debug(`raw current script: ${JSON.stringify(script)}`);
   report_cycles();
+
   let script_obj = Script.decode(script);
-  log.debug(`script code_hash = ${bindings.hex.encode(script_obj.codeHash)}`);
-  log.debug(`script hash_type = ${script_obj.hashType}`);
-  log.debug(`script args = ${bindings.hex.encode(script_obj.args)}`);
+  log.debug(`current script: ${JSON.stringify(script_obj)}`);
   report_cycles();
+
   let cell = HighLevel.loadCell(0, bindings.SOURCE_INPUT);
-  log.debug(`cell capacity is ${cell.capacity}`);
+  log.debug(`first input cell: ${JSON.stringify(cell)}`);
   report_cycles();
 
   let iter = new HighLevel.QueryIter(
@@ -27,16 +28,14 @@ function main() {
     bindings.SOURCE_INPUT,
   );
   for (let item of iter) {
-    log.debug(
-      `lock script's code hash is ${bindings.hex.encode(item.codeHash)}`,
-    );
+    log.debug(`list all input lock scripts: ${JSON.stringify(item)}`);
   }
   report_cycles();
 
   let tx = HighLevel.loadTransaction();
-  tx.outputs.forEach((output) => {
-    log.debug(`output capacity is ${output.capacity}`);
-  });
+  for (let output of tx.outputs) {
+    log.debug(`list all output cells: ${JSON.stringify(output)}`);
+  }
   report_cycles();
 }
 
