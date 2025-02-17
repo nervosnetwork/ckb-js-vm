@@ -32,7 +32,7 @@ importers:
   packages/core:
     dependencies:
       '@ckb-js-std/bindings':
-        specifier: workspace:*
+        specifier: workspace:../bindings
         version: link:../bindings
 
   packages/examples:

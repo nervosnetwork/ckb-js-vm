@@ -27,6 +27,6 @@
     "access": "public"
   },
   "dependencies": {
-    "@ckb-js-std/bindings": "workspace:*"
+    "@ckb-js-std/bindings": "workspace:../bindings"
   }
 }
