@@ -36,8 +36,7 @@ fs_bytecode:
 	cd $(BYTECODE_DIR) && $(FS_PACKER) pack fs_modules_bc.fs $(BYTECODE_FILES)
 	$(CKB_DEBUGGER) --max-cycles $(MAX_CYCLES) \
 		--read-file $(BYTECODE_DIR)/fs_modules_bc.fs \
-		--bin $(BIN_PATH) -- -f -r 2>&1 | \
-		fgrep 'Run result: 0'
+		--bin $(BIN_PATH) -- -f -r
 
 syscall:
 	cargo run --bin syscall | $(CKB_DEBUGGER) --tx-file=- -s lock
