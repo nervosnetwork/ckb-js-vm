@@ -4,7 +4,7 @@ BIN_PATH = $(ROOT_DIR)/../../build/ckb-js-vm
 MAX-CYCLES ?= 2000000000
 
 define run
-	$(CKB-DEBUGGER) --max-cycles $(MAX-CYCLES) --read-file $(ROOT_DIR)/$(1) --bin $(BIN_PATH) -- -r  2>&1 | fgrep 'Run result: 0'
+	$(CKB-DEBUGGER) --max-cycles $(MAX-CYCLES) --read-file $(ROOT_DIR)/$(1) --bin $(BIN_PATH) -- -r
 endef
 
 define debug
