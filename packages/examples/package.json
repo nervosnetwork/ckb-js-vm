@@ -4,7 +4,7 @@
   "description": "Write scripts in JavaScript on CKB-VM",
   "author": "CKB-VM Team",
   "license": "MIT",
-  "private": false,
+  "private": true,
   "homepage": "https://github.com/nervosnetwork/ckb-js-vm",
   "repository": {
     "type": "git",
