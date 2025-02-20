@@ -10,6 +10,7 @@
     "type": "git",
     "url": "https://github.com/nervosnetwork/ckb-js-vm.git"
   },
+  "type": "module",
   "scripts": {
     "format": "prettier --write .",
     "check:format": "prettier --check ."
