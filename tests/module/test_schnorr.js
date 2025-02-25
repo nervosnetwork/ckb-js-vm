@@ -11,7 +11,7 @@ function test_verify() {
     const pubkey = misc.hex.decode(
         '2504ea5763b6d7a51b50dbf5871e50f195b3e0297fe6272334be555d3e5231a6');
     const start = ckb.currentCycles();
-    const xonlyPubkey = schnorr.xonlyParsePubkey(pubkey);
+    const xonlyPubkey = schnorr.parseXonlyPubkey(pubkey);
     const success = schnorr.verify(sig, msg, xonlyPubkey);
     const end = ckb.currentCycles();
     console.log(`verify cycles: ${end - start}`);
@@ -23,8 +23,8 @@ function test_verify() {
 function test_pubkey() {
     const pubkey = misc.hex.decode(
         '2504ea5763b6d7a51b50dbf5871e50f195b3e0297fe6272334be555d3e5231a6');
-    const xonlyPubkey = schnorr.xonlyParsePubkey(pubkey);
-    const pubkey2 = schnorr.xonlySerializePubkey(xonlyPubkey);
+    const xonlyPubkey = schnorr.parseXonlyPubkey(pubkey);
+    const pubkey2 = schnorr.serializeXonlyPubkey(xonlyPubkey);
     console.assert(misc.hex.encode(pubkey) === misc.hex.encode(pubkey2), 'test_pubkey failed');
 }
 

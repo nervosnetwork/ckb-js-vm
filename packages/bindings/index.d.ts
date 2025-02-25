@@ -523,7 +523,7 @@ export const schnorr: {
    * @param pubkey - The x-only public key to serialize (64 bytes)
    * @returns The serialized x-only public key (32 bytes containing just the X coordinate)
    */
-  xonlySerializePubkey(pubkey: ArrayBuffer): ArrayBuffer;
+  serializeXonlyPubkey(pubkey: ArrayBuffer): ArrayBuffer;
 
   /**
    * Compute tagged SHA256 hash as specified in BIP340.
@@ -537,12 +537,12 @@ export const schnorr: {
 
   /**
    * Parse a serialized x-only public key from its 32-byte X coordinate.
-   * This is the inverse of xonlySerializePubkey. It reconstructs the full public key
+   * This is the inverse of serializeXonlyPubkey. It reconstructs the full public key
    * point from just the X coordinate.
    * @param serializedPubkey - The serialized x-only public key (32 bytes X coordinate)
    * @returns The parsed x-only public key (64 bytes containing reconstructed point)
    */
-  xonlyParsePubkey(serializedPubkey: ArrayBuffer): ArrayBuffer;
+  parseXonlyPubkey(serializedPubkey: ArrayBuffer): ArrayBuffer;
 
   /**
    * Verify a Schnorr signature according to BIP340 specification.

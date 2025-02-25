@@ -171,7 +171,7 @@ static const JSCFunctionListEntry secp256k1_obj_funcs[] = {
     JS_CFUNC_DEF("verify", 3, verify),
 };
 
-static JSValue schnorr_xonly_serialize_pubkey(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv) {
+static JSValue schnorr_serialize_xonly_pubkey(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv) {
     size_t pubkey_len;
     uint8_t *pubkey_data;
     secp256k1_xonly_pubkey pubkey;
@@ -228,7 +228,7 @@ static JSValue schnorr_tagged_sha256(JSContext *ctx, JSValueConst this_val, int 
     return JS_NewArrayBuffer(ctx, output, 32, free_array_buffer, ctx, false);
 }
 
-static JSValue schnorr_xonly_parse_pubkey(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv) {
+static JSValue schnorr_parse_xonly_pubkey(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv) {
     size_t input_len;
     uint8_t *input;
     secp256k1_xonly_pubkey pubkey;
@@ -283,9 +283,9 @@ static JSValue schnorr_verify(JSContext *ctx, JSValueConst this_val, int argc, J
 }
 
 static const JSCFunctionListEntry schnorr_obj_funcs[] = {
-    JS_CFUNC_DEF("xonlySerializePubkey", 1, schnorr_xonly_serialize_pubkey),
+    JS_CFUNC_DEF("serializeXonlyPubkey", 1, schnorr_serialize_xonly_pubkey),
     JS_CFUNC_DEF("taggedSha256", 2, schnorr_tagged_sha256),
-    JS_CFUNC_DEF("xonlyParsePubkey", 1, schnorr_xonly_parse_pubkey),
+    JS_CFUNC_DEF("parseXonlyPubkey", 1, schnorr_parse_xonly_pubkey),
     JS_CFUNC_DEF("verify", 3, schnorr_verify),
 };
 
