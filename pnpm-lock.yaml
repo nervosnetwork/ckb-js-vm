@@ -92,6 +92,34 @@ importers:
       '@ckb-js-std/core':
         specifier: workspace:*
         version: link:../core
+    devDependencies:
+      '@ckb-ccc/core':
+        specifier: ^1.5.0
+        version: 1.5.0(typescript@5.7.3)
+      '@types/jest':
+        specifier: ^29.5.14
+        version: 29.5.14
+      '@types/node':
+        specifier: ^22.13.4
+        version: 22.13.5
+      ckb-testtool:
+        specifier: workspace:*
+        version: link:../ckb-testtool
+      prettier:
+        specifier: ^3.2.5
+        version: 3.4.2
+      prettier-plugin-organize-imports:
+        specifier: ^3.2.4
+        version: 3.2.4(prettier@3.4.2)(typescript@5.7.3)
+      rimraf:
+        specifier: ^5.0.5
+        version: 5.0.10
+      typescript:
+        specifier: ^5.4.5
+        version: 5.7.3
+      typescript-eslint:
+        specifier: ^7.7.0
+        version: 7.18.0(eslint@9.18.0)(typescript@5.7.3)
 
 packages:
 
