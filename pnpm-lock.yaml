@@ -96,9 +96,6 @@ importers:
       '@ckb-ccc/core':
         specifier: ^1.5.0
         version: 1.5.0(typescript@5.7.3)
-      '@types/jest':
-        specifier: ^29.5.14
-        version: 29.5.14
       '@types/node':
         specifier: ^22.13.4
         version: 22.13.5
