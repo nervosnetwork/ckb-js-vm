@@ -17,23 +17,22 @@ You need to install [ckb-debugger](https://github.com/nervosnetwork/ckb-standalo
 
 ```typescript
 import {
-  DEFAULT_SCRIPT_ALWAYS_FAILURE,
-  DEFAULT_SCRIPT_ALWAYS_SUCCESS,
-  parseAllCycles,
-  parseRunResult,
-  Resource,
-  UnitTestClient,
-  Verifier,
+    DEFAULT_SCRIPT_ALWAYS_SUCCESS,
+    Resource,
+    Verifier,
 } from "ckb-testtool";
+
+import { hexFrom, Transaction } from "@ckb-ccc/core";
+import { readFileSync } from "fs";
 
 const resource = Resource.default();
 const tx = Transaction.default();
 
 // deploy a cell with risc-v binary, return a script.
 const lockScript = resource.deployCell(
-  hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_SUCCESS)),
-  tx,
-  false,
+    hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_SUCCESS)),
+    tx,
+    false,
 );
 // update args
 lockScript.args = "0xEEFF";
@@ -50,5 +49,5 @@ tx.outputsData.push(hexFrom("0x"));
 
 // verify the transaction
 const verifier = Verifier.from(resource, tx);
-verifier.verifySuccess();
+verifier.verifySuccess(true);
 ```
