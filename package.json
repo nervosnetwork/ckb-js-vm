@@ -19,10 +19,8 @@
     "typescript": "^5.7.3"
   },
   "pnpm": {
-    "ignoredBuiltDependencies": [
-      "esbuild"
-    ],
     "onlyBuiltDependencies": [
+      "esbuild",
       "secp256k1"
     ]
   }
