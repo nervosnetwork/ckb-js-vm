@@ -5,38 +5,47 @@ import {
   ClientPublicMainnet,
   WitnessArgs,
   hashCkb,
+  hashTypeToBytes,
 } from "@ckb-ccc/core";
 import { readFileSync } from "fs";
 import { Resource, UnitTestClient, Verifier } from "ckb-testtool";
 
 async function main() {
-  const prikey = new SignerCkbPrivateKey(
+  const privateKey = new SignerCkbPrivateKey(
     new ClientPublicMainnet(),
     "0x0000000000000000000000000000000000000000000000000000000000000001",
   );
-  const pubkey = prikey.publicKey;
+  const pubkey = privateKey.publicKey;
 
   const resource = Resource.default();
   const tx = Transaction.default();
 
-  const cellMetaJsExec = resource.deployCell(
+  const mainScript = resource.deployCell(
     hexFrom(readFileSync("../../build/ckb-js-vm")),
     tx,
     false,
   );
-  const cellMetaJsMain = resource.deployCell(
+  const lockScript = resource.deployCell(
     hexFrom(readFileSync("./dist/secp256k1_blake160_lock.bc")),
     tx,
     false,
   );
-  cellMetaJsExec.args = hexFrom(
+  mainScript.args = hexFrom(
     "0x0000" +
-      cellMetaJsMain.codeHash.slice(2) +
-      "00" +
+      lockScript.codeHash.slice(2) +
+      hexFrom(hashTypeToBytes(lockScript.hashType)).slice(2) +
       hashCkb(pubkey).slice(2, 42),
   );
-  const inputCell = resource.mockCell(cellMetaJsExec);
+  // 1 input cell
+  const inputCell = resource.mockCell(mainScript);
   tx.inputs.push(Resource.createCellInput(inputCell));
+
+  // 2 output cells
+  tx.outputs.push(Resource.createCellOutput(mainScript));
+  tx.outputsData.push(hexFrom("0x00"));
+  tx.outputs.push(Resource.createCellOutput(mainScript));
+  tx.outputsData.push(hexFrom("0x01"));
+
   tx.witnesses.push(
     hexFrom(
       new WitnessArgs(
@@ -47,13 +56,10 @@ async function main() {
     ),
   );
 
-  let mh = await tx.getSignHashInfo(
-    cellMetaJsExec,
-    new UnitTestClient(resource),
-  )!;
-  let sg = await prikey._signMessage(mh!.message);
+  let mh = await tx.getSignHashInfo(mainScript, new UnitTestClient(resource))!;
+  let signature = await privateKey._signMessage(mh!.message);
   tx.witnesses[0] = hexFrom(
-    new WitnessArgs(sg, undefined, undefined).toBytes(),
+    new WitnessArgs(signature, undefined, undefined).toBytes(),
   );
   const verifier = Verifier.from(resource, tx);
   verifier.verifySuccess(true);
