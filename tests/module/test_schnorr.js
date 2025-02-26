@@ -37,9 +37,45 @@ function test_tagged_sha256() {
     console.assert(misc.hex.encode(hash) === misc.hex.encode(expected), 'test_tagged_sha256 failed');
 }
 
+function test_invalid_pubkey() {
+    const sig = misc.hex.decode(
+        '52420fa2807eac7336c15ec7db76b41c3247f8457a1533bd783378e563cb33c43e5a8b17e91badaa290c02d3f8ce50df130c9d09c90c288d9d2be0e5976a5354');
+    const msg = misc.hex.decode(
+        '1bd69c075dd7b78c4f20a698b22a3fb9d7461525c39827d6aaf7a1628be0a283');
+    // Modified the first byte to make the pubkey invalid
+    const invalidPubkey = misc.hex.decode(
+        '3504ea5763b6d7a51b50dbf5871e50f195b3e0297fe6272334be555d3e5231a6');
+    const start = ckb.currentCycles();
+    const xonlyPubkey = schnorr.parseXonlyPubkey(invalidPubkey);
+    const success = schnorr.verify(sig, msg, xonlyPubkey);
+    const end = ckb.currentCycles();
+    console.log(`invalid pubkey verify cycles: ${end - start}`);
+    console.assert(!success, 'test_invalid_pubkey should fail');
+
+    console.log('test_invalid_pubkey ok');
+}
+
+function test_invalid_signature() {
+    const invalidSig = misc.hex.decode(
+        '62420fa2807eac7336c15ec7db76b41c3247f8457a1533bd783378e563cb33c43e5a8b17e91badaa290c02d3f8ce50df130c9d09c90c288d9d2be0e5976a5354');
+    const msg = misc.hex.decode(
+        '1bd69c075dd7b78c4f20a698b22a3fb9d7461525c39827d6aaf7a1628be0a283');
+    const pubkey = misc.hex.decode(
+        '2504ea5763b6d7a51b50dbf5871e50f195b3e0297fe6272334be555d3e5231a6');
+    const start = ckb.currentCycles();
+    const xonlyPubkey = schnorr.parseXonlyPubkey(pubkey);
+    const success = schnorr.verify(invalidSig, msg, xonlyPubkey);
+    const end = ckb.currentCycles();
+    console.log(`invalid signature verify cycles: ${end - start}`);
+    console.assert(!success, 'test_invalid_signature should fail');
+
+    console.log('test_invalid_signature ok');
+}
 
 console.log('test_schnorr.js ...');
 test_verify();
 test_pubkey();
 test_tagged_sha256();
+test_invalid_pubkey();
+test_invalid_signature();
 console.log('test_schnorr.js ok');
