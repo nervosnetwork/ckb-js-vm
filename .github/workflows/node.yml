@@ -31,5 +31,7 @@ jobs:
       run: pnpm run build
     - name: Run examples
       run: cd packages/examples && pnpm run start && pnpm run build:simple_udt && pnpm run build:lock
+    - name: Run ckb-testtool
+      run: cd packages/ckb-testtool && pnpm build && pnpm test
     - name: Generate typedoc
       run: pnpm run docs

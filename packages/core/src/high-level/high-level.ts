@@ -8,7 +8,7 @@
  * - Querying cell data and metadata
  * - Iterating over collections of cells
  *
- * Some low-level functions from `bindings` (e.g., loadWitness, loadScriptHash, exec)
+ * Some low-level functions from `bindings` (e.g., loadWitness, loadScriptHash, execCell, spawnCell)
  * can be used directly when needed.
  *
  */
@@ -35,7 +35,7 @@ import { Bytes, bytesEq } from "../bytes";
  *
  * @example
  * ```typescript
- * const cellOutput = loadCell(0, SourceType.INPUT);
+ * const cellOutput = loadCell(0, SOURCE_INPUT);
  * ```
  *
  * **Note:** This function can throw if the underlying data is too large,
@@ -59,7 +59,7 @@ export function loadCell(
  *
  * @example
  * ```typescript
- * const input = loadInput(0, SourceType.INPUT);
+ * const input = loadInput(0, SOURCE_INPUT);
  * ```
  */
 export function loadInput(
@@ -68,6 +68,21 @@ export function loadInput(
 ): CellInput {
   let bytes = bindings.loadInput(index, source);
   return CellInput.fromBytes(bytes);
+}
+
+/**
+ * Load raw witness
+ *
+ * @param index - The index of the witness to load
+ * @param source - The source to load the witness from
+ * @returns The loaded witness
+ */
+export function loadWitness(
+  index: number,
+  source: bindings.SourceType,
+): ArrayBuffer {
+  let bytes = bindings.loadWitness(index, source);
+  return bytes;
 }
 
 /**
@@ -80,7 +95,7 @@ export function loadInput(
  *
  * @example
  * ```typescript
- * const witnessArgs = loadWitnessArgs(0, SourceType.INPUT);
+ * const witnessArgs = loadWitnessArgs(0, SOURCE_INPUT);
  * ```
  *
  * **Note:** This function can throw if the underlying data is too large,
@@ -114,6 +129,28 @@ export function loadTransaction(): Transaction {
 }
 
 /**
+ * Load transaction hash
+ *
+ * @returns The hash of the current transaction
+ * @throws Error if there's a system error
+ */
+export function loadTxHash(): Bytes {
+  let bytes = bindings.loadTxHash();
+  return bytes;
+}
+
+/**
+ * Load current script hash
+ *
+ * @returns The hash of the current script
+ * @throws Error if there's a system error
+ */
+export function loadScriptHash(): Bytes {
+  let bytes = bindings.loadScriptHash();
+  return bytes;
+}
+
+/**
  * Load cell capacity
  *
  * @param index - The index of the cell to load
@@ -123,7 +160,7 @@ export function loadTransaction(): Transaction {
  *
  * @example
  * ```typescript
- * const capacity = loadCellCapacity(0, SourceType.INPUT);
+ * const capacity = loadCellCapacity(0, SOURCE_INPUT);
  * ```
  */
 export function loadCellCapacity(
@@ -148,7 +185,7 @@ export function loadCellCapacity(
  *
  * @example
  * ```typescript
- * const occupiedCapacity = loadCellOccupiedCapacity(0, SourceType.INPUT);
+ * const occupiedCapacity = loadCellOccupiedCapacity(0, SOURCE_INPUT);
  * ```
  */
 export function loadCellOccupiedCapacity(
@@ -164,6 +201,21 @@ export function loadCellOccupiedCapacity(
 }
 
 /**
+ * Load cell data
+ *
+ * @param index - The index of the cell to load
+ * @param source - The source to load the cell from
+ * @returns The data of the cell
+ */
+export function loadCellData(
+  index: number,
+  source: bindings.SourceType,
+): ArrayBuffer {
+  let bytes = bindings.loadCellData(index, source);
+  return bytes;
+}
+
+/**
  * Load cell type hash
  *
  * @param index - The index of the cell to load
@@ -173,7 +225,7 @@ export function loadCellOccupiedCapacity(
  *
  * @example
  * ```typescript
- * const typeHash = loadCellTypeHash(0, SourceType.INPUT);
+ * const typeHash = loadCellTypeHash(0, SOURCE_INPUT);
  * if (typeHash !== null) {
  *   // Cell has a type script
  * }
@@ -209,7 +261,7 @@ export function loadCellTypeHash(
  *
  * @example
  * ```typescript
- * const lock = loadCellLock(0, SourceType.INPUT);
+ * const lock = loadCellLock(0, SOURCE_INPUT);
  * ```
  */
 export function loadCellLock(
@@ -218,6 +270,30 @@ export function loadCellLock(
 ): Script {
   let bytes = bindings.loadCellByField(index, source, bindings.CELL_FIELD_LOCK);
   return Script.fromBytes(bytes);
+}
+/**
+ * Load cell lock hash
+ *
+ * @param index - The index of the cell
+ * @param source - The source to load the cell from
+ * @returns The lock script hash of the cell
+ * @throws Error if there's a system error or if the cell cannot be found
+ *
+ * @example
+ * ```typescript
+ * const lockHash = loadCellLockHash(0, SOURCE_INPUT);
+ * ```
+ */
+export function loadCellLockHash(
+  index: number,
+  source: bindings.SourceType,
+): Bytes {
+  let bytes = bindings.loadCellByField(
+    index,
+    source,
+    bindings.CELL_FIELD_LOCK_HASH,
+  );
+  return bytes;
 }
 
 /**
@@ -230,7 +306,7 @@ export function loadCellLock(
  *
  * @example
  * ```typescript
- * const type = loadCellType(0, SourceType.INPUT);
+ * const type = loadCellType(0, SOURCE_INPUT);
  * if (type !== null) {
  *   // Cell has a type script
  * }
@@ -266,7 +342,7 @@ export function loadCellType(
  *
  * @example
  * ```typescript
- * const epochNumber = loadHeaderEpochNumber(0, SourceType.INPUT);
+ * const epochNumber = loadHeaderEpochNumber(0, SOURCE_INPUT);
  * ```
  */
 export function loadHeaderEpochNumber(
@@ -291,7 +367,7 @@ export function loadHeaderEpochNumber(
  *
  * @example
  * ```typescript
- * const epochStartBlockNumber = loadHeaderEpochStartBlockNumber(0, SourceType.INPUT);
+ * const epochStartBlockNumber = loadHeaderEpochStartBlockNumber(0, SOURCE_INPUT);
  * ```
  */
 export function loadHeaderEpochStartBlockNumber(
@@ -316,7 +392,7 @@ export function loadHeaderEpochStartBlockNumber(
  *
  * @example
  * ```typescript
- * const epochLength = loadHeaderEpochLength(0, SourceType.INPUT);
+ * const epochLength = loadHeaderEpochLength(0, SOURCE_INPUT);
  * ```
  */
 export function loadHeaderEpochLength(
@@ -341,7 +417,7 @@ export function loadHeaderEpochLength(
  *
  * @example
  * ```typescript
- * const since = loadInputSince(0, SourceType.INPUT);
+ * const since = loadInputSince(0, SOURCE_INPUT);
  * ```
  */
 export function loadInputSince(
@@ -366,7 +442,7 @@ export function loadInputSince(
  *
  * @example
  * ```typescript
- * const outPoint = loadInputOutPoint(0, SourceType.INPUT);
+ * const outPoint = loadInputOutPoint(0, SOURCE_INPUT);
  * ```
  */
 export function loadInputOutPoint(
@@ -414,7 +490,7 @@ export type QueryFunction<T> = (
  * ```typescript
  * import { loadCellCapacity } from './high-level';
  * // Calculate all inputs capacity
- * const iter = new QueryIter(loadCellCapacity, SourceType.INPUT);
+ * const iter = new QueryIter(loadCellCapacity, SOURCE_INPUT);
  * const inputsCapacity = iter.toArray().reduce((sum, cap) => sum + cap, 0n);
  *
  * // Calculate all outputs capacity
