@@ -513,6 +513,53 @@ export const secp256k1: {
 };
 
 /**
+ * Schnorr signature cryptographic functions following the BIP340 specification
+ */
+export const schnorr: {
+  /**
+   * Serialize an x-only public key to 32 bytes.
+   * Takes a 64-byte public key (containing an X and Y coordinate) and serializes
+   * just the X coordinate as per BIP340 specification.
+   * @param pubkey - The x-only public key to serialize (64 bytes)
+   * @returns The serialized x-only public key (32 bytes containing just the X coordinate)
+   */
+  serializeXonlyPubkey(pubkey: ArrayBuffer): ArrayBuffer;
+
+  /**
+   * Compute tagged SHA256 hash as specified in BIP340.
+   * This creates a tagged hash by first hashing the tag name and then combining it
+   * with the message in a specific way to create domain separation.
+   * @param tag - The domain separation tag data
+   * @param msg - The message data to hash
+   * @returns The 32-byte tagged hash result following BIP340 specification
+   */
+  taggedSha256(tag: ArrayBuffer, msg: ArrayBuffer): ArrayBuffer;
+
+  /**
+   * Parse a serialized x-only public key from its 32-byte X coordinate.
+   * This is the inverse of serializeXonlyPubkey. It reconstructs the full public key
+   * point from just the X coordinate.
+   * @param serializedPubkey - The serialized x-only public key (32 bytes X coordinate)
+   * @returns The parsed x-only public key (64 bytes containing reconstructed point)
+   */
+  parseXonlyPubkey(serializedPubkey: ArrayBuffer): ArrayBuffer;
+
+  /**
+   * Verify a Schnorr signature according to BIP340 specification.
+   * This verification includes the tagged hashing scheme defined in BIP340.
+   * @param signature - The 64-byte Schnorr signature (R,s format)
+   * @param messageHash - The 32-byte message hash to verify against
+   * @param pubkey - The x-only public key to verify with (must be 64 bytes)
+   * @returns True if the signature is valid according to BIP340, false otherwise
+   */
+  verify(
+    signature: ArrayBuffer,
+    messageHash: ArrayBuffer,
+    pubkey: ArrayBuffer,
+  ): boolean;
+};
+
+/**
  * Sparse Merkle Tree implementation
  */
 export class Smt {

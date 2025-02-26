@@ -25,7 +25,7 @@ function test_ckb_smt_verify1(failure) {
     const startInsert = ckb.currentCycles();
     smt.insert(key, value);
     const endInsert = ckb.currentCycles();
-    console.log(`SMT insert cycles: ${endInsert - startInsert}`);
+    // console.log(`SMT insert cycles: ${endInsert - startInsert}`);
 
     if (failure) {
         // Verify proof and measure cycles
@@ -34,14 +34,14 @@ function test_ckb_smt_verify1(failure) {
             '0000000000000000000000000000000000000000000000000000000000000000');
         const isValid = smt.verify(wrongRootHash, proof);
         const endVerify = ckb.currentCycles();
-        console.log(`SMT verify cycles: ${endVerify - startVerify}`);
+        // console.log(`SMT verify cycles: ${endVerify - startVerify}`);
         console.assert(isValid === false, 'SMT verification should fail');
     } else {
         // Verify proof and measure cycles
         const startVerify = ckb.currentCycles();
         const isValid = smt.verify(rootHash, proof);
         const endVerify = ckb.currentCycles();
-        console.log(`SMT verify cycles: ${endVerify - startVerify}`);
+        // console.log(`SMT verify cycles: ${endVerify - startVerify}`);
         console.assert(isValid === true, 'SMT verification failed');
     }
 
@@ -68,7 +68,7 @@ function test_ckb_smt_verify2(failure) {
     const startInsert = ckb.currentCycles();
     smt.insert(key, value);
     const endInsert = ckb.currentCycles();
-    console.log(`SMT verify2 insert cycles: ${endInsert - startInsert}`);
+    // console.log(`SMT verify2 insert cycles: ${endInsert - startInsert}`);
 
     if (failure) {
         const startVerify = ckb.currentCycles();
@@ -76,13 +76,13 @@ function test_ckb_smt_verify2(failure) {
             '0000000000000000000000000000000000000000000000000000000000000000');
         const isValid = smt.verify(rootHash, wrongProof);
         const endVerify = ckb.currentCycles();
-        console.log(`SMT verify2 verify cycles: ${endVerify - startVerify}`);
+        // console.log(`SMT verify2 verify cycles: ${endVerify - startVerify}`);
         console.assert(isValid === false, 'SMT verification2 should fail');
     } else {
         const startVerify = ckb.currentCycles();
         const isValid = smt.verify(rootHash, proof);
         const endVerify = ckb.currentCycles();
-        console.log(`SMT verify2 verify cycles: ${endVerify - startVerify}`);
+        // console.log(`SMT verify2 verify cycles: ${endVerify - startVerify}`);
         console.assert(isValid === true, 'SMT verification2 failed');
     }
     console.log('test_ckb_smt_verify2 ok');
@@ -108,12 +108,12 @@ function test_ckb_smt_verify3() {
     const startInsert = ckb.currentCycles();
     smt.insert(key, value);
     const endInsert = ckb.currentCycles();
-    console.log(`SMT verify3 insert cycles: ${endInsert - startInsert}`);
+    // console.log(`SMT verify3 insert cycles: ${endInsert - startInsert}`);
 
     const startVerify = ckb.currentCycles();
     const isValid = smt.verify(rootHash, proof);
     const endVerify = ckb.currentCycles();
-    console.log(`SMT verify3 verify cycles: ${endVerify - startVerify}`);
+    // console.log(`SMT verify3 verify cycles: ${endVerify - startVerify}`);
 
     console.assert(isValid === true, 'SMT verification3 failed');
     console.log('test_ckb_smt_verify3 ok');
@@ -139,12 +139,12 @@ function test_ckb_smt_verify_invalid() {
     const startInsert = ckb.currentCycles();
     smt.insert(key, value);
     const endInsert = ckb.currentCycles();
-    console.log(`SMT verify invalid insert cycles: ${endInsert - startInsert}`);
+    // console.log(`SMT verify invalid insert cycles: ${endInsert - startInsert}`);
 
     const startVerify = ckb.currentCycles();
     const isValid = smt.verify(rootHash, proof);
     const endVerify = ckb.currentCycles();
-    console.log(`SMT verify invalid verify cycles: ${endVerify - startVerify}`);
+    // console.log(`SMT verify invalid verify cycles: ${endVerify - startVerify}`);
 
     console.assert(isValid === false, 'SMT invalid verification should fail');
     console.log('test_ckb_smt_verify_invalid ok');

@@ -58,7 +58,9 @@ CFLAGS_BASE_SECP256k1 = $(CFLAGS_BASE) \
 	-I deps/secp256k1/include \
 	-DCKB_DECLARATION_ONLY \
 	-DECMULT_WINDOW_SIZE=6 \
-	-DENABLE_MODULE_RECOVERY
+	-DENABLE_MODULE_RECOVERY \
+	-DENABLE_MODULE_SCHNORRSIG \
+	-DENABLE_MODULE_EXTRAKEYS
 
 LDFLAGS := -static --gc-sections
 LDFLAGS += -Ldeps/compiler-rt-builtins-riscv/build -lcompiler-rt
