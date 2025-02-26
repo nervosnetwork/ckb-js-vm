@@ -65,4 +65,8 @@ async function main() {
   verifier.verifySuccess(true);
 }
 
-main();
+describe("secp256k1_blake160_lock", () => {
+  test("success", () => {
+    main();
+  });
+});
