@@ -21,6 +21,9 @@
   "pnpm": {
     "ignoredBuiltDependencies": [
       "esbuild"
+    ],
+    "onlyBuiltDependencies": [
+      "secp256k1"
     ]
   }
 }
