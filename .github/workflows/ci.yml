@@ -25,6 +25,11 @@ jobs:
       run: make all
     - name: Install tools
       run: make install
+    - name: Install ckb-debugger
+      run: |
+        wget 'https://github.com/nervosnetwork/ckb-standalone-debugger/releases/download/v0.200.0-rc1/ckb-debugger-linux-x64.tar.gz'
+        tar xzvf ckb-debugger-linux-x64.tar.gz
+        mv ckb-debugger ~/.cargo/bin
     - name: Tests
       run: make test
     - name: Benchmark
