@@ -7,19 +7,19 @@ function main() {
 
   let script = HighLevel.loadScript();
   // ckb-js-vm has leading 35 bytes args
-  let real_args = script.args.slice(35);
-  for (let lock_hash of new HighLevel.QueryIter(
+  let readArgs = script.args.slice(35);
+  for (let lockHash of new HighLevel.QueryIter(
     (index, source) =>
       bindings.loadCellByField(index, source, bindings.CELL_FIELD_LOCK_HASH),
     bindings.SOURCE_INPUT,
   )) {
-    if (bytesEq(lock_hash, real_args)) {
+    if (bytesEq(lockHash, readArgs)) {
       // owner mode, return immediately
       return 0;
     }
   }
 
-  let input_amount = [
+  let inputAmount = [
     ...new HighLevel.QueryIter(
       bindings.loadCellData,
       bindings.SOURCE_GROUP_INPUT,
@@ -34,7 +34,7 @@ function main() {
     })
     .reduce((sum, amount) => sum + amount, 0n);
 
-  let output_amount = [
+  let outputAmount = [
     ...new HighLevel.QueryIter(
       bindings.loadCellData,
       bindings.SOURCE_GROUP_OUTPUT,
@@ -49,8 +49,8 @@ function main() {
     })
     .reduce((sum, amount) => sum + amount, 0n);
 
-  log.debug(`verifying amount: ${input_amount} and ${output_amount}`);
-  if (input_amount < output_amount) {
+  log.debug(`verifying amount: ${inputAmount} and ${outputAmount}`);
+  if (inputAmount < outputAmount) {
     return -1;
   }
   log.debug("Simple UDT quit successfully");
