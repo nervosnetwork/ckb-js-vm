@@ -166,8 +166,6 @@ checksum: all
 	shasum -a 256 build/ckb-js-vm > checksums.txt
 
 install:
-# TODO: use release version
-	cargo install --git https://github.com/nervosnetwork/ckb-standalone-debugger.git --rev 2911f2f ckb-debugger
 	npm install -g pnpm
 
 .phony: all clean
