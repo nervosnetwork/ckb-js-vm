@@ -7,7 +7,7 @@
     "build": "pnpm -r run build",
     "format": "pnpm -r run format",
     "check:format": "pnpm -r run check:format",
-    "publish": "pnpm build && pnpm -r run publish",
+    "publish": "pnpm build && pnpm -r publish",
     "docs": "typedoc"
   },
   "devDependencies": {
