@@ -1,1 +1,1 @@
-4ac7f135b75e178074bbfd0574c0f6dc4ab93f727e016810bb8fdc8bf080bc7a  build/ckb-js-vm
+520e8be5a73a664f1d8a7b90f8ae85ab97201ff760d72b7c6c53842bca3ca4ce  build/ckb-js-vm
