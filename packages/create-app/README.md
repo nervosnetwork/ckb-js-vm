@@ -4,5 +4,5 @@ create-ckb-js-vm-app is a CLI tool that helps you quickly bootstrap CKB script p
 # Getting Started
 
 ```bash
-pnpm create ckb-js-vm-app [project name] [options]
+pnpm create ckb-js-vm-app
 ```
