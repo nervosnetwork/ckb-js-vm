@@ -9,7 +9,7 @@
     "url": "https://github.com/nervosnetwork/ckb-js-vm.git"
   },
   "keywords": [
-    "create ckb-js-vm app"
+    "create ckb-js-vm on-chain script"
   ],
   "license": "MIT",
   "publishConfig": {

@@ -13,7 +13,15 @@ Ensure you have the following installed:
 - [ckb-debugger](https://github.com/nervosnetwork/ckb-standalone-debugger)
 - clang-18
 
-## Installation
+
+## Quick Start with create-ckb-js-vm-app (Recommended)
+
+```bash
+pnpm create ckb-js-vm-app
+```
+
+
+## Install Manually
 
 ### Building ckb-js-vm (On-chain Script)
 
