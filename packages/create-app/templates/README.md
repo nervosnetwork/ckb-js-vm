@@ -1,4 +1,4 @@
-This is a [ckb-js-vm](https://github.com/nervosnetwork/ckb-js-vm) project bootstrapped with [`create-ckb-js-vm-app`](https://github.com/nervosnetwork/ckb-js-vm).
+This is an on-chain script project powered by [ckb-js-vm](https://github.com/nervosnetwork/ckb-js-vm) bootstrapped with [`create-ckb-js-vm-app`](https://github.com/nervosnetwork/ckb-js-vm).
 
 ## Getting Started
 

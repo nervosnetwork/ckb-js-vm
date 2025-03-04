@@ -4,12 +4,8 @@ import path from "path";
 import updateCheck from "update-check";
 import prompts from "prompts";
 import { bold, cyan, green, red, yellow } from "picocolors";
-import {
-  validateNpmName,
-  isFolderEmpty,
-  getPkgManager,
-  install,
-} from "./helpers";
+import validateProjectName from "validate-npm-package-name";
+import { spawn } from "child_process";
 import {
   bindingVersion,
   cccCoreVersion,
@@ -63,6 +59,55 @@ const program = new Command(packageJson.name)
 const opts = program.opts();
 
 const packageManager = getPkgManager();
+
+interface ValidationResult {
+  valid: boolean;
+  problems?: string[];
+}
+
+function validateNpmName(name: string): ValidationResult {
+  const nameValidation = validateProjectName(name);
+  if (nameValidation.validForNewPackages) {
+    return { valid: true };
+  }
+
+  return {
+    valid: false,
+    problems: [
+      ...(nameValidation.errors || []),
+      ...(nameValidation.warnings || []),
+    ],
+  };
+}
+
+function getPkgManager(): string {
+  return "pnpm";
+}
+
+function isFolderEmpty(folderPath: string): boolean {
+  const files = fs.readdirSync(folderPath);
+  return files.length === 0;
+}
+
+async function install(packageManager: string): Promise<void> {
+  const args = ["install"];
+
+  try {
+    await spawn(packageManager, args, {
+      stdio: "inherit",
+      env: {
+        ...process.env,
+        ADBLOCK: "1",
+        // we set NODE_ENV to development as pnpm skips dev
+        // dependencies when production
+        NODE_ENV: "development",
+        DISABLE_OPENCOLLECTIVE: "1",
+      },
+    });
+  } catch (error) {
+    throw { command: `${packageManager} ${args.join(" ")}` };
+  }
+}
 
 function updatePackageJson1(projectPath: string) {
   const packageJsonPath = path.join(
