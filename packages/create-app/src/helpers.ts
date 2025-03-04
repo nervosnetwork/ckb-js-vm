@@ -1,6 +1,6 @@
-import validateProjectName from 'validate-npm-package-name';
-import fs from 'fs-extra';
-import spawn from 'cross-spawn';
+import validateProjectName from "validate-npm-package-name";
+import fs from "fs-extra";
+import spawn from "cross-spawn";
 
 interface ValidationResult {
   valid: boolean;
@@ -23,7 +23,7 @@ export function validateNpmName(name: string): ValidationResult {
 }
 
 export function getPkgManager(): string {
-  return 'pnpm';
+  return "pnpm";
 }
 
 export function isFolderEmpty(folderPath: string): boolean {
@@ -32,23 +32,23 @@ export function isFolderEmpty(folderPath: string): boolean {
 }
 
 export async function install(packageManager: string): Promise<void> {
-  const args = ['install'];
+  const args = ["install"];
 
   return new Promise((resolve, reject) => {
     const child = spawn(packageManager, args, {
-      stdio: 'inherit',
+      stdio: "inherit",
       env: {
         ...process.env,
-        ADBLOCK: '1',
+        ADBLOCK: "1",
         // we set NODE_ENV to development as pnpm skips dev
         // dependencies when production
-        NODE_ENV: 'development',
-        DISABLE_OPENCOLLECTIVE: '1',
+        NODE_ENV: "development",
+        DISABLE_OPENCOLLECTIVE: "1",
       },
     });
-    child.on('close', (code) => {
+    child.on("close", (code) => {
       if (code !== 0) {
-        reject({ command: `${packageManager} ${args.join(' ')}` });
+        reject({ command: `${packageManager} ${args.join(" ")}` });
         return;
       }
       resolve();
