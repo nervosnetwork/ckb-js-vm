@@ -89,11 +89,11 @@ function isFolderEmpty(folderPath: string): boolean {
   return files.length === 0;
 }
 
-async function install(packageManager: string): Promise<void> {
+export async function install(packageManager: string): Promise<void> {
   const args = ["install"];
 
-  try {
-    await spawn(packageManager, args, {
+  return new Promise((resolve, reject) => {
+    const child = spawn(packageManager, args, {
       stdio: "inherit",
       env: {
         ...process.env,
@@ -104,9 +104,14 @@ async function install(packageManager: string): Promise<void> {
         DISABLE_OPENCOLLECTIVE: "1",
       },
     });
-  } catch (error) {
-    throw { command: `${packageManager} ${args.join(" ")}` };
-  }
+    child.on("close", (code) => {
+      if (code !== 0) {
+        reject({ command: `${packageManager} ${args.join(" ")}` });
+        return;
+      }
+      resolve();
+    });
+  });
 }
 
 function updatePackageJson1(projectPath: string) {
