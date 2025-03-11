@@ -37,7 +37,8 @@ reducing execution costs to under 50M cycles for typical JavaScript operationsâ€
 approaches.
 
 CKB imposes a 500KB size limitation for binaries deployed to a single cell, making QuickJS's focus on code size
-efficiency particularly valuable for on-chain scripts. The code size for essential features are quite small:
+efficiency particularly valuable for on-chain scripts. QuickJS places a strong emphasis on minimizing code size. For
+instance, the manual states:
 - The complete regular expression library requires only ~15 KiB (x86 code), excluding Unicode support
 - The full Unicode library adds approximately 45 KiB (x86 code)
 - BigInt, BigFloat, and BigDecimal functionality (via the libbf library) requires about 90 KiB (x86 code)
