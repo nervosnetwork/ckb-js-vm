@@ -8,6 +8,6 @@
 - [Writing Effective Unit Tests](./unit-tests.md)
 - [Simple File System and Modules](./file-system.md)
 - [Security Best Practices](./security.md)
+- [Performance and Bytecode Size Benchmarks](./benchmark.md)
 - [Big Number](./big-number.md)
-- [Performance Optimization](./benchmark.md)
 

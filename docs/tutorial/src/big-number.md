@@ -1,6 +1,6 @@
 # Big Number
 
-<TODO>
+TODO
 
-https://bellard.org/libbf/
-https://bellard.org/quickjs/jsbignum.html
+- https://bellard.org/libbf/
+- https://bellard.org/quickjs/jsbignum.html
