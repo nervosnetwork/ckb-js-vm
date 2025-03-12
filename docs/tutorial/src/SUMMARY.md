@@ -1,4 +1,4 @@
-# Summary
+# The Little Book of ckb-js-vm
 
 - [Introduction](./introduction.md)
 - [Getting Started](./getting-started.md)
@@ -9,5 +9,4 @@
 - [Simple File System and Modules](./file-system.md)
 - [Security Best Practices](./security.md)
 - [Performance and Bytecode Size Benchmarks](./benchmark.md)
-- [Big Number](./big-number.md)
 
