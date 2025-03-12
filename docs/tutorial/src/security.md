@@ -44,3 +44,6 @@ Instead, it unexpectedly returns zero. To ensure your exit code is properly retu
   }
   bindings.exit(main());
   ```
+
+Another tip: always write test cases for failure scenarios. Make sure the error codes returned match what you
+expect in these situations.

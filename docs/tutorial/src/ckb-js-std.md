@@ -50,3 +50,31 @@ while maintaining access to the full capabilities of ckb-js-vm.
 
 Only use `@ckb-js-std/bindings` directly when you need precise control over low-level operations or are
 developing custom extensions to the ecosystem.
+
+## CommonJS Modules (require)
+
+For some scenarios, you might need to write code in JavaScript and use the CommonJS `require` syntax to load
+modules. This can be done as follows for `@ckb-js-std/bindings`(already embedded in ckb-js-vm):
+
+  ```js
+  const bindings = require("@ckb-js-std/bindings");
+  ```
+
+However, we generally recommend using ES modules (import/export) instead of CommonJS for the following reasons:
+
+- Better compatibility with modern JavaScript tooling
+- Enables tree-shaking in bundling tools like esbuild
+- Provides clearer static analysis for IDEs and type checking
+
+For other library, you can do it as follows:
+  ```typescript
+  import * as core from '@ckb-js-std/core';
+  globalThis.__ckb_core = core;
+  require = function (name) {
+  if (name === '@ckb-js-std/core') {
+    return globalThis.__ckb_module_core; }\
+      throw new Error('cannot find the module: ' + name);
+  }
+  ```
+The [`globalThis`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis) global
+property contains the global `this` value, which is usually akin to the global object.

@@ -5,6 +5,23 @@ functions similarly to the `node` binary as a JavaScript engine and runtime. How
 limited capabilities and is designed to run specifically in the CKB-VM environment. During development, you can run it
 on your local machine using `ckb-debugger`.
 
+## How to Build
+
+To build ckb-js-vm, run:
+
+```bash
+git submodule update --init
+make all
+```
+
+clang-18 is required for compilation. After building, the binary will be available at `build/ckb-js-vm`.
+
+If you need a reproducible build (ensuring the same binary is generated regardless of build environment), you can use:
+
+```bash
+bash reproducible_build.sh
+```
+
 ## ckb-js-vm Command Line Options
 
 When an on-chain script is invoked by `exec` or `spawn` syscalls, it can accept command line arguments. The

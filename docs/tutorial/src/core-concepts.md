@@ -33,6 +33,8 @@ The second command uses esbuild to bundle the code:
 While we could run this JavaScript file directly with `ckb-js-vm`, the performance wouldn't be optimal. The next step improves
 performance and further minimizes code size.
 
+It's perfectly fine to switch to other bundling tools if you prefer. The only constraint is that the output .js file must be able to run without external dependencies.
+
 ### 3. Bytecode Compilation
 The third command converts JavaScript code into QuickJS bytecode:
 - `ckb-debugger` is a ckb-vm runner and debugger that can read and write local files (note that on a real CKB node, ckb-vm
