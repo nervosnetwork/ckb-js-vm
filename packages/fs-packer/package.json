@@ -1,6 +1,6 @@
 {
   "name": "ckb-fs-packer",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "main": "./dist/index.js",
   "bin": {
     "ckb-fs-packer": "./dist/index.js"
@@ -21,6 +21,6 @@
   },
   "dependencies": {
     "@types/node": "^22.13.8",
-    "node": "^23.5.0"
+    "node": "^22.14.0"
   }
 }
