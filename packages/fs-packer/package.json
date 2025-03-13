@@ -1,9 +1,9 @@
 {
   "name": "ckb-fs-packer",
-  "version": "1.0.1",
-  "main": "index.js",
+  "version": "1.0.2",
+  "main": "./dist/index.js",
   "bin": {
-    "ckb-fs-packer": "dist/index.js"
+    "ckb-fs-packer": "./dist/index.js"
   },
   "scripts": {
     "build": "tsc src/index.ts --outDir dist",
