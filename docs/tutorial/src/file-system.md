@@ -115,7 +115,8 @@ The ckb-js-vm supports special initialization files named `init.bc` or `init.js`
 Consider this example code:
 
 ```javascript
-ckb.mount(2, ckb.SOURCE_CELL_DEP, "/")
+import * as bindings from "@ckb-js-std/bindings";
+bindings.mount(2, bindings.SOURCE_CELL_DEP, "/")
 import * as module from './fib_module.js';
 ```
 
@@ -123,11 +124,13 @@ Due to JavaScript's [hoisting behavior](https://developer.mozilla.org/en-US/docs
 are processed before other code executes. The code effectively becomes:
 
 ```javascript
+import * as bindings from "@ckb-js-std/bindings";
 import * as module from './fib_module.js';
-ckb.mount(2, ckb.SOURCE_CELL_DEP, "/")
+
+bindings.mount(2, bindings.SOURCE_CELL_DEP, "/")
 ```
 
 This will fail because the import attempts to access `./fib_module.js` before the file system is mounted. To solve this
-problem, place the `ckb.mount` statement in an `init.bc` or `init.js` file, which will execute before any imports are
+problem, place the `bindings.mount` statement in an `init.bc` or `init.js` file, which will execute before any imports are
 processed in the main file.
 
