@@ -1,6 +1,6 @@
 {
   "name": "ckb-fs-packer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "index.js",
   "bin": {
     "ckb-fs-packer": "dist/index.js"
@@ -19,11 +19,8 @@
   "publishConfig": {
     "access": "public"
   },
-  "devDependencies": {
+  "dependencies": {
     "@types/node": "^22.13.8",
     "node": "^23.5.0"
-  },
-  "dependencies": {
-    "ckb-fs-packer": "link:"
   }
 }
