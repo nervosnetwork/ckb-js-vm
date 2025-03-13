@@ -178,10 +178,22 @@ function mustNormalizePath(path: string): string {
 
 // Add CLI functionality
 function usage(msg?: string): void {
-  if (msg) console.log(msg);
-  console.log(
-    `${process.argv[1]} pack output_file [files] | ${process.argv[1]} unpack input_file [directory]`,
-  );
+  if (msg) console.log(`Error: ${msg}\n`);
+
+  console.log(`ckb-fs-packer - A utility for packing and unpacking files
+
+Usage:
+  ckb-fs-packer pack <output_file> [files...]    Pack files into a single archive
+  ckb-fs-packer unpack <input_file> [directory]  Extract files from an archive
+
+Options:
+  -h, --help                                     Show this help message
+
+Examples:
+  ckb-fs-packer pack archive.fs file1.txt file2.js
+  ckb-fs-packer unpack archive.fs ./extracted
+
+Note: Files can also be provided via stdin when packing.`);
 }
 
 async function doPack(): Promise<void> {
@@ -245,6 +257,15 @@ async function doUnpack(): Promise<void> {
 
 // Main program
 async function main(): Promise<void> {
+  // Check for help flags
+  if (
+    process.argv.length > 2 &&
+    ["-h", "--help"].includes(process.argv[2])
+  ) {
+    usage();
+    process.exit(0);
+  }
+
   if (
     process.argv.length <= 2 ||
     !["pack", "unpack"].includes(process.argv[2])
