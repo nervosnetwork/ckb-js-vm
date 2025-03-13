@@ -2,7 +2,7 @@ CKB_DEBUGGER ?= ckb-debugger
 MAX_CYCLES ?= 2000000000
 ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 BIN_PATH = $(ROOT_DIR)/../../build/ckb-js-vm
-FS_PACKER = node $(ROOT_DIR)/../../tools/fs-packer/dist/index.js
+FS_PACKER = node $(ROOT_DIR)/../../packages/fs-packer/dist/index.js
 
 BYTECODE_DIR = $(ROOT_DIR)/../../build/bytecode
 JS_SOURCE_DIR = $(ROOT_DIR)/test_data/fs_module_mount

@@ -6,7 +6,7 @@ imports like `import { * } from "./module.js"`. Each Simple File System must con
 `index.bc` (or `index.js`), which ckb-js-vm loads from any cell and executes.
 
 A file system is represented as a binary file with a specific format described in this document. You can use the
-[fs-packer](https://github.com/nervosnetwork/ckb-js-vm/tree/main/tools/fs-packer) tool to create a file system from
+[ckb-fs-packer](https://github.com/nervosnetwork/ckb-js-vm/tree/main/packages/fs-packer) tool to create a file system from
 your source files or to unpack an existing file system.
 
 ## How to create a Simple File System
@@ -34,7 +34,7 @@ If we want ckb-js-vm to execute this code smoothly, we must package them into a
 file system first. To pack them within the current directory into `fib.fs`, you
 may run
 ```shell
-find . -name *.js -type f | node tools/fs-packer/dist/index.js pack fib.fs
+find . -name *.js -type f | npx ckb-fs-packer pack fib.fs
 ```
 
 Note that all file paths piped into the `fs-packer` must be in the relative path
@@ -52,7 +52,7 @@ support in ckb-js-vm through either:
 
 To extract files from an existing file system, run:
 ```shell
-node tools/fs-packer/dist/index.js unpack fib.fs .
+npx ckb-fs-packer unpack fib.fs .
 ```
 
 ## Simple File System On-disk Representation
