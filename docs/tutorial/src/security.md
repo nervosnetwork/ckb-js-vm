@@ -47,3 +47,31 @@ Instead, it unexpectedly returns zero. To ensure your exit code is properly retu
 
 Another tip: always write test cases for failure scenarios. Make sure the error codes returned match what you
 expect in these situations.
+
+## Dynamic Loading
+
+JavaScript provides the ability to load modules dynamically at runtime through the `evalJsScript` function in the
+`@ckb-js-std/bindings` package. This powerful feature enables extension mechanisms, plugin architectures, and code
+splitting in ckb-js-vm. However, it comes with significant security implications. When modules are loaded from
+untrusted sources (such as other cells on-chain), they may contain malicious code. A simple `exit(0)` statement
+could cause your entire script to exit with a success status, bypassing your validation logic. Bytecode is
+particularly problematic as it's extremely difficult to inspect and verify.
+
+If you must use dynamic loading, follow these precautions: only load from trusted sources you control, implement
+permission restrictions for loaded code, validate module integrity with cryptographic signatures when possible,
+and consider a pattern like this for safer loading:
+
+  ```js
+  // Example of safer dynamic loading with basic validation
+  function loadModule(moduleSource, allowedAPIs) {
+    const wrappedSource = `
+      (function(restrictedBindings) {
+        ${moduleSource}
+      })({ ...allowedAPIs });
+    `;
+    return bindings.evalJsScript(wrappedSource);
+  }
+  ```
+
+Remember that even with these safeguards, dynamic loading should be used cautiously in security-critical
+applications, and avoided entirely when working with untrusted inputs.
