@@ -26,6 +26,62 @@ import { bigintFromBytes } from "../num";
 import { Bytes, bytesEq } from "../bytes";
 
 /**
+ * Re-export constants from bindings to simplify imports.
+ *
+ * This allows developers to import all necessary constants and functions
+ * from a single module (`HighLevel`) without having to directly import
+ * from the lower-level `bindings` module.
+ *
+ * @example
+ * ```typescript
+ * // Instead of:
+ * import { loadCellCapacity } from '@ckb-js-std/high-level';
+ * import { SOURCE_INPUT } from '@ckb-js-std/bindings';
+ *
+ * // You can simply use:
+ * import { loadCellCapacity, SOURCE_INPUT } from '@ckb-js-std/high-level';
+ * ```
+ */
+export const SOURCE_CELL_DEP = bindings.SOURCE_CELL_DEP;
+export const SOURCE_HEADER_DEP = bindings.SOURCE_HEADER_DEP;
+export const SOURCE_INPUT = bindings.SOURCE_INPUT;
+export const SOURCE_OUTPUT = bindings.SOURCE_OUTPUT;
+export const SOURCE_GROUP_INPUT = bindings.SOURCE_GROUP_INPUT;
+export const SOURCE_GROUP_OUTPUT = bindings.SOURCE_GROUP_OUTPUT;
+
+export const CELL_FIELD_CAPACITY = bindings.CELL_FIELD_CAPACITY;
+export const CELL_FIELD_DATA_HASH = bindings.CELL_FIELD_DATA_HASH;
+export const CELL_FIELD_LOCK = bindings.CELL_FIELD_LOCK;
+export const CELL_FIELD_LOCK_HASH = bindings.CELL_FIELD_LOCK_HASH;
+export const CELL_FIELD_TYPE = bindings.CELL_FIELD_TYPE;
+export const CELL_FIELD_TYPE_HASH = bindings.CELL_FIELD_TYPE_HASH;
+export const CELL_FIELD_OCCUPIED_CAPACITY =
+  bindings.CELL_FIELD_OCCUPIED_CAPACITY;
+
+export const HEADER_FIELD_EPOCH_NUMBER = bindings.HEADER_FIELD_EPOCH_NUMBER;
+export const HEADER_FIELD_EPOCH_START_BLOCK_NUMBER =
+  bindings.HEADER_FIELD_EPOCH_START_BLOCK_NUMBER;
+export const HEADER_FIELD_EPOCH_LENGTH = bindings.HEADER_FIELD_EPOCH_LENGTH;
+
+export const INPUT_FIELD_OUT_POINT = bindings.INPUT_FIELD_OUT_POINT;
+export const INPUT_FIELD_SINCE = bindings.INPUT_FIELD_SINCE;
+
+export const SCRIPT_HASH_TYPE_DATA = bindings.SCRIPT_HASH_TYPE_DATA;
+export const SCRIPT_HASH_TYPE_TYPE = bindings.SCRIPT_HASH_TYPE_TYPE;
+export const SCRIPT_HASH_TYPE_DATA1 = bindings.SCRIPT_HASH_TYPE_DATA1;
+export const SCRIPT_HASH_TYPE_DATA2 = bindings.SCRIPT_HASH_TYPE_DATA2;
+
+export const INDEX_OUT_OF_BOUND = bindings.INDEX_OUT_OF_BOUND;
+export const ITEM_MISSING = bindings.ITEM_MISSING;
+export const LENGTH_NOT_ENOUGH = bindings.LENGTH_NOT_ENOUGH;
+export const INVALID_DATA = bindings.INVALID_DATA;
+export const WAIT_FAILURE = bindings.WAIT_FAILURE;
+export const INVALID_FD = bindings.INVALID_FD;
+export const OTHER_END_CLOSED = bindings.OTHER_END_CLOSED;
+export const MAX_VMS_SPAWNED = bindings.MAX_VMS_SPAWNED;
+export const MAX_FDS_CREATED = bindings.MAX_FDS_CREATED;
+
+/**
  * Load cell
  *
  * @param index - The index of the cell to load
