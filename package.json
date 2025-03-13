@@ -21,6 +21,7 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "esbuild",
+      "node",
       "secp256k1"
     ]
   },

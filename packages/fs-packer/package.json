@@ -1,7 +1,10 @@
 {
-  "name": "fs-packer",
+  "name": "ckb-fs-packer",
   "version": "1.0.0",
   "main": "index.js",
+  "bin": {
+    "ckb-fs-packer": "dist/index.js"
+  },
   "scripts": {
     "build": "tsc src/index.ts --outDir dist",
     "pretty": "prettier --write src/**/*.ts",
@@ -12,10 +15,15 @@
   },
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "file system packer for ckb-js-vm",
+  "publishConfig": {
+    "access": "public"
+  },
   "devDependencies": {
-    "typescript": "^5.7.2",
-    "@types/node": "^22.10.2",
+    "@types/node": "^22.13.8",
     "node": "^23.5.0"
+  },
+  "dependencies": {
+    "ckb-fs-packer": "link:"
   }
 }
