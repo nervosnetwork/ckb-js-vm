@@ -15,7 +15,7 @@
   },
   "scripts": {
     "build": "tsc && tsc --project tsconfig.commonjs.json && copyfiles -u 2 misc/basedirs/**/* .",
-    "clean": "rimraf ./dist && rimraf ./dist.commonjs",
+    "clean": "rimraf dist dist.commonjs",
     "format": "prettier --write .",
     "test": "node tests.cjs"
   },

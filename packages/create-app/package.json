@@ -21,6 +21,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
+    "clean": "rimraf dist",
     "format": "prettier --write .",
     "dev": "tsc --watch"
   },

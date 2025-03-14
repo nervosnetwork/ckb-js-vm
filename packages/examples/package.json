@@ -19,9 +19,9 @@
     "build": "tsc --noEmit && esbuild --platform=neutral --minify --bundle --external:@ckb-js-std/bindings --target=es2022 src/index.ts --outfile=dist/index.js && ckb-debugger --read-file dist/index.js --bin ../../build/ckb-js-vm -- -c dist/index.bc",
     "build:simple_udt": "tsc --noEmit && esbuild --platform=neutral --minify --bundle --external:@ckb-js-std/bindings --target=es2022 src/simple_udt.ts --outfile=dist/simple_udt.js && ckb-debugger --read-file dist/simple_udt.js --bin ../../build/ckb-js-vm -- -c dist/simple_udt.bc",
     "build:lock": "tsc --noEmit && esbuild --platform=neutral --minify --bundle --external:@ckb-js-std/bindings --target=es2022 src/secp256k1_blake160_lock.ts --outfile=dist/secp256k1_blake160_lock.js && ckb-debugger --read-file dist/secp256k1_blake160_lock.js --bin ../../build/ckb-js-vm -- -c dist/secp256k1_blake160_lock.bc",
+    "clean": "rimraf dist",
     "format": "prettier --write .",
-    "test": "jest",
-    "clean": "rm -f dist/*"
+    "test": "jest"
   },
   "devDependencies": {
     "@ckb-ccc/core": "^1.5.0",
