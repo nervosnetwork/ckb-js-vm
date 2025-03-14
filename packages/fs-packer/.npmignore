@@ -1,6 +1,6 @@
 test.pak
 test-output
 test-mapped.pak
-basedirs/
+misc/
 .prettierignore
 .prettierrc
