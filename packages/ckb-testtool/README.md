@@ -17,9 +17,9 @@ You need to install [ckb-debugger](https://github.com/nervosnetwork/ckb-standalo
 
 ```typescript
 import {
-    DEFAULT_SCRIPT_ALWAYS_SUCCESS,
-    Resource,
-    Verifier,
+  DEFAULT_SCRIPT_ALWAYS_SUCCESS,
+  Resource,
+  Verifier,
 } from "ckb-testtool";
 
 import { hexFrom, Transaction } from "@ckb-ccc/core";
@@ -30,9 +30,9 @@ const tx = Transaction.default();
 
 // deploy a cell with risc-v binary, return a script.
 const lockScript = resource.deployCell(
-    hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_SUCCESS)),
-    tx,
-    false,
+  hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_SUCCESS)),
+  tx,
+  false,
 );
 // update args
 lockScript.args = "0xEEFF";
