@@ -23,8 +23,5 @@
   "description": "file system packer for ckb-js-vm",
   "publishConfig": {
     "access": "public"
-  },
-  "dependencies": {
-    "node": "^22.14.0"
   }
 }
