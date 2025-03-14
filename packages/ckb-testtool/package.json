@@ -26,7 +26,8 @@
     }
   },
   "scripts": {
-    "build": "rimraf ./dist && rimraf ./dist.commonjs && tsc && tsc --project tsconfig.commonjs.json && copyfiles -u 2 misc/basedirs/**/* .",
+    "build": "tsc && tsc --project tsconfig.commonjs.json && copyfiles -u 2 misc/basedirs/**/* .",
+    "clean": "rimraf ./dist && rimraf ./dist.commonjs",
     "format": "prettier --write . && eslint --fix ./src",
     "lint": "eslint ./src",
     "test": "jest"
