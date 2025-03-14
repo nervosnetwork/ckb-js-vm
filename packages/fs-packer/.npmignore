@@ -1,0 +1,6 @@
+test.pak
+test-output
+test-mapped.pak
+misc/
+.prettierignore
+.prettierrc

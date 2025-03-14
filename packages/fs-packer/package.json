@@ -1,0 +1,28 @@
+{
+  "name": "ckb-fs-packer",
+  "version": "1.0.5",
+  "bin": {
+    "ckb-fs-packer": "./dist.commonjs/index.js"
+  },
+  "main": "dist.commonjs/index.js",
+  "module": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist.commonjs/index.js",
+      "default": "./dist.commonjs/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc && tsc --project tsconfig.commonjs.json && copyfiles -u 2 misc/basedirs/**/* .",
+    "clean": "rimraf ./dist && rimraf ./dist.commonjs",
+    "format": "prettier --write .",
+    "test": "node tests.cjs"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "file system packer for ckb-js-vm",
+  "publishConfig": {
+    "access": "public"
+  }
+}

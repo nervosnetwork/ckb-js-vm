@@ -56,7 +56,7 @@ dkms.conf
 build
 node_modules/
 dist/
-
+dist.commonjs/
 
 typedoc/
 node_modules/

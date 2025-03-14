@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import * as fs from "node:fs/promises";
 import * as fsSync from "node:fs";
 import * as path from "path";
@@ -177,10 +178,35 @@ function mustNormalizePath(path: string): string {
 
 // Add CLI functionality
 function usage(msg?: string): void {
-  if (msg) console.log(msg);
-  console.log(
-    `${process.argv[1]} pack output_file [files] | ${process.argv[1]} unpack input_file [directory]`,
-  );
+  if (msg) console.log(`Error: ${msg}\n`);
+
+  console.log(`ckb-fs-packer - A utility for packing and unpacking files
+
+Usage:
+  ckb-fs-packer pack <output_file> [<read_path>[:<fs_path>]...]    Pack files into a single archive
+  ckb-fs-packer unpack <input_file> [directory]                    Extract files from an archive
+
+Options:
+  -h, --help                                                       Show this help message
+
+Examples:
+  ckb-fs-packer pack archive.fs file1.txt:docs/file1.txt file2.js:lib/file2.js
+  ckb-fs-packer pack archive.fs file1.txt                          # Uses same path for both
+  ckb-fs-packer unpack archive.fs ./extracted
+
+Note: Files can also be provided via stdin when packing.`);
+}
+
+function parseFilePathMapping(input: string): {
+  readPath: string;
+  fsPath: string;
+} {
+  const parts = input.split(":");
+  if (parts.length === 1) {
+    return { readPath: parts[0], fsPath: mustNormalizePath(parts[0]) };
+  } else {
+    return { readPath: parts[0], fsPath: mustNormalizePath(parts[1]) };
+  }
 }
 
 async function doPack(): Promise<void> {
@@ -198,8 +224,9 @@ async function doPack(): Promise<void> {
     // Read files from command line arguments
     for (let i = 4; i < process.argv.length; i++) {
       n++;
-      const file = process.argv[i];
-      files[mustNormalizePath(file)] = file;
+      const fileArg = process.argv[i];
+      const { readPath, fsPath } = parseFilePathMapping(fileArg);
+      files[fsPath] = readPath;
     }
   } else {
     // Read files from stdin
@@ -244,6 +271,12 @@ async function doUnpack(): Promise<void> {
 
 // Main program
 async function main(): Promise<void> {
+  // Check for help flags
+  if (process.argv.length > 2 && ["-h", "--help"].includes(process.argv[2])) {
+    usage();
+    process.exit(0);
+  }
+
   if (
     process.argv.length <= 2 ||
     !["pack", "unpack"].includes(process.argv[2])

@@ -13,4 +13,3 @@ export const DEFAULT_SCRIPT_CKB_JS_VM = path.join(
   __dirname,
   "../../src/unittest/defaultScript/ckb-js-vm",
 );
-
