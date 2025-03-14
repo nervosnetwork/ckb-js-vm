@@ -12,6 +12,7 @@
   },
   "type": "module",
   "scripts": {
+    "clean": "rimraf dist",
     "format": "prettier --write .",
     "check:format": "prettier --check ."
   },
