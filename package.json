@@ -8,6 +8,7 @@
     "format": "pnpm -r run format",
     "check:format": "pnpm -r run check:format",
     "publish": "pnpm build && pnpm -r publish",
+    "test": "pnpm --filter ckb-testtool --filter ckb-fs-packer run test",
     "docs": "typedoc"
   },
   "devDependencies": {
@@ -16,7 +17,9 @@
     "prettier": "3.4.2",
     "typedoc": "0.27.6",
     "typedoc-material-theme": "~1.1.0",
-    "typescript": "~5.7.3"
+    "typescript": "~5.7.3",
+    "copyfiles": "^2.4.1",
+    "rimraf": "^5.0.5"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

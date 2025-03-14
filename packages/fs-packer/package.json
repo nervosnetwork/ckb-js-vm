@@ -1,17 +1,22 @@
 {
   "name": "ckb-fs-packer",
-  "version": "1.0.4",
-  "main": "./dist/index.js",
+  "version": "1.0.5",
   "bin": {
-    "ckb-fs-packer": "./dist/index.js"
+    "ckb-fs-packer": "./dist.commonjs/index.js"
+  },
+  "main": "dist.commonjs/index.js",
+  "module": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist.commonjs/index.js",
+      "default": "./dist.commonjs/index.js"
+    }
   },
   "scripts": {
-    "build": "tsc src/index.ts --outDir dist",
-    "pretty": "prettier --write src/**/*.ts",
-    "test:pack": "node dist/index.js pack test.pak dist/index.js src/index.ts",
-    "test:unpack": "node dist/index.js unpack test.pak test-output",
-    "test:compare": "cmp dist/index.js test-output/dist/index.js && cmp src/index.ts test-output/src/index.ts && echo 'passed'",
-    "test": "npm run build && npm run test:pack && npm run test:unpack && npm run test:compare"
+    "build": "rimraf ./dist && rimraf ./dist.commonjs && tsc && tsc --project tsconfig.commonjs.json && copyfiles -u 2 misc/basedirs/**/* .",
+    "format": "prettier --write .",
+    "test": "node tests.cjs"
   },
   "author": "",
   "license": "ISC",

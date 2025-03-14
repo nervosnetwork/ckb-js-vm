@@ -34,12 +34,20 @@ If we want ckb-js-vm to execute this code smoothly, we must package them into a
 file system first. To pack them within the current directory into `fib.fs`, you
 may run
 ```shell
-find . -name *.js -type f | npx ckb-fs-packer pack fib.fs
+npx ckb-fs-packer pack fib.fs index.js fib_module.js
 ```
 
-Note that all file paths piped into the `fs-packer` must be in the relative path
-format. The absolute path of a file in the current system is usually meaningless
-in the Simple File System.
+Note that all file paths provided to `fs-packer` must be in relative path format. The absolute path of a file in your
+local filesystem is usually meaningless within the Simple File System.
+
+You can also rename files when adding them to the filesystem by using the `source:destination` syntax:
+
+  ```shell
+  npx ckb-fs-packer pack archive.fs 1.js:lib/1.js 2.js:lib/2.js
+  ```
+
+In this example, the local files `1.js` and `2.js` will be stored in the Simple File System as `lib/1.js` and
+`lib/2.js` respectively.
 
 ## How to deploy and use Simple File System
 
