@@ -31,7 +31,7 @@ ckb-js-vm supports the following options to control its execution behavior:
 - `-e <code>`: Execute JavaScript code directly from the command line string
 - `-r <filename>`: Read and execute JavaScript code from the specified file
 - `-t <target>`: Specify the target resource cell's code_hash and hash_type in hexadecimal format
-- `-f`: Enable file system mode, which provides support for JavaScript modules and imports
+- `-f`: Enable [file system](./file-system.md) mode, which provides support for JavaScript modules and imports
 
 Note, the `-c` and `-r` options can only work with `ckb-debugger`.  The `-c` option is particularly useful for preparing
 optimized bytecode as described in the previous chapter. When no options are specified, ckb-js-vm runs in its default
@@ -109,3 +109,45 @@ ckb-js-vm provides bindings that allow JavaScript code to interact with the CKB 
 - Cryptographic algorithms: secp256k1, Schnorr
 - Miscellaneous functions: hex, base64, and [SMT](https://github.com/nervosnetwork/sparse-merkle-tree) (Sparse Merkle Tree)
 
+## JavaScript Module System
+
+ckb-js-vm exclusively supports ECMAScript Modules (ESM) and does not support CommonJS. This means you must use the
+modern ES import syntax for all module operations.
+
+### Supported Import Syntax
+
+Use the ES import syntax to import modules:
+
+  ```js
+  // Importing the entire module
+  import * as bindings from "@ckb-js-std/bindings";
+
+  // Named imports
+  import { hex } from "@ckb-js-std/bindings";
+
+  // Default import (if the module has a default export)
+  import defaultExport from "module-name";
+  ```
+
+### Unsupported CommonJS Syntax
+
+The following CommonJS patterns are not supported and will result in errors:
+
+  ```js
+  // ❌ This will not work in ckb-js-vm
+  const bindings = require("@ckb-js-std/bindings");
+
+  // ❌ This will also not work
+  module.exports = { /* ... */ };
+  ```
+
+### Module Resolution Rules
+
+When importing modules in ckb-js-vm:
+
+1. Built-in modules like `@ckb-js-std/bindings` are resolved automatically
+2. Relative imports (starting with `./` or `../`) are resolved relative to the current file
+3. Bare imports (like `import x from "module-name"`) require the file system mode to be enabled
+
+When using file system mode, make sure your module structure follows ESM conventions with `.js`or `.bc` file extensions
+explicitly included in import statements.
