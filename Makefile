@@ -134,7 +134,6 @@ test:
 	make -f tests/examples/Makefile
 	make -f tests/basic/Makefile
 	make -f tests/module/Makefile
-	cd tests/ckb_js_tests && make all
 
 benchmark:
 	make -f tests/benchmark/Makefile

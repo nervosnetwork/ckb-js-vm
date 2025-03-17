@@ -6,34 +6,30 @@ import {
   DEFAULT_SCRIPT_ALWAYS_SUCCESS,
 } from "ckb-testtool";
 
-import { OUTPUT_FS, OUTPUT_FS_2, OUTPUT_FS_BC } from "./build.cjs";
-
-async function runFileSystem(path: string) {
+async function main(path: string) {
   const resource = Resource.default();
   const tx = Transaction.default();
 
   const mainScript = resource.deployCell(
     hexFrom(readFileSync("../../build/ckb-js-vm")),
     tx,
-    false,
+    true,
   );
   const alwaysSuccessScript = resource.deployCell(
     hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_SUCCESS)),
     tx,
     false,
   );
-  // the position of the file system should be at index 2
-  const fileSystemScript = resource.deployCell(
+  const onChainScript = resource.deployCell(
     hexFrom(readFileSync(path)),
     tx,
     false,
   );
-
-  // flag: enable file system
+  // flag: NO file system
   mainScript.args = hexFrom(
-    "0x0100" +
-      fileSystemScript.codeHash.slice(2) +
-      hexFrom(hashTypeToBytes(fileSystemScript.hashType)).slice(2),
+    "0x0000" +
+      onChainScript.codeHash.slice(2) +
+      hexFrom(hashTypeToBytes(onChainScript.hashType)).slice(2),
   );
   // 1 input cell
   const inputCell = resource.mockCell(mainScript, undefined, "0x");
@@ -41,20 +37,16 @@ async function runFileSystem(path: string) {
 
   // 1 output cell
   tx.outputs.push(Resource.createCellOutput(alwaysSuccessScript));
-  tx.outputsData.push(hexFrom("0x"));
+  tx.outputsData.push(hexFrom("0x0001020304050607"));
+
+  tx.witnesses.push(hexFrom("0x0001020304050607"));
 
   const verifier = Verifier.from(resource, tx);
-  verifier.verifySuccess(false);
+  verifier.verifySuccess(true);
 }
 
 describe("file system", () => {
-  test("javascript success", () => {
-    runFileSystem(OUTPUT_FS);
-  });
-  test("bytecode success", () => {
-    runFileSystem(OUTPUT_FS_BC);
-  });
-  test("loadJsScript/loadFile success", () => {
-    runFileSystem(OUTPUT_FS_2);
+  test("syscalls success", () => {
+    main("src/syscalls/index.js");
   });
 });
