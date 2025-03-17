@@ -3,12 +3,12 @@ const path = require("path");
 const fs = require("fs");
 const CKB_FS_PACKER = path.resolve(
   __dirname,
-  "./node_modules/.bin/ckb-fs-packer",
+  "../../packages/fs-packer/dist.commonjs/index.js",
 );
 
 function check() {
   if (!fs.existsSync(CKB_FS_PACKER)) {
-    throw new Error(`ckb-fs-packer binary not found at $ { CKB_FS_PACKER }`);
+    throw new Error(`ckb-fs-packer binary not found at ${CKB_FS_PACKER}`);
   }
 }
 
@@ -38,7 +38,7 @@ function packFileSystem(files, outputPath) {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
-    const command = `"${CKB_FS_PACKER}" pack ${outputPath} ${files.join(" ")}`;
+    const command = `node "${CKB_FS_PACKER}" pack ${outputPath} ${files.join(" ")}`;
     execSync(command, { stdio: "inherit" });
   } catch (error) {
     console.error("Error building file system:", error.message);
