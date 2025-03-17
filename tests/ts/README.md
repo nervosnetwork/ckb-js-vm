@@ -6,6 +6,12 @@
 pnpm test
 ```
 
+Use following to output on-chain script log:
+
+```
+pnpm jest --verbose
+```
+
 ## Structure Overview
 
 The test suite is organized within the `src` folder, containing multiple sub-folders. Each sub-folder represents a distinct

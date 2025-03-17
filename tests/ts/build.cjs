@@ -34,6 +34,10 @@ function compileBc(jsFile) {
 function packFileSystem(files, outputPath) {
   try {
     check();
+    const dir = path.dirname(outputPath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
     const command = `"${CKB_FS_PACKER}" pack ${outputPath} ${files.join(" ")}`;
     execSync(command, { stdio: "inherit" });
   } catch (error) {
