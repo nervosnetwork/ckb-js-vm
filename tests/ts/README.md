@@ -30,6 +30,7 @@ unit test suite with the following components:
   - Contains test cases and assertions
 
 - **Build Configuration** (`build.cjs`)
+
   - Handles compilation of JavaScript to QuickJS bytecode
   - Manages bundling with esbuild
   - Handles file system packaging
