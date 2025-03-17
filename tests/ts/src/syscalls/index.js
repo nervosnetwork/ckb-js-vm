@@ -193,6 +193,29 @@ function test_spawn() {
   console.log("test_spawn done");
 }
 
+function test_exec() {
+  const js_code = `
+    import * as ckb from "@ckb-js-std/bindings";
+    console.log("from exec");
+    ckb.exit(0);
+    `;
+  let code_hash = new Uint8Array([
+    0xb9, 0x51, 0x23, 0xc7, 0x1a, 0x87, 0x0e, 0x3f, 0x0f, 0x74, 0xa7, 0xee,
+    0x1d, 0xab, 0x82, 0x68, 0xdb, 0xfb, 0xc1, 0x40, 0x7b, 0x46, 0x73, 0x3e,
+    0xbd, 0x1b, 0x41, 0xf8, 0x54, 0xb4, 0x32, 0x4a,
+  ]);
+  ckb.execCell(
+    code_hash.buffer,
+    ckb.SCRIPT_HASH_TYPE_TYPE,
+    0,
+    0,
+    "-e",
+    js_code
+  );
+  // can't be invoked
+  ckb.exit(-10);
+}
+
 test_misc();
 test_partial_loading(ckb.loadWitness);
 test_partial_loading(ckb.loadCellData);
@@ -208,5 +231,5 @@ test_partial_loading_field_without_comparing(
   ckb.INPUT_FIELD_OUT_POINT,
 );
 test_spawn();
-
-ckb.exit(0);
+// this test must be at the end
+test_exec();
