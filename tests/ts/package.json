@@ -1,0 +1,31 @@
+{
+  "name": "ts-tests",
+  "version": "0.1.0",
+  "description": "unit tests in TypeScript",
+  "author": "CKB-VM Team",
+  "license": "MIT",
+  "private": true,
+  "homepage": "https://github.com/nervosnetwork/ckb-js-vm",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nervosnetwork/ckb-js-vm.git"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "scripts": {
+    "clean": "rimraf dist",
+    "format": "prettier --write .",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "ckb-fs-packer": "workspace:*",
+    "@ckb-ccc/core": "^1.5.0",
+    "ckb-testtool": "workspace:*"
+  },
+  "dependencies": {
+    "@ckb-js-std/bindings": "workspace:*",
+    "@ckb-js-std/core": "workspace:*"
+  }
+}

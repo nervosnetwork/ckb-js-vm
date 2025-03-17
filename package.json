@@ -1,7 +1,8 @@
 {
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "tests/ts"
   ],
   "scripts": {
     "build": "pnpm -r run build",
@@ -9,7 +10,7 @@
     "format": "pnpm -r run format",
     "check:format": "pnpm -r run check:format",
     "publish": "pnpm build && pnpm -r publish",
-    "test": "pnpm --filter ckb-testtool --filter ckb-fs-packer --filter @ckb-js-std/examples run test",
+    "test": "pnpm --filter ckb-testtool --filter ckb-fs-packer --filter @ckb-js-std/examples --filter tests/ts run test",
     "docs": "typedoc"
   },
   "devDependencies": {
