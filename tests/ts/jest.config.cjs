@@ -12,5 +12,6 @@ module.exports = {
       },
     ],
   },
-  maxWorkers: 1
+  maxWorkers: 1,
+  verbose: true
 };
