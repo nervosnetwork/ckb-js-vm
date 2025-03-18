@@ -1,10 +1,10 @@
 {
-  "name": "@ckb-js-std/core",
-  "version": "0.1.2",
-  "description": "Write scripts in JavaScript on CKB-VM",
+  "name": "ts-tests",
+  "version": "0.1.0",
+  "description": "unit tests in TypeScript",
   "author": "CKB-VM Team",
   "license": "MIT",
-  "private": false,
+  "private": true,
   "homepage": "https://github.com/nervosnetwork/ckb-js-vm",
   "repository": {
     "type": "git",
@@ -14,20 +14,19 @@
   "sideEffects": false,
   "main": "./dist/index.js",
   "module": "./dist/index.js",
-  "exports": {
-    ".": "./dist/index.js",
-    "./barrel": "./dist/barrel.js"
-  },
   "scripts": {
-    "build": "tsc",
+    "build": "echo 'no build steps'",
     "clean": "rimraf dist",
     "format": "prettier --write .",
-    "check:format": "prettier --check ."
+    "test": "jest"
   },
-  "publishConfig": {
-    "access": "public"
+  "devDependencies": {
+    "ckb-fs-packer": "workspace:*",
+    "@ckb-ccc/core": "^1.5.0",
+    "ckb-testtool": "workspace:*"
   },
   "dependencies": {
-    "@ckb-js-std/bindings": "workspace:*"
+    "@ckb-js-std/bindings": "workspace:*",
+    "@ckb-js-std/core": "workspace:*"
   }
 }

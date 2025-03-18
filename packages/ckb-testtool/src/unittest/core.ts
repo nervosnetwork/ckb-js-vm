@@ -47,6 +47,7 @@ import {
   SpawnSyncOptionsWithBufferEncoding,
   SpawnSyncReturns,
 } from "child_process";
+import { writeFileSync } from "fs";
 
 /**
  * Defines the metadata for a transaction input.
@@ -975,5 +976,13 @@ export class Verifier {
       result.push(new ScriptVerificationResult("type", "output", i, result1));
     }
     return result;
+  }
+  /**
+   * Dumps the transaction into a file.
+   * @param path - The path to the file.
+   */
+  dump(path: string) {
+    const txFile = JSON.stringify(this.txFile());
+    writeFileSync(path, txFile);
   }
 }

@@ -134,7 +134,6 @@ test:
 	make -f tests/examples/Makefile
 	make -f tests/basic/Makefile
 	make -f tests/module/Makefile
-	cd tests/ckb_js_tests && make all
 
 benchmark:
 	make -f tests/benchmark/Makefile
@@ -150,7 +149,6 @@ build/secp256k1/precomputed_ecmult.o: deps/secp256k1/src/precomputed_ecmult.c
 
 clean:
 	rm -rf build
-	cd tests/ckb_js_tests && make clean
 	make -C deps/compiler-rt-builtins-riscv clean
 
 STYLE := "{BasedOnStyle: Google, TabWidth: 4, IndentWidth: 4, UseTab: Never, SortIncludes: false, ColumnLimit: 120}"

@@ -1,6 +1,6 @@
 {
   "name": "ckb-testtool",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "CKB Test Tool",
   "author": "CKB VM Team",
   "license": "MIT",
@@ -27,7 +27,7 @@
   },
   "scripts": {
     "build": "tsc && tsc --project tsconfig.commonjs.json && copyfiles -u 2 misc/basedirs/**/* .",
-    "clean": "rimraf ./dist && rimraf ./dist.commonjs",
+    "clean": "rimraf dist dist.commonjs",
     "format": "prettier --write . && eslint --fix ./src",
     "lint": "eslint ./src",
     "test": "jest"

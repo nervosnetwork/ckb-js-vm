@@ -25,17 +25,15 @@ jobs:
       run: make install
     - name: Install ckb-debugger
       run: |
-        wget 'https://github.com/nervosnetwork/ckb-standalone-debugger/releases/download/v0.200.0-rc1/ckb-debugger-linux-x64.tar.gz'
-        tar xzvf ckb-debugger-linux-x64.tar.gz
+        wget 'https://github.com/nervosnetwork/ckb-standalone-debugger/releases/download/v0.200.0/ckb-debugger_v0.200.0_x86_64-unknown-linux-gnu.tar.gz'
+        tar xzvf ckb-debugger_v0.200.0_x86_64-unknown-linux-gnu.tar.gz
         mv ckb-debugger ~/.cargo/bin
     - name: Build
       run: make all
     - name: Install node dependencies
       run: pnpm install
     - name: Build all packages
-      run: pnpm run build
-    - name: Run examples
-      run: cd packages/examples && pnpm run start && pnpm run build:simple_udt && pnpm run build:lock
+      run: pnpm build
     - name: Run tests
       run: pnpm test
     - name: Generate typedoc

@@ -488,6 +488,7 @@ exit:
         JS_FreeCString(ctx, spgs_argv[i]);
     }
     if (err != 0) {
+        JS_ThrowInternalError(ctx, "spawn returns error: %d", err);
         return JS_EXCEPTION;
     } else {
         return JS_NewInt64(ctx, spgs_pid);
