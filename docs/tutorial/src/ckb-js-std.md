@@ -17,6 +17,40 @@ that enables JavaScript/TypeScript to interact with the underlying C code. Key c
 - Has no TypeScript implementation of its own
 - Primarily used as a dependency for higher-level libraries
 
+## Errors thrown by bindings functions
+
+It is possible that bindings functions throw exceptions that can be handled gracefully. The CKB VM defines
+standard error codes that your code should be prepared to handle:
+
+  ```
+  CKB_INDEX_OUT_OF_BOUND 1
+  CKB_ITEM_MISSING 2
+  ```
+
+Common scenarios where these errors occur:
+- `CKB_INDEX_OUT_OF_BOUND (1)`: Occurs when iterating beyond available items, such as when looping over cells,
+  scripts, witnesses, etc. This error is expected and should be caught to terminate iteration loops.
+- `CKB_ITEM_MISSING (2)`: Occurs when a type script is missing. This can be a valid state in some on-chain scrips.
+
+You can handle these exceptions by checking the `errorCode` property of the thrown exception. Here's an example
+of properly handling the out-of-bounds case in an iterator:
+
+  ```typescript
+  next(): IteratorResult<T> {
+    try {
+      const item = this.queryFn(this.index, this.source);
+      this.index += 1;
+      return { value: item, done: false };
+    } catch (err: any) {
+      if (err.errorCode === bindings.INDEX_OUT_OF_BOUND) {
+        // End iteration gracefully when we've reached the end of available items
+        return { value: undefined, done: true };
+      }
+      // Re-throw any other errors with additional context
+      throw new Error(`QueryIter error: ${err.message || err}`);
+    }
+  }
+  ```
 
 ## @ckb-js-std/core
 
