@@ -504,6 +504,7 @@ static JSValue syscall_pipe(JSContext *ctx, JSValueConst this_value, int argc, J
     JS_SetPropertyUint32(ctx, obj, 1, JS_NewUint32(ctx, fds[1]));
 exit:
     if (err != 0) {
+        JS_ThrowInternalError(ctx, "pipe operation failed with error: %d", err);
         return JS_EXCEPTION;
     } else {
         return obj;
@@ -521,6 +522,7 @@ static JSValue syscall_inherited_fds(JSContext *ctx, JSValueConst this_value, in
     }
 exit:
     if (err != 0) {
+        JS_ThrowInternalError(ctx, "inherited_fds operation failed with error: %d", err);
         return JS_EXCEPTION;
     } else {
         return obj;
@@ -544,6 +546,7 @@ static JSValue syscall_read(JSContext *ctx, JSValueConst this_value, int argc, J
     CHECK(err);
 exit:
     if (err != 0) {
+        JS_ThrowInternalError(ctx, "read operation failed with error: %d", err);
         return JS_EXCEPTION;
     } else {
         return JS_NewArrayBuffer(ctx, buffer, length, my_free, buffer, false);
@@ -566,6 +569,7 @@ static JSValue syscall_write(JSContext *ctx, JSValueConst this_value, int argc, 
 exit:
     JS_FreeValue(ctx, buffer);
     if (err != 0) {
+        JS_ThrowInternalError(ctx, "write operation failed with error: %d", err);
         return JS_EXCEPTION;
     } else {
         return JS_UNDEFINED;
@@ -581,6 +585,7 @@ static JSValue syscall_close(JSContext *ctx, JSValueConst this_value, int argc, 
     CHECK(err);
 exit:
     if (err != 0) {
+        JS_ThrowInternalError(ctx, "close operation failed with error: %d", err);
         return JS_EXCEPTION;
     } else {
         return JS_UNDEFINED;
@@ -597,6 +602,7 @@ static JSValue syscall_wait(JSContext *ctx, JSValueConst this_value, int argc, J
     CHECK(err);
 exit:
     if (err != 0) {
+        JS_ThrowInternalError(ctx, "wait operation failed with error: %d", err);
         return JS_EXCEPTION;
     } else {
         return JS_NewInt32(ctx, exit);
@@ -754,6 +760,7 @@ exit:
         JS_FreeCString(ctx, filename);
     }
     if (err) {
+        JS_ThrowInternalError(ctx, "load_file operation failed with error: %d", err);
         return JS_EXCEPTION;
     } else {
         return ret;

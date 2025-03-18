@@ -3,13 +3,11 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "malloc.h"
 
 #ifndef CKB_BRK_MIN
 extern char _end[]; /* _end is set in the linker */
 #define CKB_BRK_MIN ((uintptr_t) & _end)
-#endif
-#ifndef CKB_BRK_MAX
-#define CKB_BRK_MAX 0x00300000
 #endif
 
 struct chunk {

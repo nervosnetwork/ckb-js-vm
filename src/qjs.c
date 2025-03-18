@@ -353,6 +353,8 @@ static int init_func(JSContext *ctx, JSModuleDef *m) {
     return 0;
 }
 
+static inline uintptr_t get_stack_pointer(void) { return (uintptr_t)__builtin_frame_address(0); }
+
 static void print_help_message(void) {
     printf("Usage: ckb-js-vm [options]\n");
     printf("Options:\n");
@@ -414,14 +416,23 @@ int main(int argc, const char **argv) {
     }
 
     size_t memory_limit = 0;
-    size_t stack_size = 1024 * 1020;
     rt = JS_NewRuntime();
     if (!rt) {
         printf("qjs: cannot allocate JS runtime\n");
         return QJS_ERROR_GENERIC;
     }
     if (memory_limit != 0) JS_SetMemoryLimit(rt, memory_limit);
+    // see docs/src/security.md for more information.
+    size_t stack_size = CKB_MEMORY_LIMIT - CKB_BRK_MAX - 4096;
+    size_t stack_top = get_stack_pointer();
+    size_t already_used_stack = CKB_MEMORY_LIMIT - stack_top;
+    if (already_used_stack > stack_size) {
+        printf("can't alloc enough stack");
+        return QJS_ERROR_GENERIC;
+    }
+    stack_size -= already_used_stack;
     if (stack_size != 0) JS_SetMaxStackSize(rt, stack_size);
+
     // TODO:
     // js_std_set_worker_new_context_func(JS_NewCustomContext);
     // js_std_init_handlers(rt);

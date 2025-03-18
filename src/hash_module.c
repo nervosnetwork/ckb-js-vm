@@ -252,6 +252,7 @@ static JSValue js_blake2b_ctor(JSContext *ctx, JSValueConst new_target, int argc
     if (js_blake2b_init(hash, BLAKE2B_HASH_SIZE, (char *)personal) < 0) {
         js_free(ctx, hash);
         if (personal) JS_FreeCString(ctx, personal);
+        JS_ThrowInternalError(ctx, "Failed to initialize Blake2b hash");
         goto fail;
     }
 
