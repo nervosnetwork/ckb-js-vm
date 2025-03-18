@@ -391,6 +391,7 @@ exit:
         JS_FreeCString(ctx, passed_argv[i - argv_offset]);
     }
     if (err != 0) {
+        qjs_throw_error(ctx, err, "exec returns error");
         return JS_EXCEPTION;
     } else {
         return JS_UNDEFINED;
