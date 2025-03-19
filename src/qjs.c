@@ -127,7 +127,7 @@ int ckb_debugger_fwrite(const void *ptr, size_t size, size_t nitems, long stream
 int compile_from_file(JSContext *ctx, const char *bytecode_filename) {
     enable_local_access(1);
     char buf[1024 * 512];
-    int buf_len = read_local_file(buf, sizeof(buf));
+    int buf_len = qjs_read_local_file(buf, sizeof(buf));
     if (buf_len < 0 || buf_len == sizeof(buf)) {
         if (buf_len == sizeof(buf)) {
             printf("Error while reading from file: file too large\n");
@@ -250,7 +250,7 @@ static int run_from_local_file(JSContext *ctx, bool enable_fs) {
     printf("Run from file, local access enabled. For Testing only.\n");
     enable_local_access(1);
     char buf[1024 * 512];
-    int count = read_local_file(buf, sizeof(buf));
+    int count = qjs_read_local_file(buf, sizeof(buf));
     if (count < 0 || count == sizeof(buf)) {
         if (count == sizeof(buf)) {
             printf("Error while reading from file: file too large\n");
@@ -273,13 +273,13 @@ static int run_from_cell_data(JSContext *ctx, bool enable_fs) {
     size_t buf_size = 0;
     size_t index = 0;
     bool use_filesystem = false;
-    err = load_cell_code_info(&buf_size, &index, &use_filesystem);
+    err = qjs_load_cell_code_info(&buf_size, &index, &use_filesystem);
     if (err) {
         return err;
     }
 
     char *buf = malloc(buf_size + 1);
-    err = load_cell_code(buf_size, index, (uint8_t *)buf);
+    err = qjs_load_cell_code(buf_size, index, (uint8_t *)buf);
     if (err) {
         return err;
     }
@@ -310,13 +310,13 @@ static int run_from_target(JSContext *ctx, const char *target, bool enable_fs) {
     size_t buf_size = 0;
     size_t index = 0;
 
-    err = load_cell_code_info_explicit(&buf_size, &index, code_hash, hash_type);
+    err = qjs_load_cell_code_info_explicit(&buf_size, &index, code_hash, hash_type);
     if (err) {
         return err;
     }
 
     char *buf = malloc(buf_size + 1);
-    err = load_cell_code(buf_size, index, (uint8_t *)buf);
+    err = qjs_load_cell_code(buf_size, index, (uint8_t *)buf);
     if (err) {
         return err;
     }
@@ -352,6 +352,8 @@ static int init_func(JSContext *ctx, JSModuleDef *m) {
     qjs_init_module_secp256k1_lazy(ctx, m);
     return 0;
 }
+
+static inline uintptr_t get_stack_pointer(void) { return (uintptr_t)__builtin_frame_address(0); }
 
 static void print_help_message(void) {
     printf("Usage: ckb-js-vm [options]\n");
@@ -414,14 +416,23 @@ int main(int argc, const char **argv) {
     }
 
     size_t memory_limit = 0;
-    size_t stack_size = 1024 * 1020;
     rt = JS_NewRuntime();
     if (!rt) {
         printf("qjs: cannot allocate JS runtime\n");
         return QJS_ERROR_GENERIC;
     }
     if (memory_limit != 0) JS_SetMemoryLimit(rt, memory_limit);
+    // see docs/src/security.md for more information.
+    size_t stack_size = CKB_MEMORY_LIMIT - CKB_BRK_MAX - 4096;
+    size_t stack_top = get_stack_pointer();
+    size_t already_used_stack = CKB_MEMORY_LIMIT - stack_top;
+    if (already_used_stack > stack_size) {
+        printf("can't alloc enough stack");
+        return QJS_ERROR_GENERIC;
+    }
+    stack_size -= already_used_stack;
     if (stack_size != 0) JS_SetMaxStackSize(rt, stack_size);
+
     // TODO:
     // js_std_set_worker_new_context_func(JS_NewCustomContext);
     // js_std_init_handlers(rt);

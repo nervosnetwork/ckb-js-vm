@@ -30,7 +30,7 @@ static JSValue syscall_exit(JSContext *ctx, JSValueConst this_val, int argc, JSV
     return JS_UNDEFINED;
 }
 
-static JSValue ThrowError(JSContext *ctx, int32_t error_code, const char *message) {
+JSValue qjs_throw_error(JSContext *ctx, int32_t error_code, const char *message) {
     JSValue obj, ret;
     obj = JS_NewError(ctx);
     if (unlikely(JS_IsException(obj))) {
@@ -148,7 +148,7 @@ static JSValue syscall_load(JSContext *ctx, LoadData *data) {
     ret = JS_NewArrayBuffer(ctx, addr, real_len, my_free, addr, false);
 exit:
     if (err != 0) {
-        ThrowError(ctx, err, "ckb syscall error");
+        qjs_throw_error(ctx, err, "ckb syscall error");
         return JS_EXCEPTION;
     } else {
         return ret;
@@ -391,6 +391,7 @@ exit:
         JS_FreeCString(ctx, passed_argv[i - argv_offset]);
     }
     if (err != 0) {
+        qjs_throw_error(ctx, err, "exec returns error");
         return JS_EXCEPTION;
     } else {
         return JS_UNDEFINED;
@@ -398,7 +399,7 @@ exit:
 }
 
 // debug only. used with ckb-debugger
-int read_local_file(char *buf, int size) {
+int qjs_read_local_file(char *buf, int size) {
     int ret = syscall(9000, buf, size, 0, 0, 0, 0);
     return ret;
 }
@@ -488,7 +489,7 @@ exit:
         JS_FreeCString(ctx, spgs_argv[i]);
     }
     if (err != 0) {
-        JS_ThrowInternalError(ctx, "spawn returns error: %d", err);
+        qjs_throw_error(ctx, err, "spawn returns error");
         return JS_EXCEPTION;
     } else {
         return JS_NewInt64(ctx, spgs_pid);
@@ -504,6 +505,7 @@ static JSValue syscall_pipe(JSContext *ctx, JSValueConst this_value, int argc, J
     JS_SetPropertyUint32(ctx, obj, 1, JS_NewUint32(ctx, fds[1]));
 exit:
     if (err != 0) {
+        qjs_throw_error(ctx, err, "pipe operation failed with error");
         return JS_EXCEPTION;
     } else {
         return obj;
@@ -521,6 +523,7 @@ static JSValue syscall_inherited_fds(JSContext *ctx, JSValueConst this_value, in
     }
 exit:
     if (err != 0) {
+        qjs_throw_error(ctx, err, "inherited_fds operation failed with error");
         return JS_EXCEPTION;
     } else {
         return obj;
@@ -544,6 +547,7 @@ static JSValue syscall_read(JSContext *ctx, JSValueConst this_value, int argc, J
     CHECK(err);
 exit:
     if (err != 0) {
+        qjs_throw_error(ctx, err, "read operation failed with error");
         return JS_EXCEPTION;
     } else {
         return JS_NewArrayBuffer(ctx, buffer, length, my_free, buffer, false);
@@ -566,6 +570,7 @@ static JSValue syscall_write(JSContext *ctx, JSValueConst this_value, int argc, 
 exit:
     JS_FreeValue(ctx, buffer);
     if (err != 0) {
+        qjs_throw_error(ctx, err, "write operation failed with error");
         return JS_EXCEPTION;
     } else {
         return JS_UNDEFINED;
@@ -581,6 +586,7 @@ static JSValue syscall_close(JSContext *ctx, JSValueConst this_value, int argc, 
     CHECK(err);
 exit:
     if (err != 0) {
+        qjs_throw_error(ctx, err, "close operation failed with error");
         return JS_EXCEPTION;
     } else {
         return JS_UNDEFINED;
@@ -597,6 +603,7 @@ static JSValue syscall_wait(JSContext *ctx, JSValueConst this_value, int argc, J
     CHECK(err);
 exit:
     if (err != 0) {
+        qjs_throw_error(ctx, err, "wait operation failed with error");
         return JS_EXCEPTION;
     } else {
         return JS_NewInt32(ctx, exit);
@@ -625,7 +632,7 @@ static JSValue mount(JSContext *ctx, JSValueConst this_value, int argc, JSValueC
     }
     const char *prefix = JS_ToCString(ctx, argv[2]);
     if (prefix[0] != '/') {
-        ThrowError(ctx, QJS_ERROR_MOUNT, "ckb.mount mount_point should starts with /");
+        qjs_throw_error(ctx, QJS_ERROR_MOUNT, "mount_point should starts with /");
         return JS_EXCEPTION;
     }
     size_t psize = 0;
@@ -634,11 +641,11 @@ static JSValue mount(JSContext *ctx, JSValueConst this_value, int argc, JSValueC
     if (err != 0) {
         switch (err) {
             case -2:
-                ThrowError(ctx, QJS_ERROR_MOUNT, "ckb.mount found illegal file name");
+                qjs_throw_error(ctx, QJS_ERROR_MOUNT, "mount found illegal file name");
                 return JS_EXCEPTION;
             case -1:
             default:
-                ThrowError(ctx, QJS_ERROR_MOUNT, "ckb.mount failed");
+                qjs_throw_error(ctx, QJS_ERROR_MOUNT, "mount failed");
                 return JS_EXCEPTION;
         }
     } else {
@@ -646,7 +653,7 @@ static JSValue mount(JSContext *ctx, JSValueConst this_value, int argc, JSValueC
     }
 }
 
-JSValue eval_script(JSContext *ctx, const char *str, int len, bool enable_module) {
+JSValue qjs_eval_script(JSContext *ctx, const char *str, int len, bool enable_module) {
     int eval_flags = enable_module ? JS_EVAL_TYPE_MODULE : (JS_EVAL_FLAG_ASYNC | JS_EVAL_TYPE_GLOBAL);
 
     JSValue val = JS_Eval(ctx, str, len, "<evalScript>", eval_flags);
@@ -709,7 +716,7 @@ static JSValue js_eval_script(JSContext *ctx, JSValueConst this_val, int argc, J
     str = JS_ToCStringLen(ctx, &len, argv[0]);
     if (!str) return JS_EXCEPTION;
 
-    ret = eval_script(ctx, str, len, enable_module);
+    ret = qjs_eval_script(ctx, str, len, enable_module);
     JS_FreeCString(ctx, str);
     return ret;
 }
@@ -726,13 +733,13 @@ static JSValue js_load_file(JSContext *ctx, JSValueConst _this_val, int argc, JS
 
     size_t index = 0;
     bool use_filesystem = false;
-    err = load_cell_code_info(&buf_len, &index, &use_filesystem);
+    err = qjs_load_cell_code_info(&buf_len, &index, &use_filesystem);
     CHECK(err);
 
     buf = js_malloc(ctx, buf_len + 1);
     CHECK2(buf != NULL, QJS_ERROR_GENERIC);
 
-    err = load_cell_code(buf_len, index, buf);
+    err = qjs_load_cell_code(buf_len, index, buf);
     CHECK(err);
 
     if (use_filesystem) {
@@ -754,6 +761,7 @@ exit:
         JS_FreeCString(ctx, filename);
     }
     if (err) {
+        qjs_throw_error(ctx, err, "load_file operation failed with error");
         return JS_EXCEPTION;
     } else {
         return ret;
@@ -774,7 +782,7 @@ static JSValue js_load_script(JSContext *ctx, JSValueConst this_val, int argc, J
     size_t len = 0;
     const char *str = JS_ToCStringLen(ctx, &len, ret);
     JS_FreeValue(ctx, ret);
-    ret = eval_script(ctx, str, len, enable_module);
+    ret = qjs_eval_script(ctx, str, len, enable_module);
     JS_FreeCString(ctx, str);
     return ret;
 }
@@ -880,7 +888,7 @@ int qjs_init_module_ckb(JSContext *ctx, JSModuleDef *m) {
 #define JS_LOADER_ARGS_SIZE 2
 #define BLAKE2B_BLOCK_SIZE 32
 
-int load_cell_code_info_explicit(size_t *buf_size, size_t *index, const uint8_t *code_hash, uint8_t hash_type) {
+int qjs_load_cell_code_info_explicit(size_t *buf_size, size_t *index, const uint8_t *code_hash, uint8_t hash_type) {
     int err = 0;
     *index = 0;
     err = ckb_look_for_dep_with_hash2(code_hash, hash_type, index);
@@ -894,7 +902,7 @@ exit:
     return err;
 }
 
-int load_cell_code_info(size_t *buf_size, size_t *index, bool *use_filesystem) {
+int qjs_load_cell_code_info(size_t *buf_size, size_t *index, bool *use_filesystem) {
     int err = 0;
     unsigned char script[SCRIPT_SIZE];
     uint64_t len = SCRIPT_SIZE;
@@ -938,7 +946,7 @@ exit:
     return err;
 }
 
-int load_cell_code(size_t buf_size, size_t index, uint8_t *buf) {
+int qjs_load_cell_code(size_t buf_size, size_t index, uint8_t *buf) {
     int ret = ckb_load_cell_data(buf, &buf_size, 0, index, CKB_SOURCE_CELL_DEP);
     if (ret) {
         printf("Error while loading cell data: %d\n", ret);

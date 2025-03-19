@@ -210,7 +210,7 @@ function test_exec() {
     0,
     0,
     "-e",
-    js_code
+    js_code,
   );
   // can't be invoked
   ckb.exit(-10);
