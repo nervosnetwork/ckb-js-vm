@@ -1,6 +1,6 @@
 /*
  * Unicode utilities
- * 
+ *
  * Copyright (c) 2017-2018 Fabrice Bellard
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -29,7 +29,7 @@
 #define LRE_BOOL  int       /* for documentation purposes */
 
 /* define it to include all the unicode tables (40KB larger) */
-#define CONFIG_ALL_UNICODE
+// #define CONFIG_ALL_UNICODE
 
 #define LRE_CC_RES_LEN_MAX 3
 
