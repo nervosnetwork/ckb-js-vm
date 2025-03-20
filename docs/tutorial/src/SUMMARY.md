@@ -9,4 +9,4 @@
 - [Simple File System and Modules](./file-system.md)
 - [Security Best Practices](./security.md)
 - [Performance and Bytecode Size Benchmarks](./benchmark.md)
-
+- [Reproducible Build and Deployment](./deployment.md)

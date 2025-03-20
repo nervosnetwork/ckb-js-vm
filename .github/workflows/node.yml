@@ -36,6 +36,8 @@ jobs:
       run: pnpm build
     - name: Run tests
       run: pnpm test
+    - name: Run examples
+      run: cd packages/examples && pnpm run start
     - name: Generate typedoc
       run: pnpm run docs
     - name: Create app
