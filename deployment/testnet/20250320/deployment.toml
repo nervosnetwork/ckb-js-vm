@@ -1,0 +1,10 @@
+[[cells]]
+name = "ckb-js-vm"
+enable_type_id = true
+location = { file = "../../../build/ckb-js-vm" }
+
+# The lock script set to output cells
+[lock]
+code_hash = "0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8"
+args = "0x9c26427b733e19f774e74312382946db9548093a"
+hash_type = "type"
