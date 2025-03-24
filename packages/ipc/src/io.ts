@@ -4,8 +4,8 @@
 export interface Read {
   /**
    * Reads data into a buffer of the specified length.
-   * @param buffer - The buffer to read data into.
-   * @returns The number of bytes read, which may be less than the buffer length.
+   * @param length - The number of bytes to read.
+   * @returns A new Uint8Array containing the read bytes. The length may be less than the requested `length`.
    */
   read(length: number): Uint8Array;
 

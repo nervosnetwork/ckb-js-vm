@@ -2,13 +2,20 @@ import { Read, Write } from "./io";
 import { RequestPacket, ResponsePacket } from "./packet";
 
 /**
- * The `Channel` class facilitates communication between a client and a server.
+ * Interface for a service that can handle requests and generate responses
+ */
+export interface RequestHandler {
+  serve(req: RequestPacket): ResponsePacket;
+}
+
+/**
+ * The `Channel` class facilitates IPC communication between a client and a server.
  * It handles the transmission of requests from the client to the server and the reception
  * of responses from the server to the client.
  */
-export class Channel<R extends Read, W extends Write> {
-  private reader: R;
-  private writer: W;
+export class Channel {
+  private reader: Read;
+  private writer: Write;
 
   /**
    * Creates a new Channel instance
@@ -16,7 +23,7 @@ export class Channel<R extends Read, W extends Write> {
    * @param reader - Responsible for reading data from the channel
    * @param writer - Responsible for writing data to the channel
    */
-  constructor(reader: R, writer: W) {
+  constructor(reader: Read, writer: Write) {
     this.reader = reader;
     this.writer = writer;
   }
@@ -24,12 +31,12 @@ export class Channel<R extends Read, W extends Write> {
   /**
    * Executes the server loop, processing incoming requests and sending responses.
    *
-   * @param serve - A service that handles requests and generates responses
+   * @param handler - A service that handles requests and generates responses
    */
-  execute(serve: { serve: (req: RequestPacket) => ResponsePacket }): void {
+  execute(handler: RequestHandler): void {
     while (true) {
       const req = this.receiveRequest();
-      const resp = serve.serve(req);
+      const resp = handler.serve(req);
       this.sendResponse(resp);
     }
   }

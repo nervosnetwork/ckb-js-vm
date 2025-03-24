@@ -1,6 +1,7 @@
 /**
  * A simple Variable-Length Quantity (VLQ) encoder/decoder implementation
  * that directly works with binary data using ArrayBuffer.
+ * It only supports positive integer represented by JavaScript number type.
  */
 
 /**
@@ -13,7 +14,7 @@ const MAX_BYTES_PER_INT = 8;
 const MAX_BITS = MAX_BYTES_PER_INT * 7;
 
 /**
- * Encodes a single number into VLQ format.
+ * Encodes a single positive integer into VLQ format.
  *
  * @param value The number to encode
  * @returns A Uint8Array containing the encoded bytes

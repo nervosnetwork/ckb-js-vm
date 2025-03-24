@@ -3,3 +3,4 @@ export * from "./packet";
 export * from "./vlq";
 export * from "./io";
 export * from "./pipe";
+export * from "./spawn";
