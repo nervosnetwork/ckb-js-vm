@@ -1,0 +1,6 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["./src/**/*"],
+  "extends": ["../../typedoc.base.json"],
+  "name": "@ckb-js-std/ipc"
+}
