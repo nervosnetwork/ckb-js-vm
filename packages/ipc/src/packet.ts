@@ -2,11 +2,10 @@ import { encode, decode } from "./vlq";
 import { Read } from "./io";
 
 export function readNextVlq(reader: Read): number {
-  const peek = new Uint8Array(1);
   const buf: number[] = [];
 
   while (true) {
-    reader.readExact(peek);
+    const peek = reader.readExact(1);
     buf.push(peek[0]);
     if ((peek[0] & 0x80) === 0) {
       break;
@@ -16,12 +15,25 @@ export function readNextVlq(reader: Read): number {
   return result.value;
 }
 
+/**
+ * Represents a generic packet in the IPC communication protocol.
+ *
+ * This interface defines the common methods that all packet types must implement.
+ * It includes methods for accessing the version, payload, and serializing the packet.
+ */
 export interface Packet {
   version(): number;
   payload(): Uint8Array;
   serialize(): Uint8Array;
 }
 
+/**
+ * RequestPacket represents a client request to the server.
+ *
+ * Format: [version][method_id][payload_length][payload]
+ *
+ * See [wire format](https://github.com/XuJiandong/ckb-script-ipc?tab=readme-ov-file#wire-format) for detailed definitions.
+ */
 export class RequestPacket implements Packet {
   private version_: number;
   private methodId_: number;
@@ -37,9 +49,8 @@ export class RequestPacket implements Packet {
     const version = readNextVlq(reader) as number;
     const methodId = readNextVlq(reader);
     const payloadLength = readNextVlq(reader);
-    const payload = new Uint8Array(payloadLength);
 
-    reader.readExact(payload);
+    const payload = reader.readExact(payloadLength);
 
     return new RequestPacket(payload, methodId, version);
   }
@@ -88,7 +99,17 @@ export class RequestPacket implements Packet {
   }
 }
 
-// Response packet implementation
+/**
+ * Represents a response packet in the IPC communication protocol.
+ *
+ * ResponsePacket contains the server's response to a client request, including
+ * an error code and payload data. The error code indicates success (0) or
+ * various error conditions.
+ *
+ * Format: [version][error_code][payload_length][payload]
+ *
+ * See [wire format](https://github.com/XuJiandong/ckb-script-ipc?tab=readme-ov-file#wire-format) for detailed definitions.
+ */
 export class ResponsePacket implements Packet {
   private version_: number;
   private errorCode_: number;
@@ -104,9 +125,8 @@ export class ResponsePacket implements Packet {
     const version = readNextVlq(reader) as number;
     const errorCode = readNextVlq(reader);
     const payloadLength = readNextVlq(reader);
-    const payload = new Uint8Array(payloadLength);
 
-    reader.readExact(payload);
+    const payload = reader.readExact(payloadLength);
 
     return new ResponsePacket(errorCode, payload, version);
   }

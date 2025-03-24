@@ -129,6 +129,15 @@ importers:
 
   packages/fs-packer: {}
 
+  packages/ipc:
+    dependencies:
+      '@ckb-js-std/bindings':
+        specifier: workspace:*
+        version: link:../bindings
+      '@ckb-js-std/core':
+        specifier: workspace:*
+        version: link:../core
+
   tests/ts:
     dependencies:
       '@ckb-js-std/bindings':

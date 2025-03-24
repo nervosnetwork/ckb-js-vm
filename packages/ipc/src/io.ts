@@ -3,20 +3,21 @@
  */
 export interface Read {
   /**
-   * Reads data into the provided buffer.
+   * Reads data into a buffer of the specified length.
    * @param buffer - The buffer to read data into.
    * @returns The number of bytes read, which may be less than the buffer length.
    */
-  read(buffer: Uint8Array): number;
+  read(length: number): Uint8Array;
 
   /**
-   * Reads exactly the specified number of bytes into the provided buffer.
-   * @param buffer - The buffer to read data into.
+   * Reads exactly the specified number of bytes.
+   * @param length - The number of bytes to read.
+   * @returns A new Uint8Array containing exactly the specified number of bytes.
    *
    * This method blocks until exactly the specified number of bytes have been read.
    * If fewer bytes are available, it will wait until more data arrives.
    */
-  readExact(buffer: Uint8Array): void;
+  readExact(length: number): Uint8Array;
 }
 
 /**
