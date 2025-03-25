@@ -1,4 +1,10 @@
-import { pipe, inheritedFds, spawnCell } from "@ckb-js-std/bindings";
+import {
+  pipe,
+  inheritedFds,
+  spawnCell,
+  SourceType,
+  spawn,
+} from "@ckb-js-std/bindings";
 import { Pipe } from "./pipe";
 import { Channel } from "./channel";
 import { RequestHandler } from "./channel";
@@ -36,7 +42,32 @@ export function spawnCellServer(
 
   spawnCell(codeHash, hashType, 0, 0, {
     argv,
-    inherited_fds: inheritedFds,
+    inheritedFds,
+  });
+
+  return [new Pipe(r1), new Pipe(w2)];
+}
+
+/**
+ * Same to spawnCellServer, but spawn from a specified source
+ * @param index - The index of the source to spawn from
+ * @param source - The type of source (use SOURCE_* constants)
+ * @param argv - An array of strings representing the arguments to pass to the new process
+ * @returns A tuple of two `Pipe` objects representing the read and write pipes
+ * for the parent process, or throws an `Error` if an error occurs.
+ */
+export function spawnServer(
+  index: number,
+  source: SourceType,
+  argv: string[],
+): [Pipe, Pipe] {
+  const [r1, w1] = pipe();
+  const [r2, w2] = pipe();
+  const inheritedFds = [r2, w1];
+
+  spawn(index, source, 0, 0, {
+    argv,
+    inheritedFds,
   });
 
   return [new Pipe(r1), new Pipe(w2)];

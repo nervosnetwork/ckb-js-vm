@@ -33,7 +33,7 @@ async function main() {
     tx,
     true,
   );
-  // console.log("server script:", JSON.stringify(serverCellScript));
+  console.log("server script:", JSON.stringify(serverCellScript));
   mainScript.args = hexFrom(
     "0x0000" +
       clientCellScript.codeHash.slice(2) +

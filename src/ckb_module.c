@@ -417,7 +417,8 @@ exit:
     return err;
 }
 
-static JSValue syscall_spawn_cell(JSContext *ctx, JSValueConst this_value, int argc, JSValueConst *argv) {
+static JSValue syscall_spawn_internal(JSContext *ctx, JSValueConst this_value, int argc, JSValueConst *argv,
+                                      bool via_code_hash) {
     int err = 0;
     size_t code_hash_len = 0;
     uint8_t code_hash[32];
@@ -428,15 +429,38 @@ static JSValue syscall_spawn_cell(JSContext *ctx, JSValueConst this_value, int a
     const char *spgs_argv[32] = {0};
     uint64_t spgs_pid = 0;
     uint64_t spgs_fds[32] = {0};
-    uint8_t *p = JS_GetArrayBuffer(ctx, &code_hash_len, argv[0]);
-    if (code_hash_len != 32 || p == NULL) {
-        return JS_ThrowTypeError(ctx, "invalid code_hash format");
-    }
-    memcpy(code_hash, p, 32);
 
-    CHECK2(!qjs_bad_int_arg(ctx, argv[1], 1), ERROR_TEMP);
-    err = JS_ToUint32(ctx, &hash_type, argv[1]);
-    CHECK(err);
+    if (argc < 5) {
+        return JS_ThrowTypeError(ctx, "spawn/spawnCell accept at least 5 arguments");
+    }
+    // used when via_code_hash is false
+    uint32_t index = 0;
+    int64_t source = 0;
+    uint64_t place = 0;
+    if (via_code_hash) {
+        uint8_t *p = JS_GetArrayBuffer(ctx, &code_hash_len, argv[0]);
+        if (code_hash_len != 32 || p == NULL) {
+            return JS_ThrowTypeError(ctx, "invalid code_hash format");
+        }
+        memcpy(code_hash, p, 32);
+
+        CHECK2(!qjs_bad_int_arg(ctx, argv[1], 1), ERROR_TEMP);
+        err = JS_ToUint32(ctx, &hash_type, argv[1]);
+        CHECK(err);
+    } else {
+        CHECK2(!qjs_bad_int_arg(ctx, argv[0], 0), ERROR_TEMP);
+        err = JS_ToUint32(ctx, &index, argv[0]);
+
+        if (JS_ToBigInt64(ctx, &source, argv[1])) {
+            // clear exception in JS_ToBigInt64
+            JS_GetException(ctx);
+            if (JS_ToInt64(ctx, &source, argv[1])) {
+                JS_ThrowTypeError(ctx, "invalid source type");
+                return JS_EXCEPTION;
+            }
+        }
+    }
+
     CHECK2(!qjs_bad_int_arg(ctx, argv[2], 2), ERROR_TEMP);
     err = JS_ToUint32(ctx, &offset, argv[2]);
     CHECK(err);
@@ -460,7 +484,7 @@ static JSValue syscall_spawn_cell(JSContext *ctx, JSValueConst this_value, int a
         }
     }
     JS_FreeValue(ctx, val);
-    val = JS_GetPropertyStr(ctx, argv[4], "inherited_fds");
+    val = JS_GetPropertyStr(ctx, argv[4], "inheritedFds");
     CHECK2(!JS_IsException(val), ERROR_TEMP);
     if (!JS_IsUndefined(val)) {
         uint32_t temp;
@@ -476,13 +500,28 @@ static JSValue syscall_spawn_cell(JSContext *ctx, JSValueConst this_value, int a
         }
     }
     JS_FreeValue(ctx, val);
+
+    if (!via_code_hash) {
+        val = JS_GetPropertyStr(ctx, argv[4], "fromWitness");
+        CHECK2(!JS_IsException(val), ERROR_TEMP);
+        if (!JS_IsUndefined(val)) {
+            place = JS_ToBool(ctx, val) ? 1 : 0;
+        }
+        JS_FreeValue(ctx, val);
+    }
+
     spawn_args_t spgs = {
         .argc = spgs_argc,
         .argv = spgs_argv,
         .process_id = &spgs_pid,
         .inherited_fds = &spgs_fds[0],
     };
-    err = ckb_spawn_cell(code_hash, hash_type, offset, length, &spgs);
+    if (via_code_hash) {
+        err = ckb_spawn_cell(code_hash, hash_type, offset, length, &spgs);
+    } else {
+        size_t bounds = ((size_t)offset << 32) | length;
+        err = ckb_spawn(index, source, place, bounds, &spgs);
+    }
     CHECK(err);
 exit:
     for (size_t i = 0; i < spgs_argc; i++) {
@@ -495,6 +534,15 @@ exit:
         return JS_NewInt64(ctx, spgs_pid);
     }
 }
+
+static JSValue syscall_spawn_cell(JSContext *ctx, JSValueConst this_value, int argc, JSValueConst *argv) {
+    return syscall_spawn_internal(ctx, this_value, argc, argv, true);
+}
+
+static JSValue syscall_spawn(JSContext *ctx, JSValueConst this_value, int argc, JSValueConst *argv) {
+    return syscall_spawn_internal(ctx, this_value, argc, argv, false);
+}
+
 static JSValue syscall_pipe(JSContext *ctx, JSValueConst this_value, int argc, JSValueConst *argv) {
     int err = 0;
     uint64_t fds[2];
@@ -815,6 +863,7 @@ static const JSCFunctionListEntry js_ckb_funcs[] = {
     JS_CFUNC_DEF("currentCycles", 0, syscall_current_cycles),
     JS_CFUNC_DEF("execCell", 4, syscall_exec_cell),
     JS_CFUNC_DEF("spawnCell", 5, syscall_spawn_cell),
+    JS_CFUNC_DEF("spawn", 5, syscall_spawn),
     JS_CFUNC_DEF("pipe", 0, syscall_pipe),
     JS_CFUNC_DEF("inheritedFds", 0, syscall_inherited_fds),
     JS_CFUNC_DEF("read", 2, syscall_read),

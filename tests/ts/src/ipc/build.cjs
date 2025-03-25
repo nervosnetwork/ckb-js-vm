@@ -1,6 +1,4 @@
 const { compileBc, typeCheck, bundleCode } = require("../../build.cjs");
-const { hashCkb, bytesFrom } = require("@ckb-ccc/core");
-const fs = require("fs");
 const path = require("path");
 
 function R(p) {
