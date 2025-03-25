@@ -75,11 +75,7 @@ static JSValue parse_args(JSContext *ctx, LoadData *data, bool has_field, int ar
     if (qjs_bad_bigint_arg(ctx, argv[1], 1)) {
         return JS_EXCEPTION;
     }
-    if (JS_ToBigInt64(ctx, &source, argv[1])) {
-        // clear exception in JS_ToBigInt64
-        JS_GetException(ctx);
-        if (JS_ToInt64(ctx, &source, argv[1])) return JS_EXCEPTION;
-    }
+    if (JS_ToInt64Ext(ctx, &source, argv[1])) return JS_EXCEPTION;
     int var_arg_index = 2;
     if (has_field) {
         if (argc > 2) {
@@ -449,15 +445,14 @@ static JSValue syscall_spawn_internal(JSContext *ctx, JSValueConst this_value, i
         CHECK(err);
     } else {
         CHECK2(!qjs_bad_int_arg(ctx, argv[0], 0), ERROR_TEMP);
-        err = JS_ToUint32(ctx, &index, argv[0]);
+        JS_ToUint32(ctx, &index, argv[0]);
 
-        if (JS_ToBigInt64(ctx, &source, argv[1])) {
-            // clear exception in JS_ToBigInt64
-            JS_GetException(ctx);
-            if (JS_ToInt64(ctx, &source, argv[1])) {
-                JS_ThrowTypeError(ctx, "invalid source type");
-                return JS_EXCEPTION;
-            }
+        if (qjs_bad_bigint_arg(ctx, argv[1], 1)) {
+            return JS_EXCEPTION;
+        }
+        if (JS_ToInt64Ext(ctx, &source, argv[1])) {
+            JS_ThrowTypeError(ctx, "invalid source type");
+            return JS_EXCEPTION;
         }
     }
 
