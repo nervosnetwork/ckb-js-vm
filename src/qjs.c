@@ -296,17 +296,20 @@ static int run_from_cell_data(JSContext *ctx, bool enable_fs) {
 }
 
 static int run_from_target(JSContext *ctx, const char *target, bool enable_fs) {
+    int err = 0;
     if (strlen(target) < 66) {
         return QJS_ERROR_INVALID_ARGUMENT;
     }
 
     uint8_t target_byte[33] = {};
     uint32_t length = 0;
-    _exec_hex2bin(target, target_byte, 33, &length);
+    err = _exec_hex2bin(target, target_byte, 33, &length);
+    if (err) {
+        return QJS_ERROR_INVALID_ARGUMENT;
+    }
     uint8_t *code_hash = target_byte;
     uint8_t hash_type = target_byte[32];
 
-    int err = 0;
     size_t buf_size = 0;
     size_t index = 0;
 

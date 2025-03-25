@@ -4,6 +4,7 @@
     "entryPoints": [
         "packages/core",
         "packages/bindings",
+        "packages/ipc",
     ],
     "entryPointStrategy": "packages",
     "githubPages": true,

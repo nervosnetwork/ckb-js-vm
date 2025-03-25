@@ -95,7 +95,7 @@ export class RequestPacket implements Packet {
   }
 
   toString(): string {
-    return `RequestPacket, ${this.payload_.length} bytes payload: ${new TextDecoder().decode(this.payload_)}`;
+    return `RequestPacket, method_id: ${this.methodId_}, ${this.payload_.length} bytes payload`;
   }
 }
 
@@ -171,6 +171,6 @@ export class ResponsePacket implements Packet {
   }
 
   toString(): string {
-    return `ResponsePacket, error_code: ${this.errorCode_}, ${this.payload_.length} bytes payload: ${new TextDecoder().decode(this.payload_)}`;
+    return `ResponsePacket, error_code: ${this.errorCode_}, ${this.payload_.length} bytes payload`;
   }
 }

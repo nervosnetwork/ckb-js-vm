@@ -561,14 +561,11 @@ static JSValue syscall_write(JSContext *ctx, JSValueConst this_value, int argc, 
     CHECK(err);
     fd = (uint64_t)u32;
     size_t length = 0;
-    JSValue buffer = JS_GetTypedArrayBuffer(ctx, argv[1], NULL, NULL, NULL);
-    CHECK2(!JS_IsException(buffer), ERROR_TEMP);
-    uint8_t *content = JS_GetArrayBuffer(ctx, &length, buffer);
+    uint8_t *content = JS_GetArrayBuffer(ctx, &length, argv[1]);
     CHECK2(content != NULL, QJS_ERROR_GENERIC);
     err = ckb_write(fd, content, &length);
     CHECK(err);
 exit:
-    JS_FreeValue(ctx, buffer);
     if (err != 0) {
         qjs_throw_error(ctx, err, "write operation failed with error");
         return JS_EXCEPTION;
@@ -899,6 +896,9 @@ int qjs_load_cell_code_info_explicit(size_t *buf_size, size_t *index, const uint
     CHECK(err);
     CHECK2(*buf_size > 0, QJS_ERROR_FILE_READ);
 exit:
+    if (err) {
+        err = QJS_ERROR_LOAD_CODE;
+    }
     return err;
 }
 

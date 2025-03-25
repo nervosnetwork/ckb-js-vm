@@ -21,22 +21,11 @@ export class Pipe implements Read, Write {
   }
 
   read(length: number): Uint8Array {
-    if (length <= 0) {
-      throw new Error("Read length must be positive");
-    }
-
-    if (!this.readable()) {
-      throw new Error("Pipe is not readable");
-    }
-
     const buffer = read(this.id, length);
     return new Uint8Array(buffer);
   }
 
   readExact(length: number): Uint8Array {
-    if (length <= 0) {
-      throw new Error("Read length must be positive");
-    }
     const buffer = new Uint8Array(length);
     let offset = 0;
 
@@ -54,18 +43,10 @@ export class Pipe implements Read, Write {
   }
 
   write(buffer: Uint8Array): number {
-    if (buffer.length === 0) {
-      return 0;
-    }
-
-    if (!this.writable()) {
-      throw new Error("Pipe is not writable");
-    }
-
     // The underlying syscall write operation guarantees atomic writes,
     // so we can write the entire buffer at once without needing to loop
     // or handle partial writes like in traditional I/O systems
-    write(this.id, buffer);
+    write(this.id, buffer.buffer);
     return buffer.length;
   }
 

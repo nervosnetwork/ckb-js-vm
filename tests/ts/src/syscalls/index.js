@@ -158,7 +158,7 @@ function test_spawn() {
   const js_code = `
     import * as ckb from "@ckb-js-std/bindings";
     let fds = ckb.inheritedFds();
-    ckb.write(fds[0], new Uint8Array([0, 1, 2, 3]));
+    ckb.write(fds[0], new Uint8Array([0, 1, 2, 3]).buffer);
     ckb.close(fds[0]);
     ckb.exit(42);
     `;

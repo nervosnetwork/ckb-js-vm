@@ -26,6 +26,7 @@
     "ckb-testtool": "workspace:*"
   },
   "dependencies": {
+    "@ckb-js-std/ipc": "workspace:*",
     "@ckb-js-std/bindings": "workspace:*",
     "@ckb-js-std/core": "workspace:*"
   }
