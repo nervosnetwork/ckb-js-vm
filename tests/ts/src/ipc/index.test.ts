@@ -8,7 +8,7 @@ import {
 
 import { SERVER_BYTECODE_PATH, CLIENT_BYTECODE_PATH } from "./build.cjs";
 
-async function main() {
+function main() {
   const resource = Resource.default();
   const tx = Transaction.default();
 
@@ -33,7 +33,7 @@ async function main() {
     tx,
     true,
   );
-  console.log("server script:", JSON.stringify(serverCellScript));
+  // console.log("server script:", JSON.stringify(serverCellScript));
   mainScript.args = hexFrom(
     "0x0000" +
       clientCellScript.codeHash.slice(2) +
@@ -48,7 +48,7 @@ async function main() {
   tx.outputsData.push(hexFrom("0x"));
 
   const verifier = Verifier.from(resource, tx);
-  verifier.verifySuccess(true);
+  verifier.verifySuccess(false);
 }
 
 describe("file system", () => {

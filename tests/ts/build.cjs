@@ -69,8 +69,7 @@ function typeCheck(filePaths) {
 
   try {
     // Run tsc --noEmit on the files
-    console.log("Type checking files...");
-    execSync(`npx tsc --noEmit ${files.join(" ")}`, {
+    execSync(`tsc --noEmit ${files.join(" ")}`, {
       stdio: "inherit",
       cwd: path.resolve(__dirname, "../../"),
     });
@@ -98,7 +97,6 @@ function bundleCode(inputFile, outputFile) {
       --outfile=${outputFile}`;
 
     execSync(command, { stdio: "inherit" });
-    console.log(`Successfully bundled ${inputFile} to ${outputFile}`);
   } catch (error) {
     console.error("Error bundling code:", error.message);
     process.exit(1);

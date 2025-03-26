@@ -22,10 +22,12 @@ function main() {
 
   let channel = new Channel(readPipe, writePipe);
   let req = new RequestPacket(new Uint8Array([1, 2, 3]));
-  log.debug("[CLIENT]: send request %s", req.toString());
-  let res = channel.call(req);
-  log.debug("[CLIENT]: receive response %s", res.toString());
-  console.assert(res.payload()[0] === 42);
+  for (let i = 0; i < 3; i++) {
+    log.debug("[CLIENT]: send request %s", req.toString());
+    let res = channel.call(req);
+    log.debug("[CLIENT]: receive response %s", res.toString());
+    console.assert(res.payload()[0] === 42);
+  }
 }
 
 main();
