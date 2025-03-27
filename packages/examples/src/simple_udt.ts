@@ -29,13 +29,8 @@ function main() {
       if (data.byteLength != 16) {
         throw `Invalid data length: ${data.byteLength}`;
       }
-      const n = new Uint32Array(data);
-      return (
-        BigInt(n[0]) |
-        (BigInt(n[1]) << BigInt(32)) |
-        (BigInt(n[2]) << BigInt(64)) |
-        (BigInt(n[3]) << BigInt(96))
-      );
+      const n = new BigUint64Array(data);
+      return n[0] | (n[1] << 64n);
     })
     .reduce((sum, amount) => sum + amount, 0n);
 
@@ -49,13 +44,8 @@ function main() {
       if (data.byteLength != 16) {
         throw `Invalid data length: ${data.byteLength}`;
       }
-      const n = new Uint32Array(data);
-      return (
-        BigInt(n[0]) |
-        (BigInt(n[1]) << BigInt(32)) |
-        (BigInt(n[2]) << BigInt(64)) |
-        (BigInt(n[3]) << BigInt(96))
-      );
+      const n = new BigUint64Array(data);
+      return n[0] | (n[1] << 64n);
     })
     .reduce((sum, amount) => sum + amount, 0n);
 
