@@ -14,7 +14,6 @@ endef
 all: qjs-tests syntax-error log syscalls assert log
 
 qjs-tests:
-	$(call run,test_op_overloading.js)
 	$(call run,test_loop.js)
 	$(call run,test_language.js)
 	$(call run,test_closure.js)

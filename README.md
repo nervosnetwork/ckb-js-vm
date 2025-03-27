@@ -1,6 +1,6 @@
 # ckb-js-vm
 
-A JavaScript/TypeScript runtime environment for CKB-VM, built by adapting [QuickJS](https://bellard.org/quickjs/). This project consists of two main components:
+A JavaScript runtime environment for CKB-VM, built by adapting [QuickJS](https://bellard.org/quickjs/). This project consists of two main components:
 
 1. **ckb-js-vm**: An on-chain script runtime engine that executes JavaScript code or bytecode
 2. **ckb-js-std**: TypeScript packages providing helper utilities for writing on-chain script

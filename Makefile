@@ -39,17 +39,17 @@ CFLAGS_BASE_SRC = $(CFLAGS_BASE) \
 	-I deps/quickjs \
 	-I deps/secp256k1/include \
 	-I deps/secp256k1/src \
-	-DCKB_DECLARATION_ONLY \
-	-DCONFIG_BIGNUM
+	-DCKB_DECLARATION_ONLY
+
 CFLAGS_BASE_QUICKJS = $(CFLAGS_BASE) \
 	-I libc \
 	-I deps/ckb-c-stdlib/libc \
 	-I deps/ckb-c-stdlib \
 	-DCKB_DECLARATION_ONLY \
-	-DCONFIG_BIGNUM \
 	-DEMSCRIPTEN \
 	-DCONFIG_STACK_CHECK \
 	-DCONFIG_VERSION=\"2024-01-13-CKB\"
+
 CFLAGS_BASE_SECP256k1 = $(CFLAGS_BASE) \
 	-I libc \
 	-I deps/ckb-c-stdlib/libc \
