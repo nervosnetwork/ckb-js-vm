@@ -18,6 +18,7 @@ typedef enum {
     QJS_ERROR_INVALID_SCRIPT_ARGS = -12,
     QJS_ERROR_EVAL = -13,
     QJS_ERROR_FS = -14,
+    QJS_ERROR_LOAD_CODE = -15,
 } QJSErrorCode;
 
 #define CHECK2(cond, code)                                                                                     \

@@ -22,8 +22,9 @@ pnpm create ckb-js-vm-app
 
 
 ## Documentation
-
-[tutorial](./docs/tutorial/src/SUMMARY.md)
+  - [The Little Book of ckb-js-vm](./docs/tutorial/src/SUMMARY.md) - Step-by-step instructions for beginners
+  - Run `pnpm run docs` to generate the latest API documentation locally (output will be available in the `typedoc` folder)
+  - [Examples](./packages/examples/README.md) - Sample projects demonstrating key features
 
 ## Install Manually
 

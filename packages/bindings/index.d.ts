@@ -260,7 +260,14 @@ export interface SpawnArgs {
   /** Command line arguments to pass to the spawned process */
   argv?: string[];
   /** File descriptors to inherit in the spawned process */
-  inherited_fds?: number[];
+  inheritedFds?: number[];
+
+  /**
+   * Indicates that the cell should be loaded from witness instead of the default location.
+   * Only used by `spawn()` function; has no effect when using `spawnCell()`.
+   * @default false
+   */
+  fromWitness?: boolean;
 }
 
 /**
@@ -275,6 +282,23 @@ export interface SpawnArgs {
 export function spawnCell(
   codeHash: ArrayBuffer,
   hashType: number,
+  offset: number,
+  length: number,
+  args: SpawnArgs,
+): number;
+
+/**
+ * Spawn a new process from a specified source
+ * @param index - The index of the source to spawn from
+ * @param source - The type of source (use SOURCE_* constants)
+ * @param offset - The offset in the source data (defaults to 0)
+ * @param length - The length of code to execute (defaults to reading until the end)
+ * @param args - Spawn arguments including argv and inherited file descriptors
+ * @returns The process ID of the spawned process
+ */
+export function spawn(
+  index: number,
+  source: SourceType,
   offset: number,
   length: number,
   args: SpawnArgs,

@@ -1,10 +1,10 @@
 {
-  "name": "ts-tests",
+  "name": "@ckb-js-std/ipc",
   "version": "0.1.0",
-  "description": "unit tests in TypeScript",
+  "description": "on-chain script IPC implementation in TypeScript",
   "author": "CKB-VM Team",
   "license": "MIT",
-  "private": true,
+  "private": false,
   "homepage": "https://github.com/nervosnetwork/ckb-js-vm",
   "repository": {
     "type": "git",
@@ -14,20 +14,21 @@
   "sideEffects": false,
   "main": "./dist/index.js",
   "module": "./dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./barrel": "./dist/barrel.js"
+  },
   "scripts": {
-    "build": "echo 'no build steps'",
+    "build": "tsc",
     "clean": "rimraf dist",
     "format": "prettier --write .",
-    "test": "jest"
+    "check:format": "prettier --check ."
   },
-  "devDependencies": {
-    "ckb-fs-packer": "workspace:*",
-    "@ckb-ccc/core": "^1.5.0",
-    "ckb-testtool": "workspace:*"
+  "publishConfig": {
+    "access": "public"
   },
   "dependencies": {
-    "@ckb-js-std/ipc": "workspace:*",
-    "@ckb-js-std/bindings": "workspace:*",
-    "@ckb-js-std/core": "workspace:*"
+    "@ckb-js-std/core": "workspace:*",
+    "@ckb-js-std/bindings": "workspace:*"
   }
 }

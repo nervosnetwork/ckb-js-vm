@@ -1,6 +1,6 @@
 {
   "name": "@ckb-js-std/bindings",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "bindings for ckb-js-vm",
   "author": "CKB-VM Team",
   "license": "MIT",

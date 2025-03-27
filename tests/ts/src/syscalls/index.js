@@ -158,7 +158,7 @@ function test_spawn() {
   const js_code = `
     import * as ckb from "@ckb-js-std/bindings";
     let fds = ckb.inheritedFds();
-    ckb.write(fds[0], new Uint8Array([0, 1, 2, 3]));
+    ckb.write(fds[0], new Uint8Array([0, 1, 2, 3]).buffer);
     ckb.close(fds[0]);
     ckb.exit(42);
     `;
@@ -167,29 +167,38 @@ function test_spawn() {
     0x1d, 0xab, 0x82, 0x68, 0xdb, 0xfb, 0xc1, 0x40, 0x7b, 0x46, 0x73, 0x3e,
     0xbd, 0x1b, 0x41, 0xf8, 0x54, 0xb4, 0x32, 0x4a,
   ]);
-  let fds = ckb.pipe();
-  // Unlike the C version, we only need to pass in two parameters: argv and inherited_fds.
-  // * There is no need to use the argc parameter.
-  // * There is no need to add 0 to the end of inherited_fds as a terminator.
-  // * There is no need to pass in the pid address.
-  let spawn_args = {
-    argv: ["-e", js_code],
-    inherited_fds: [fds[1]],
-  };
-  let pid = ckb.spawnCell(
-    code_hash.buffer,
-    ckb.SCRIPT_HASH_TYPE_TYPE,
-    0,
-    0,
-    spawn_args,
-  );
-  let txt = new Uint8Array(ckb.read(fds[0], 4));
-  console.assert(txt[0] == 0);
-  console.assert(txt[1] == 1);
-  console.assert(txt[2] == 2);
-  console.assert(txt[3] == 3);
-  let ret = ckb.wait(pid);
-  console.assert(ret == 42);
+  function test(via_code_hash) {
+    let fds = ckb.pipe();
+    // Unlike the C version, we only need to pass in two parameters: argv and inherited_fds.
+    // * There is no need to use the argc parameter.
+    // * There is no need to add 0 to the end of inherited_fds as a terminator.
+    // * There is no need to pass in the pid address.
+    let spawn_args = {
+      argv: ["-e", js_code],
+      inheritedFds: [fds[1]],
+    };
+    let pid = 0;
+    if (via_code_hash) {
+      pid = ckb.spawnCell(
+        code_hash.buffer,
+        ckb.SCRIPT_HASH_TYPE_TYPE,
+        0,
+        0,
+        spawn_args,
+      );
+    } else {
+      pid = ckb.spawn(0, ckb.SOURCE_CELL_DEP, 0, 0, spawn_args);
+    }
+    let txt = new Uint8Array(ckb.read(fds[0], 4));
+    console.assert(txt[0] == 0);
+    console.assert(txt[1] == 1);
+    console.assert(txt[2] == 2);
+    console.assert(txt[3] == 3);
+    let ret = ckb.wait(pid);
+    console.assert(ret == 42);
+  }
+  test(true);
+  test(false);
   console.log("test_spawn done");
 }
 
