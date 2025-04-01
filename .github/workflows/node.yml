@@ -17,6 +17,9 @@ jobs:
         chmod +x llvm.sh
         sudo ./llvm.sh 18
         rm llvm.sh
+    - name: Fix llvm-ar path
+      run: |
+        sudo ln -s $(which llvm-ar-18) /usr/bin/llvm-ar || true
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:

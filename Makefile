@@ -1,6 +1,7 @@
 CC := clang
 LD := ld.lld
 OBJCOPY := llvm-objcopy
+AR := llvm-ar
 
 CFLAGS_TARGET = --target=riscv64 -march=rv64imc_zba_zbb_zbc_zbs
 CFLAGS_OPTIMIZE = -g -Oz -fdata-sections -ffunction-sections
