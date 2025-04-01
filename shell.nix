@@ -9,8 +9,7 @@ let
 in
 pkgs.mkShell {
   buildInputs = with pkgs; [
-    llvmPackages.clangWithLibcAndBasicRtAndLibcxx
-    llvmPackages.libcxxStdenv
+    llvmPackages.clangNoCompilerRtWithLibc
     pkgs.glibc_multi
     gnumake
     # Add LLVM tools
@@ -21,5 +20,6 @@ pkgs.mkShell {
   shellHook = ''
     echo "ckb-js-vm Development environment loaded"
     export NIX_HARDENING_ENABLE=""
+#    export NIX_DEBUG=1
   '';
 }
