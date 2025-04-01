@@ -10,7 +10,7 @@ in
 pkgs.mkShell {
   buildInputs = with pkgs; [
     llvmPackages.clangNoCompilerRtWithLibc
-    pkgs.glibc_multi
+    pkgs.musl
     gnumake
     # Add LLVM tools
     llvmPackages.bintools
