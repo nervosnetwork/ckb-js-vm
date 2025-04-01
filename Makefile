@@ -1,17 +1,6 @@
-CC := clang-18
-LD := ld.lld-18
-OBJCOPY := llvm-objcopy-18
-AR := llvm-ar-18
-RANLIB := llvm-ranlib-18
-
-UNAME := $(shell uname)
-ifeq ($(UNAME), Darwin)
-	CC := clang
-	LD := ld.lld
-	AR := llvm-ar
-	OBJCOPY := llvm-objcopy
-	RANLIB := llvm-ranlib
-endif
+CC := clang
+LD := ld.lld
+OBJCOPY := llvm-objcopy
 
 CFLAGS_TARGET = --target=riscv64 -march=rv64imc_zba_zbb_zbc_zbs
 CFLAGS_OPTIMIZE = -g -Oz -fdata-sections -ffunction-sections
@@ -153,7 +142,7 @@ clean:
 
 STYLE := "{BasedOnStyle: Google, TabWidth: 4, IndentWidth: 4, UseTab: Never, SortIncludes: false, ColumnLimit: 120}"
 fmt:
-	clang-format-18 -i -style=$(STYLE) \
+	clang-format -i -style=$(STYLE) \
 		libc/*.h \
 		libc/internal/*.h \
 		libc/src/*.c \

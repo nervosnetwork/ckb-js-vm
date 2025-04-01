@@ -9,15 +9,16 @@ let
 in
 pkgs.mkShell {
   buildInputs = with pkgs; [
+    llvmPackages.clangWithLibcAndBasicRtAndLibcxx
     llvmPackages.libcxxStdenv
+    pkgs.glibc_multi
     gnumake
-    # For shasum command (part of perl)
-    perl
+    # Add LLVM tools
+    llvmPackages.bintools
+    llvmPackages.llvm
   ];
 
   shellHook = ''
-    alias clang-format-18="${pkgs.llvmPackages_18.libcxxStdenv}/bin/clang-format"
-
     echo "ckb-js-vm Development environment loaded"
   '';
 }
