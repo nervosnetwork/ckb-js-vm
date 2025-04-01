@@ -20,5 +20,6 @@ pkgs.mkShell {
 
   shellHook = ''
     echo "ckb-js-vm Development environment loaded"
+    export NIX_HARDENING_ENABLE=""
   '';
 }
