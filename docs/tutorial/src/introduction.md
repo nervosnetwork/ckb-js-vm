@@ -41,7 +41,6 @@ efficiency particularly valuable for on-chain scripts. QuickJS places a strong e
 instance, the manual states:
 - The complete regular expression library requires only ~15 KiB (x86 code), excluding Unicode support
 - The full Unicode library adds approximately 45 KiB (x86 code)
-- BigInt, BigFloat, and BigDecimal functionality (via the libbf library) requires about 90 KiB (x86 code)
 
 ## Total Solution
 With a JavaScript engine, it is still very difficult to develop a full featured on-chain script. We also provide
