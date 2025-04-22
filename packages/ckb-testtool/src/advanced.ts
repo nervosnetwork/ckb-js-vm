@@ -1,2 +1,2 @@
-export * from "./advancedBarrel.js";
-export * as cccA from "./advancedBarrel.js";
+export * from "./advancedBarrel";
+export * as cccA from "./advancedBarrel";
