@@ -47,16 +47,15 @@ import {
   SpawnSyncOptionsWithBufferEncoding,
   SpawnSyncReturns,
 } from "child_process";
+import { randomBytes } from "crypto";
 import { realpathSync, unlinkSync, writeFileSync } from "fs";
 import path from "path";
 import { run as runWasmDebugger } from "../wasm-debugger";
 
-// Global flag to control whether to use WASM debugger
-export const USE_WASM_DEBUGGER = false;
-
-let fileCounter = 0;
 function getNextFilename(basename: string): string {
-  return `${fileCounter++}-${basename}`;
+  const timestamp = Date.now();
+  const random = randomBytes(4).toString("hex");
+  return `${timestamp}-${random}-${basename}`;
 }
 
 /**
@@ -759,17 +758,23 @@ export class Verifier {
   args: string[];
   resource: Resource;
   tx: Transaction;
+  useWasmDebugger: boolean;
 
   constructor(resource: Resource, tx: Transaction) {
     this.debugger = "ckb-debugger";
     this.args = [];
     this.resource = resource;
     this.tx = tx;
+    this.useWasmDebugger = false;
   }
 
   // Static method to create a Verifier instance from a Resource and Transaction.
   static from(resource: Resource, tx: Transaction): Verifier {
     return new Verifier(resource, tx);
+  }
+
+  setWasmDebuggerEnabled(enabled: boolean) {
+    this.useWasmDebugger = enabled;
   }
 
   /**
@@ -835,7 +840,7 @@ export class Verifier {
     const config: SpawnSyncOptionsWithBufferEncoding = {
       input: txFile,
     };
-    const argsPath = `--tx-file - --cell-type ${cellType}  --script-group-type ${groupType} --cell-index ${index}`;
+    const argsPath = `--tx-file - --cell-type ${cellType} --script-group-type ${groupType} --cell-index ${index}`;
     const args = this.args.slice().concat(argsPath.split(" "));
     const result = spawnSync(this.debugger, args, config);
     Verifier.checkSpawnResult(result);
@@ -973,7 +978,7 @@ export class Verifier {
       const lockHash = cell.cellOutput.lock.hash();
       if (!lockGroup.has(lockHash)) {
         lockGroup.add(lockHash);
-        if (USE_WASM_DEBUGGER) {
+        if (this.useWasmDebugger) {
           result.push(await this.wasmVerifyScript("lock", "input", i, txFile));
         } else {
           result.push(this.verifyScript("lock", "input", i, txFile));
@@ -985,7 +990,7 @@ export class Verifier {
         const typeHash = cell.cellOutput.type.hash();
         if (!typeGroup.has(typeHash)) {
           typeGroup.add(typeHash);
-          if (USE_WASM_DEBUGGER) {
+          if (this.useWasmDebugger) {
             result.push(
               await this.wasmVerifyScript("type", "input", i, txFile),
             );
@@ -1004,7 +1009,7 @@ export class Verifier {
       const typeHash = e.type.hash();
       if (!typeGroup.has(typeHash)) {
         typeGroup.add(typeHash);
-        if (USE_WASM_DEBUGGER) {
+        if (this.useWasmDebugger) {
           result.push(await this.wasmVerifyScript("type", "output", i, txFile));
         } else {
           result.push(this.verifyScript("type", "output", i, txFile));

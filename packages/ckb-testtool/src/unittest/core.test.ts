@@ -4,6 +4,7 @@ import { readFileSync } from "fs";
 import {
   DEFAULT_SCRIPT_ALWAYS_FAILURE,
   DEFAULT_SCRIPT_ALWAYS_SUCCESS,
+  parseAllCycles,
   parseRunResult,
   Resource,
   UnitTestClient,
@@ -86,8 +87,7 @@ describe("example", () => {
     const verifier = Verifier.from(resource, tx);
     const result = await verifier.verify();
     expect(parseRunResult(result[0].stdout.toString())).toBe(-1);
-    // TODO
-    // expect(parseAllCycles(result[0].stdout.toString())).toBe(539);
+    expect(parseAllCycles(result[0].stdout.toString())).toBe(539);
   });
   test("signHashInfo", async () => {
     const resource = Resource.default();
@@ -114,6 +114,34 @@ describe("example", () => {
     const sigHashAll = await tx.getSignHashInfo(lockScript, client);
     assert(sigHashAll?.message.length == 66);
     const verifier = Verifier.from(resource, tx);
+    await verifier.verifySuccess();
+  });
+
+  test("alwaysSuccessWasmDebugger", async () => {
+    const resource = Resource.default();
+    const tx = Transaction.default();
+
+    // deploy a cell with risc-v binary, return a script.
+    const lockScript = resource.deployCell(
+      hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_SUCCESS)),
+      tx,
+      false,
+    );
+    // update args
+    lockScript.args = "0xEEFF";
+
+    // mock a input cell with the created script as lock script
+    const inputCell = resource.mockCell(lockScript);
+
+    // add input cell to the transaction
+    tx.inputs.push(Resource.createCellInput(inputCell));
+    // add output cell to the transaction
+    tx.outputs.push(Resource.createCellOutput(lockScript));
+    // add output data to the transaction
+    tx.outputsData.push(hexFrom("0x"));
+
+    const verifier = Verifier.from(resource, tx);
+    verifier.setWasmDebuggerEnabled(true);
     await verifier.verifySuccess();
   });
 });

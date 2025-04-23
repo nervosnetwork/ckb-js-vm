@@ -1,5 +1,5 @@
 import path from "path";
-import { wasmDebugger } from "./index";
+import { DEFAULT_SCRIPT_CKB_JS_VM, wasmDebugger } from "./index";
 
 describe("wasm-debugger", () => {
   test("alwaysSuccess", async () => {
@@ -23,7 +23,7 @@ describe("wasm-debugger", () => {
     expect(result.stdout).toContain("Run result: -1");
   });
   test("ckb-js-vm", async () => {
-    const riscv_path = path.join(__dirname, "unittest/defaultScript/ckb-js-vm");
+    const riscv_path = DEFAULT_SCRIPT_CKB_JS_VM;
     const result = await wasmDebugger.run(
       [riscv_path],
       ["--bin", riscv_path, "--", "-e", 'console.log("hello,world")'],

@@ -1,3 +1,4 @@
+import { randomBytes } from "node:crypto";
 import {
   closeSync,
   existsSync,
@@ -5,26 +6,25 @@ import {
   readFileSync,
   realpathSync,
   unlinkSync,
+  writeFileSync,
 } from "node:fs";
 import path from "node:path";
 import { WASI } from "node:wasi";
+import { DEFAULT_SCRIPT_CKB_JS_VM } from "./unittest";
 
 const STDOUT_FILENAME = "stdout.txt";
 const STDERR_FILENAME = "stderr.txt";
 
-let fileCounter = 0;
 function getNextFilename(basename: string): string {
-  return `${fileCounter++}-${basename}`;
+  const timestamp = Date.now();
+  const random = randomBytes(4).toString("hex");
+  return `${timestamp}-${random}-${basename}`;
 }
 
 export interface Result {
   status: number;
   stdout: string;
   stderr: string;
-}
-
-export function currentDirectory(): string {
-  return path.join(__dirname, "unittest/defaultScript");
 }
 
 /**
@@ -66,7 +66,10 @@ export async function run(
     preopens[dir] = dir;
   }
 
-  const wasm_debugger_path = path.join(__dirname, "wasm/ckb-debugger.wasm");
+  const wasm_debugger_path = path.join(
+    __dirname,
+    "../src/wasm/ckb-debugger.wasm",
+  );
   if (!existsSync(wasm_debugger_path)) {
     throw new Error(`WASM binary not found: ${wasm_debugger_path}`);
   }
@@ -108,4 +111,38 @@ export async function run(
     stdout: stdoutContent,
     stderr: stderrContent,
   };
+}
+
+/**
+ * Compiles JavaScript code into QuickJS bytecode
+ * @param jsPath - Path to the JavaScript source file
+ * @param bcPath - Path where the compiled bytecode will be saved
+ * @throws {Error} If compilation fails
+ */
+export async function compileQjsBytecode(
+  jsPath: string,
+  bcPath: string,
+): Promise<void> {
+  let ckbJsVmPath = DEFAULT_SCRIPT_CKB_JS_VM;
+  if (!existsSync(ckbJsVmPath)) {
+    throw new Error(`ckb-js-vm not found: ${ckbJsVmPath}`);
+  }
+  ckbJsVmPath = realpathSync(ckbJsVmPath);
+
+  writeFileSync(bcPath, "");
+  bcPath = realpathSync(bcPath);
+
+  if (!existsSync(jsPath)) {
+    throw new Error(`jsPath not found: ${jsPath}`);
+  }
+  jsPath = realpathSync(jsPath);
+  // identical to
+  // `ckb-debugger --read-file $jsPath --bin ../src/unittest/defaultScript/ckb-js-vm -- -c $bcPath`
+  const result = await run(
+    [jsPath, ckbJsVmPath, bcPath],
+    ["--read-file", jsPath, "--bin", ckbJsVmPath, "--", "-c", bcPath],
+  );
+  if (result.status !== 0) {
+    throw new Error(`Failed to compile QuickJS bytecode: ${result.stdout}`);
+  }
 }
