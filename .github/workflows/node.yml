@@ -10,29 +10,7 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: recursive
-    - name: Install llvm 18
-      run: |
-        sudo apt-get purge --auto-remove llvm python3-lldb-14 llvm-14
-        wget https://apt.llvm.org/llvm.sh
-        chmod +x llvm.sh
-        sudo ./llvm.sh 18
-        rm llvm.sh
-    - name: Fix llvm-ar path
-      run: |
-        sudo ln -s $(which llvm-ar-18) /usr/bin/llvm-ar || true
-        sudo ln -s $(which llvm-objcopy-18) /usr/bin/llvm-objcopy || true
-        sudo ln -s $(which ld.lld-18) /usr/bin/ld.lld || true
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22'
-    - name: Install tools
-      run: make install
-    - name: Install ckb-debugger
-      run: |
-        wget 'https://github.com/nervosnetwork/ckb-standalone-debugger/releases/download/v0.200.0/ckb-debugger_v0.200.0_x86_64-unknown-linux-gnu.tar.gz'
-        tar xzvf ckb-debugger_v0.200.0_x86_64-unknown-linux-gnu.tar.gz
-        mv ckb-debugger ~/.cargo/bin
+    - uses: ./.github/workflows/ckb-js-vm-build-tools
     - name: Build
       run: make all
     - name: Install node dependencies

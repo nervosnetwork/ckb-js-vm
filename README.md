@@ -10,7 +10,7 @@ A JavaScript runtime environment for CKB-VM, built by adapting [QuickJS](https:/
 Ensure you have the following installed:
 
 - [pnpm](https://pnpm.io/), >= 10.4
-- [ckb-debugger](https://github.com/nervosnetwork/ckb-standalone-debugger), >= v0.200.0
+- [ckb-debugger](https://github.com/nervosnetwork/ckb-standalone-debugger), >= v0.200.1
 - clang-18
 
 
