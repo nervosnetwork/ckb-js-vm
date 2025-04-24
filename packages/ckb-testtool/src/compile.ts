@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-// TODO: update ckb-debugger's syscall to support writing file in WASM
 import { compileQjsBytecode } from "./wasm-debugger";
 
 async function main() {
