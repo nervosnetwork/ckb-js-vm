@@ -47,7 +47,16 @@ import {
   SpawnSyncOptionsWithBufferEncoding,
   SpawnSyncReturns,
 } from "child_process";
-import { writeFileSync } from "fs";
+import { randomBytes } from "crypto";
+import { realpathSync, unlinkSync, writeFileSync } from "fs";
+import path from "path";
+import { run as runWasmDebugger } from "../wasm-debugger";
+
+function getNextFilename(basename: string): string {
+  const timestamp = Date.now();
+  const random = randomBytes(4).toString("hex");
+  return `${timestamp}-${random}-${basename}`;
+}
 
 /**
  * Defines the metadata for a transaction input.
@@ -120,62 +129,12 @@ export class ScriptVerificationResult {
     public groupType: "lock" | "type",
     public cellType: "input" | "output",
     public index: number,
-    public spawnReturn: SpawnSyncReturns<Buffer>,
+    public status: number | null,
+    public stdout: string,
+    public stderr: string,
     private cachedCycles: number | null = null,
     private cachedScriptErrorCode: number | null = null,
   ) {}
-
-  /**
-   * Gets the process exit status code returned by the ckb-debugger process.
-   *
-   * This status code indicates whether the debugger process itself executed successfully:
-   * - 0: Process completed successfully
-   * - -2: Script verification failed
-   * - Other values: Process encountered other errors
-   *
-   * Note: This status code is different from the script error code returned by the
-   * script execution itself (see {@link scriptErrorCode}).
-   *
-   * @returns The process exit status code
-   */
-  get status() {
-    return this.spawnReturn.status;
-  }
-
-  /**
-   * Gets the stdout output from the ckb-debugger process.
-   *
-   * This output contains detailed information about the script verification process.
-   * It includes the script verification result, cycles, and any additional debug messages.
-   *
-   * @returns The stdout output from the ckb-debugger process
-   */
-  get stdout() {
-    return this.spawnReturn.stdout.toString();
-  }
-
-  /**
-   * Gets the stderr output from the ckb-debugger process.
-   *
-   * This output contains detailed error messages and debugging information.
-   * It is useful for diagnosing issues when the script verification fails.
-   *
-   * @returns The stderr output from the ckb-debugger process
-   */
-  get stderr() {
-    return this.spawnReturn.stderr.toString();
-  }
-
-  /**
-   * Parses the total cycles from the stdout output.
-   * @returns The parsed integer value representing the total cycles.
-   */
-  get stdoutCycles() {
-    if (this.cachedCycles === null) {
-      this.cachedCycles = parseAllCycles(this.stdout);
-    }
-    return this.cachedCycles;
-  }
 
   /**
    * Gets the error code returned by the script execution.
@@ -191,6 +150,17 @@ export class ScriptVerificationResult {
       this.cachedScriptErrorCode = parseRunResult(this.stdout);
     }
     return this.cachedScriptErrorCode;
+  }
+
+  /**
+   * Parses the total cycles from the stdout output.
+   * @returns The parsed integer value representing the total cycles.
+   */
+  get stdoutCycles() {
+    if (this.cachedCycles === null) {
+      this.cachedCycles = parseAllCycles(this.stdout);
+    }
+    return this.cachedCycles;
   }
 
   /**
@@ -788,17 +758,23 @@ export class Verifier {
   args: string[];
   resource: Resource;
   tx: Transaction;
+  useWasmDebugger: boolean;
 
   constructor(resource: Resource, tx: Transaction) {
     this.debugger = "ckb-debugger";
     this.args = [];
     this.resource = resource;
     this.tx = tx;
+    this.useWasmDebugger = false;
   }
 
   // Static method to create a Verifier instance from a Resource and Transaction.
   static from(resource: Resource, tx: Transaction): Verifier {
     return new Verifier(resource, tx);
+  }
+
+  setWasmDebuggerEnabled(enabled: boolean) {
+    this.useWasmDebugger = enabled;
   }
 
   /**
@@ -847,6 +823,72 @@ export class Verifier {
   }
 
   /**
+   * Verifies a single script and returns the verification result.
+   * @param groupType - The type of script group ("lock" | "type")
+   * @param cellType - The type of cell ("input" | "output")
+   * @param index - The index of the cell
+   * @param txFile - The stringified transaction file
+   * @returns A ScriptVerificationResult containing the verification status and output
+   * @private
+   */
+  private verifyScript(
+    groupType: "lock" | "type",
+    cellType: "input" | "output",
+    index: number,
+    txFile: string,
+  ): ScriptVerificationResult {
+    const config: SpawnSyncOptionsWithBufferEncoding = {
+      input: txFile,
+    };
+    const argsPath = `--tx-file - --cell-type ${cellType} --script-group-type ${groupType} --cell-index ${index}`;
+    const args = this.args.slice().concat(argsPath.split(" "));
+    const result = spawnSync(this.debugger, args, config);
+    Verifier.checkSpawnResult(result);
+    return new ScriptVerificationResult(
+      groupType,
+      cellType,
+      index,
+      result.status,
+      result.stdout.toString(),
+      result.stderr.toString(),
+    );
+  }
+
+  /**
+   * Verifies a single script using the WASM debugger and returns the verification result.
+   * @param groupType - The type of script group ("lock" | "type")
+   * @param cellType - The type of cell ("input" | "output")
+   * @param index - The index of the cell
+   * @param txFile - The stringified transaction file
+   * @returns A Promise<ScriptVerificationResult> containing the verification status and output
+   * @private
+   */
+  private async wasmVerifyScript(
+    groupType: "lock" | "type",
+    cellType: "input" | "output",
+    index: number,
+    txFile: string,
+  ): Promise<ScriptVerificationResult> {
+    const txFilePath = path.join(".", getNextFilename("tx.json"));
+    writeFileSync(txFilePath, txFile);
+    const realTxFilePath = realpathSync(txFilePath);
+
+    const argsPath = `--tx-file ${realTxFilePath} --cell-type ${cellType} --script-group-type ${groupType} --cell-index ${index}`;
+    const args = this.args.slice().concat(argsPath.split(" "));
+
+    const result = await runWasmDebugger([realTxFilePath], args);
+    unlinkSync(realTxFilePath);
+    return new ScriptVerificationResult(
+      groupType,
+      cellType,
+      index,
+      result.status,
+      result.stdout,
+      result.stderr,
+    );
+  }
+
+  /**
    * Verifies that the transaction fails verification and optionally checks for a specific error code.
    * @param expectedErrorCode - Optional. If provided, asserts that the verification fails with this specific error code.
    * @param enableLog - When true, prints detailed verification summaries for each script execution,
@@ -854,8 +896,8 @@ export class Verifier {
    * @throws {AssertionError} If expectedErrorCode is provided and the actual error code doesn't match,
    *                          or if no verification failure occurs when one is expected.
    */
-  verifyFailure(expectedErrorCode?: number, enableLog: boolean = false) {
-    const runResults = this.verify();
+  async verifyFailure(expectedErrorCode?: number, enableLog: boolean = false) {
+    const runResults = await this.verify();
     for (const e of runResults) {
       if (e.status != 0) {
         if (expectedErrorCode === undefined) {
@@ -889,9 +931,9 @@ export class Verifier {
    *         will include a detailed summary of the failed verification.
    * @returns The total number of cycles consumed by all script executions
    */
-  verifySuccess(enableLog: boolean = false): number {
+  async verifySuccess(enableLog: boolean = false): Promise<number> {
     let cycles = 0;
-    const runResults = this.verify();
+    const runResults = await this.verify();
     for (const e of runResults) {
       if (e.status != 0) {
         e.reportSummary();
@@ -904,6 +946,7 @@ export class Verifier {
     }
     return cycles;
   }
+
   static checkSpawnResult(result: SpawnSyncReturns<Buffer>) {
     if (result.status === 0) {
       return;
@@ -914,69 +957,69 @@ export class Verifier {
       );
     }
   }
+
   /**
    * Runs the verification process on the transaction by calling the debugger tool.
    * This method spawns a new process for each input/output in the transaction and checks for errors.
    * @returns An array of results from the debugger tool (contains information about verification status).
    */
-  verify(): ScriptVerificationResult[] {
+  async verify(): Promise<ScriptVerificationResult[]> {
     const txFile = JSON.stringify(this.txFile());
-    const config: SpawnSyncOptionsWithBufferEncoding = {
-      input: txFile,
-    };
     const result: ScriptVerificationResult[] = [];
     // only run the first script in same group, according to the CKB cell model
     const lockGroup: Set<Hex> = new Set();
     const typeGroup: Set<Hex> = new Set();
+
+    // Verify input cells
     for (const [i, e] of this.tx.inputs.entries()) {
       const cell = this.resource.cells.get(e.previousOutput)!;
-      // skip lock script in same group
+
+      // Verify lock script if not in group
       const lockHash = cell.cellOutput.lock.hash();
-      if (lockGroup.has(lockHash)) {
-        continue;
+      if (!lockGroup.has(lockHash)) {
+        lockGroup.add(lockHash);
+        if (this.useWasmDebugger) {
+          result.push(await this.wasmVerifyScript("lock", "input", i, txFile));
+        } else {
+          result.push(this.verifyScript("lock", "input", i, txFile));
+        }
       }
-      lockGroup.add(lockHash);
 
-      const argsLockPath = `--tx-file - --cell-type input  --script-group-type lock --cell-index ${i}`;
-      const argsLock = this.args.slice().concat(argsLockPath.split(" "));
-      const result1 = spawnSync(this.debugger, argsLock, config);
-      Verifier.checkSpawnResult(result1);
-      result.push(new ScriptVerificationResult("lock", "input", i, result1));
-
-      if (!cell.cellOutput.type) {
-        continue;
+      // Verify type script if exists and not in group
+      if (cell.cellOutput.type) {
+        const typeHash = cell.cellOutput.type.hash();
+        if (!typeGroup.has(typeHash)) {
+          typeGroup.add(typeHash);
+          if (this.useWasmDebugger) {
+            result.push(
+              await this.wasmVerifyScript("type", "input", i, txFile),
+            );
+          } else {
+            result.push(this.verifyScript("type", "input", i, txFile));
+          }
+        }
       }
-      // skip type script in same group
-      const typeHash = cell.cellOutput.type.hash();
-      if (typeGroup.has(typeHash)) {
-        continue;
-      }
-      typeGroup.add(typeHash);
-
-      const argsTypePath = `--tx-file - --cell-type input  --script-group-type type --cell-index ${i}`;
-      const argsType = this.args.slice().concat(argsTypePath.split(" "));
-      const result2 = spawnSync(this.debugger, argsType, config);
-      Verifier.checkSpawnResult(result2);
-      result.push(new ScriptVerificationResult("type", "input", i, result2));
     }
+
+    // Verify output cells
     for (const [i, e] of this.tx.outputs.entries()) {
-      if (!e.type) {
-        continue;
-      }
-      // skip type script in same group
+      if (!e.type) continue;
+
+      // Verify type script if not in group
       const typeHash = e.type.hash();
-      if (typeGroup.has(typeHash)) {
-        continue;
+      if (!typeGroup.has(typeHash)) {
+        typeGroup.add(typeHash);
+        if (this.useWasmDebugger) {
+          result.push(await this.wasmVerifyScript("type", "output", i, txFile));
+        } else {
+          result.push(this.verifyScript("type", "output", i, txFile));
+        }
       }
-      typeGroup.add(typeHash);
-      const argsTypePath = `--tx-file - --cell-type output --script-group-type type --cell-index ${i}`;
-      const argsType = this.args.slice().concat(argsTypePath.split(" "));
-      const result1 = spawnSync(this.debugger, argsType, config);
-      Verifier.checkSpawnResult(result1);
-      result.push(new ScriptVerificationResult("type", "output", i, result1));
     }
+
     return result;
   }
+
   /**
    * Dumps the transaction into a file.
    * @param path - The path to the file.

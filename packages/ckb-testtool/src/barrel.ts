@@ -1,1 +1,2 @@
-export * from "./unittest/index.js";
+export * from "./unittest/index";
+export * as wasmDebugger from "./wasm-debugger";

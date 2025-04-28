@@ -1,6 +1,6 @@
 {
   "name": "ckb-testtool",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "CKB Test Tool",
   "author": "CKB VM Team",
   "license": "MIT",
@@ -30,7 +30,7 @@
     "clean": "rimraf dist dist.commonjs",
     "format": "prettier --write . && eslint --fix ./src",
     "lint": "eslint ./src",
-    "test": "jest"
+    "test": "NODE_OPTIONS='--no-warnings' jest"
   },
   "publishConfig": {
     "access": "public"

@@ -61,3 +61,5 @@ dist.commonjs/
 typedoc/
 node_modules/
 
+*stderr.txt
+*stdout.txt
