@@ -4,8 +4,8 @@ type SourceType = number | bigint;
  * Source constants for loading cells/inputs/headers
  * Used as parameters in load functions to specify data source
  */
-export const SOURCE_CELL_DEP: number;
-export const SOURCE_HEADER_DEP: number;
+export const SOURCE_CELL_DEP: SourceType;
+export const SOURCE_HEADER_DEP: SourceType;
 export const SOURCE_INPUT: SourceType;
 export const SOURCE_OUTPUT: SourceType;
 export const SOURCE_GROUP_INPUT: SourceType;
@@ -676,3 +676,31 @@ export const console: {
  * Global scriptArgs array containing command line arguments
  */
 export const scriptArgs: string[];
+
+/**
+ * TextEncoder provides functionality for encoding strings into UTF-8 encoded bytes.
+ * This implementation follows the Web Standard TextEncoder interface.
+ */
+export class TextEncoder {
+  constructor();
+  /**
+   * Encodes a string into UTF-8 bytes
+   * @param input - The string to encode
+   * @returns An ArrayBuffer containing the UTF-8 encoded bytes
+   */
+  encode(input: string): ArrayBuffer;
+}
+
+/**
+ * TextDecoder provides functionality for decoding UTF-8 encoded bytes into strings.
+ * This implementation follows the Web Standard TextDecoder interface.
+ */
+export class TextDecoder {
+  constructor();
+  /**
+   * Decodes UTF-8 encoded bytes into a string
+   * @param input - The ArrayBuffer containing UTF-8 encoded bytes to decode
+   * @returns The decoded string
+   */
+  decode(input: ArrayBuffer): string;
+}
