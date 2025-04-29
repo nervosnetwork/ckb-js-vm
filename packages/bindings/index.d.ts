@@ -686,9 +686,9 @@ export class TextEncoder {
   /**
    * Encodes a string into UTF-8 bytes
    * @param input - The string to encode
-   * @returns An ArrayBuffer containing the UTF-8 encoded bytes
+   * @returns An Uint8Array containing the UTF-8 encoded bytes
    */
-  encode(input: string): ArrayBuffer;
+  encode(input: string): Uint8Array;
 }
 
 /**
@@ -699,8 +699,8 @@ export class TextDecoder {
   constructor();
   /**
    * Decodes UTF-8 encoded bytes into a string
-   * @param input - The ArrayBuffer containing UTF-8 encoded bytes to decode
+   * @param input - The Uint8Array containing UTF-8 encoded bytes to decode
    * @returns The decoded string
    */
-  decode(input: ArrayBuffer): string;
+  decode(input: Uint8Array): string;
 }

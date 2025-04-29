@@ -454,17 +454,18 @@ static const JSCFunctionListEntry js_misc_funcs[] = {
 
 // TextDecoder decode method
 static JSValue js_text_decoder_decode(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv) {
-    size_t data_len;
-    uint8_t *data;
+    size_t data_len = 0;
+    uint8_t *data = NULL;
+    size_t per_element = 0;
+    JSValue value = JS_GetTypedArrayBuffer(ctx, argv[0], NULL, NULL, &per_element);
 
-    data = JS_GetArrayBuffer(ctx, &data_len, argv[0]);
-
-    if (!data) {
-        return JS_ThrowTypeError(ctx, "Failed to get array buffer data");
+    if (JS_IsException(value) || per_element != 1) {
+        return JS_ThrowTypeError(ctx, "Invalid argument type");
     }
-
-    // UTF-8 decoding
-    return JS_NewStringLen(ctx, (char *)data, data_len);
+    data = JS_GetArrayBuffer(ctx, &data_len, value);
+    JSValue result = JS_NewStringLen(ctx, (char *)data, data_len);
+    JS_FreeValue(ctx, value);
+    return result;
 }
 
 // TextEncoder encode method
@@ -474,7 +475,7 @@ static JSValue js_text_encoder_encode(JSContext *ctx, JSValueConst this_val, int
     if (!str) {
         return JS_ThrowTypeError(ctx, "Expected string");
     }
-    JSValue uint8_array = JS_NewArrayBufferCopy(ctx, (uint8_t *)str, str_len);
+    JSValue uint8_array = qjs_create_uint8_array(ctx, (uint8_t *)str, str_len);
     JS_FreeCString(ctx, str);
     return uint8_array;
 }

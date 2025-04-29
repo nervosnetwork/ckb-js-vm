@@ -225,7 +225,7 @@ function test_text_encoder() {
         0xe7, 0x95, 0x8c   // 界
     ]);
     console.assert(
-        encoded.byteLength === expected.length, 'Encoded length mismatch');
+        encoded.length === expected.length, 'Encoded length mismatch');
     for (let i = 0; i < encoded.length; i++) {
         console.assert(encoded[i] === expected[i], `Byte mismatch at position ${i}`);
     }
