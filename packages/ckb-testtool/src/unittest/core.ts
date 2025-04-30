@@ -65,7 +65,7 @@ export type MockInfoInput = {
   input: JsonRpcCellInput;
   output: JsonRpcCellOutput;
   data: Hex;
-  header: Hex | undefined | null;
+  header?: Hex;
 };
 
 /**
@@ -75,7 +75,7 @@ export type MockInfoCellDep = {
   cell_dep: JsonRpcCellDep;
   output: JsonRpcCellOutput;
   data: Hex;
-  header: Hex | undefined | null;
+  header?: Hex;
 };
 
 /**
@@ -125,6 +125,31 @@ export function parseAllCycles(stdout: string): number {
   return parseInt(
     stdout.split("\n").at(-2)!.split(":")[1].slice(1).split("(")[0],
   );
+}
+
+/**
+ * Cretae a empty MockInfoHeaderDep.
+ * @returns The empty MockInfoHeaderDep.
+ */
+export function createMockInfoHeaderDepTemplate(): MockInfoHeaderDep {
+  return {
+    compact_target: "0x0",
+    dao: "0x0000000000000000000000000000000000000000000000000000000000000000",
+    epoch: "0x0",
+    extra_hash:
+      "0x0000000000000000000000000000000000000000000000000000000000000000",
+    hash: "0x00000000000000000000000000000000",
+    nonce: "0x0",
+    number: "0x0",
+    parent_hash:
+      "0x0000000000000000000000000000000000000000000000000000000000000000",
+    proposals_hash:
+      "0x0000000000000000000000000000000000000000000000000000000000000000",
+    timestamp: "0x0",
+    transactions_root:
+      "0x0000000000000000000000000000000000000000000000000000000000000000",
+    version: "0x0",
+  };
 }
 
 export class ScriptVerificationResult {
@@ -319,32 +344,21 @@ export class Resource {
   }
 
   /**
-   * Mock a new block extension dependency.
-   * @param extension - The block extension to be added.
-   */
-  mockExtension(block_hash: Hex, extension: Hex) {
-    this.extension.set(block_hash, extension);
-  }
-
-  /**
    * Mock a new block header dependency and returns its hash.
    * @param header - The block header to be added.
+   * @param extension - The block extension data.
+   * @param cells - Set which cells should be in.
    * @returns The hash of the block header.
    */
-  mockHeader(header: MockInfoHeaderDep): Hex {
+  mockHeader(header: MockInfoHeaderDep, extension: Hex, cells: Cell[]): Hex {
     header.hash = hexFrom(numBeToBytes(this.headerIncr, 32));
     this.header.set(header.hash, header);
     this.headerIncr += numFrom(1);
+    this.extension.set(header.hash, extension);
+    for (const cell of cells) {
+      this.cellHeader.set(cell, header.hash);
+    }
     return header.hash;
-  }
-
-  /**
-   * Set which block the cell should be in.
-   * @param cell - The cell.
-   * @param header - The block hash(or header hash).
-   */
-  bindCellWithHeader(cell: Cell, header: Hex) {
-    this.cellHeader.set(cell, header);
   }
 
   /**

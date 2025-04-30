@@ -3,8 +3,8 @@ import { readFileSync } from "fs";
 import {
   Resource,
   Verifier,
-  MockInfoHeaderDep,
   DEFAULT_SCRIPT_ALWAYS_SUCCESS,
+  createMockInfoHeaderDepTemplate,
 } from "ckb-testtool";
 
 async function main(path: string) {
@@ -42,34 +42,17 @@ async function main(path: string) {
 
   tx.witnesses.push(hexFrom("0x0001020304050607"));
 
-  const headerTemp: MockInfoHeaderDep = {
-    compact_target: "0x0",
-    dao: "0x0000000000000000000000000000000000000000000000000000000000000000",
-    epoch: "0x0",
-    extra_hash:
-      "0x0000000000000000000000000000000000000000000000000000000000000000",
-    hash: "0x00000000000000000000000000000000",
-    nonce: "0x0",
-    number: "0x0",
-    parent_hash:
-      "0x0000000000000000000000000000000000000000000000000000000000000000",
-    proposals_hash:
-      "0x0000000000000000000000000000000000000000000000000000000000000000",
-    timestamp: "0x0",
-    transactions_root:
-      "0x0000000000000000000000000000000000000000000000000000000000000000",
-    version: "0x0",
-  };
   const headerHashByHeaderDep = resource.mockHeader(
-    JSON.parse(JSON.stringify(headerTemp)),
+    createMockInfoHeaderDepTemplate(),
+    "0x00",
+    [],
   );
-  resource.mockExtension(headerHashByHeaderDep, "0x00");
   tx.headerDeps.push(headerHashByHeaderDep);
   const headerHashByInput = resource.mockHeader(
-    JSON.parse(JSON.stringify(headerTemp)),
+    createMockInfoHeaderDepTemplate(),
+    "0x0000",
+    [inputCell],
   );
-  resource.mockExtension(headerHashByInput, "0x0000");
-  resource.bindCellWithHeader(inputCell, headerHashByInput);
   tx.headerDeps.push(headerHashByInput);
 
   const verifier = Verifier.from(resource, tx);
