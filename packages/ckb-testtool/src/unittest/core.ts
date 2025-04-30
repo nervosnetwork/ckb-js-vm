@@ -128,8 +128,8 @@ export function parseAllCycles(stdout: string): number {
 }
 
 /**
- * Cretae a empty MockInfoHeaderDep.
- * @returns The empty MockInfoHeaderDep.
+ * Cretae an empty HeaderView.
+ * @returns The empty HeaderView.
  */
 export function createHeaderViewTemplate(): HeaderView {
   return {
