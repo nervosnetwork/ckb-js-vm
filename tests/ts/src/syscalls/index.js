@@ -124,6 +124,31 @@ function test_misc() {
   let tx2 = ckb.loadTransaction(1, 10);
   console.assert(tx2.byteLength == 10, "tx2.byteLength != 10");
 
+  let blockExtensionByHeaderDep = ckb.loadBlockExtension(
+    0,
+    ckb.SOURCE_HEADER_DEP,
+  );
+  console.assert(
+    blockExtensionByHeaderDep.byteLength == 1,
+    "blockExtensionByHeaderDep.byteLength != 1",
+  );
+  let blockExtensionByInput = ckb.loadBlockExtension(0, ckb.SOURCE_INPUT);
+  console.assert(
+    blockExtensionByInput.byteLength == 2,
+    "blockExtensionByInput.byteLength != 2",
+  );
+
+  let headerByHeaderDep = ckb.loadHeader(0, ckb.SOURCE_HEADER_DEP);
+  console.assert(
+    headerByHeaderDep.byteLength == 208,
+    "headerByHeaderDep.byteLength == 208",
+  );
+  let headerByInput = ckb.loadHeader(0, ckb.SOURCE_INPUT);
+  console.assert(
+    headerByInput.byteLength == 208,
+    "headerByInput.byteLength == 208",
+  );
+
   hash = ckb.loadScriptHash();
   console.assert(hash.byteLength == 32);
   let version = ckb.vmVersion();

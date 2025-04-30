@@ -65,6 +65,7 @@ export type MockInfoInput = {
   input: JsonRpcCellInput;
   output: JsonRpcCellOutput;
   data: Hex;
+  header: Hex | undefined | null;
 };
 
 /**
@@ -74,6 +75,7 @@ export type MockInfoCellDep = {
   cell_dep: JsonRpcCellDep;
   output: JsonRpcCellOutput;
   data: Hex;
+  header: Hex | undefined | null;
 };
 
 /**
@@ -89,6 +91,7 @@ export type MockInfo = {
   inputs: MockInfoInput[];
   cell_deps: MockInfoCellDep[];
   header_deps: MockInfoHeaderDep[];
+  extensions: Hex[][];
 };
 
 /**
@@ -216,8 +219,10 @@ export class ScriptVerificationResult {
 export class Resource {
   constructor(
     public cells: Map<OutPoint, Cell> = new Map(),
+    public cellHeader: Map<Cell, Hex> = new Map(),
     public cellOutpointHash: Hex = "0x0000000000000000000000000000000000000000000000000000000000000000",
     public cellOutpointIncr: Num = numFrom(0),
+    public extension: Map<Hex, Hex> = new Map(),
     public header: Map<Hex, MockInfoHeaderDep> = new Map(),
     public headerIncr: Num = numFrom(0),
     public typeidIncr: Num = numFrom(0),
@@ -314,6 +319,14 @@ export class Resource {
   }
 
   /**
+   * Mock a new block extension dependency.
+   * @param extension - The block extension to be added.
+   */
+  mockExtension(block_hash: Hex, extension: Hex) {
+    this.extension.set(block_hash, extension);
+  }
+
+  /**
    * Mock a new block header dependency and returns its hash.
    * @param header - The block header to be added.
    * @returns The hash of the block header.
@@ -323,6 +336,15 @@ export class Resource {
     this.header.set(header.hash, header);
     this.headerIncr += numFrom(1);
     return header.hash;
+  }
+
+  /**
+   * Set which block the cell should be in.
+   * @param cell - The cell.
+   * @param header - The block hash(or header hash).
+   */
+  bindCellWithHeader(cell: Cell, header: Hex) {
+    this.cellHeader.set(cell, header);
   }
 
   /**
@@ -787,6 +809,7 @@ export class Verifier {
         inputs: [],
         cell_deps: [],
         header_deps: [],
+        extensions: [],
       },
       tx: JsonRpcTransformers.transactionFrom(this.tx),
     };
@@ -801,6 +824,7 @@ export class Verifier {
         },
         output: JsonRpcTransformers.cellOutputFrom(cell.cellOutput),
         data: cell.outputData,
+        header: this.resource.cellHeader.get(cell),
       });
     }
 
@@ -811,6 +835,7 @@ export class Verifier {
         input: JsonRpcTransformers.cellInputFrom(e),
         output: JsonRpcTransformers.cellOutputFrom(cell.cellOutput),
         data: cell.outputData,
+        header: this.resource.cellHeader.get(cell),
       });
     }
 
@@ -819,6 +844,12 @@ export class Verifier {
       const header = this.resource.header.get(e)!;
       r.mock_info.header_deps.push(header);
     }
+
+    // Add block extensions to the mock info.
+    for (const [k, v] of this.resource.extension.entries()) {
+      r.mock_info.extensions.push([k, v]);
+    }
+
     return r;
   }
 
