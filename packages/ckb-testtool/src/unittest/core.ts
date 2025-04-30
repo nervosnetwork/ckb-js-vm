@@ -61,7 +61,7 @@ function getNextFilename(basename: string): string {
 /**
  * Defines the metadata for a transaction input.
  */
-export type MockInfoInput = {
+export type MockInput = {
   input: JsonRpcCellInput;
   output: JsonRpcCellOutput;
   data: Hex;
@@ -71,7 +71,7 @@ export type MockInfoInput = {
 /**
  * Defines the metadata for a Cell dependency in the transaction.
  */
-export type MockInfoCellDep = {
+export type MockCellDep = {
   cell_dep: JsonRpcCellDep;
   output: JsonRpcCellOutput;
   data: Hex;
@@ -81,16 +81,16 @@ export type MockInfoCellDep = {
 /**
  * Defines a block header dependency.
  */
-export type MockInfoHeaderDep = JsonRpcBlockHeader;
+export type HeaderView = JsonRpcBlockHeader;
 
 /**
  * The overall structure that holds transaction metadata including
  * inputs, cell dependencies, and header dependencies.
  */
 export type MockInfo = {
-  inputs: MockInfoInput[];
-  cell_deps: MockInfoCellDep[];
-  header_deps: MockInfoHeaderDep[];
+  inputs: MockInput[];
+  cell_deps: MockCellDep[];
+  header_deps: HeaderView[];
   extensions: Hex[][];
 };
 
@@ -131,7 +131,7 @@ export function parseAllCycles(stdout: string): number {
  * Cretae a empty MockInfoHeaderDep.
  * @returns The empty MockInfoHeaderDep.
  */
-export function createMockInfoHeaderDepTemplate(): MockInfoHeaderDep {
+export function createHeaderViewTemplate(): HeaderView {
   return {
     compact_target: "0x0",
     dao: "0x0000000000000000000000000000000000000000000000000000000000000000",
@@ -248,7 +248,7 @@ export class Resource {
     public cellOutpointHash: Hex = "0x0000000000000000000000000000000000000000000000000000000000000000",
     public cellOutpointIncr: Num = numFrom(0),
     public extension: Map<Hex, Hex> = new Map(),
-    public header: Map<Hex, MockInfoHeaderDep> = new Map(),
+    public header: Map<Hex, HeaderView> = new Map(),
     public headerIncr: Num = numFrom(0),
     public typeidIncr: Num = numFrom(0),
   ) {}
@@ -350,7 +350,7 @@ export class Resource {
    * @param cells - Set which cells should be in.
    * @returns The hash of the block header.
    */
-  mockHeader(header: MockInfoHeaderDep, extension: Hex, cells: Cell[]): Hex {
+  mockHeader(header: HeaderView, extension: Hex, cells: Cell[]): Hex {
     header.hash = hexFrom(numBeToBytes(this.headerIncr, 32));
     this.header.set(header.hash, header);
     this.headerIncr += numFrom(1);

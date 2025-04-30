@@ -4,7 +4,7 @@ import {
   Resource,
   Verifier,
   DEFAULT_SCRIPT_ALWAYS_SUCCESS,
-  createMockInfoHeaderDepTemplate,
+  createHeaderViewTemplate,
 } from "ckb-testtool";
 
 async function main(path: string) {
@@ -43,13 +43,13 @@ async function main(path: string) {
   tx.witnesses.push(hexFrom("0x0001020304050607"));
 
   const headerHashByHeaderDep = resource.mockHeader(
-    createMockInfoHeaderDepTemplate(),
+    createHeaderViewTemplate(),
     "0x00",
     [],
   );
   tx.headerDeps.push(headerHashByHeaderDep);
   const headerHashByInput = resource.mockHeader(
-    createMockInfoHeaderDepTemplate(),
+    createHeaderViewTemplate(),
     "0x0000",
     [inputCell],
   );
