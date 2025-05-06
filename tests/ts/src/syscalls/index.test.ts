@@ -4,6 +4,7 @@ import {
   Resource,
   Verifier,
   DEFAULT_SCRIPT_ALWAYS_SUCCESS,
+  createHeaderViewTemplate,
 } from "ckb-testtool";
 
 async function main(path: string) {
@@ -40,6 +41,19 @@ async function main(path: string) {
   tx.outputsData.push(hexFrom("0x0001020304050607"));
 
   tx.witnesses.push(hexFrom("0x0001020304050607"));
+
+  const headerHashByHeaderDep = resource.mockHeader(
+    createHeaderViewTemplate(),
+    "0x00",
+    [],
+  );
+  tx.headerDeps.push(headerHashByHeaderDep);
+  const headerHashByInput = resource.mockHeader(
+    createHeaderViewTemplate(),
+    "0x0000",
+    [inputCell],
+  );
+  tx.headerDeps.push(headerHashByInput);
 
   const verifier = Verifier.from(resource, tx);
   verifier.verifySuccess(true);

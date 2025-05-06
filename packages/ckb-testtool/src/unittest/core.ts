@@ -61,34 +61,37 @@ function getNextFilename(basename: string): string {
 /**
  * Defines the metadata for a transaction input.
  */
-export type MockInfoInput = {
+export type MockInput = {
   input: JsonRpcCellInput;
   output: JsonRpcCellOutput;
   data: Hex;
+  header?: Hex;
 };
 
 /**
  * Defines the metadata for a Cell dependency in the transaction.
  */
-export type MockInfoCellDep = {
+export type MockCellDep = {
   cell_dep: JsonRpcCellDep;
   output: JsonRpcCellOutput;
   data: Hex;
+  header?: Hex;
 };
 
 /**
  * Defines a block header dependency.
  */
-export type MockInfoHeaderDep = JsonRpcBlockHeader;
+export type HeaderView = JsonRpcBlockHeader;
 
 /**
  * The overall structure that holds transaction metadata including
  * inputs, cell dependencies, and header dependencies.
  */
 export type MockInfo = {
-  inputs: MockInfoInput[];
-  cell_deps: MockInfoCellDep[];
-  header_deps: MockInfoHeaderDep[];
+  inputs: MockInput[];
+  cell_deps: MockCellDep[];
+  header_deps: HeaderView[];
+  extensions: Hex[][];
 };
 
 /**
@@ -122,6 +125,31 @@ export function parseAllCycles(stdout: string): number {
   return parseInt(
     stdout.split("\n").at(-2)!.split(":")[1].slice(1).split("(")[0],
   );
+}
+
+/**
+ * Cretae an empty HeaderView.
+ * @returns The empty HeaderView.
+ */
+export function createHeaderViewTemplate(): HeaderView {
+  return {
+    compact_target: "0x0",
+    dao: "0x0000000000000000000000000000000000000000000000000000000000000000",
+    epoch: "0x0",
+    extra_hash:
+      "0x0000000000000000000000000000000000000000000000000000000000000000",
+    hash: "0x00000000000000000000000000000000",
+    nonce: "0x0",
+    number: "0x0",
+    parent_hash:
+      "0x0000000000000000000000000000000000000000000000000000000000000000",
+    proposals_hash:
+      "0x0000000000000000000000000000000000000000000000000000000000000000",
+    timestamp: "0x0",
+    transactions_root:
+      "0x0000000000000000000000000000000000000000000000000000000000000000",
+    version: "0x0",
+  };
 }
 
 export class ScriptVerificationResult {
@@ -216,9 +244,11 @@ export class ScriptVerificationResult {
 export class Resource {
   constructor(
     public cells: Map<OutPoint, Cell> = new Map(),
+    public cellHeader: Map<Cell, Hex> = new Map(),
     public cellOutpointHash: Hex = "0x0000000000000000000000000000000000000000000000000000000000000000",
     public cellOutpointIncr: Num = numFrom(0),
-    public header: Map<Hex, MockInfoHeaderDep> = new Map(),
+    public extension: Map<Hex, Hex> = new Map(),
+    public header: Map<Hex, HeaderView> = new Map(),
     public headerIncr: Num = numFrom(0),
     public typeidIncr: Num = numFrom(0),
   ) {}
@@ -316,12 +346,18 @@ export class Resource {
   /**
    * Mock a new block header dependency and returns its hash.
    * @param header - The block header to be added.
+   * @param extension - The block extension data.
+   * @param cells - Set which cells should be in.
    * @returns The hash of the block header.
    */
-  mockHeader(header: MockInfoHeaderDep): Hex {
+  mockHeader(header: HeaderView, extension: Hex, cells: Cell[]): Hex {
     header.hash = hexFrom(numBeToBytes(this.headerIncr, 32));
     this.header.set(header.hash, header);
     this.headerIncr += numFrom(1);
+    this.extension.set(header.hash, extension);
+    for (const cell of cells) {
+      this.cellHeader.set(cell, header.hash);
+    }
     return header.hash;
   }
 
@@ -787,6 +823,7 @@ export class Verifier {
         inputs: [],
         cell_deps: [],
         header_deps: [],
+        extensions: [],
       },
       tx: JsonRpcTransformers.transactionFrom(this.tx),
     };
@@ -801,6 +838,7 @@ export class Verifier {
         },
         output: JsonRpcTransformers.cellOutputFrom(cell.cellOutput),
         data: cell.outputData,
+        header: this.resource.cellHeader.get(cell),
       });
     }
 
@@ -811,6 +849,7 @@ export class Verifier {
         input: JsonRpcTransformers.cellInputFrom(e),
         output: JsonRpcTransformers.cellOutputFrom(cell.cellOutput),
         data: cell.outputData,
+        header: this.resource.cellHeader.get(cell),
       });
     }
 
@@ -819,6 +858,12 @@ export class Verifier {
       const header = this.resource.header.get(e)!;
       r.mock_info.header_deps.push(header);
     }
+
+    // Add block extensions to the mock info.
+    for (const [k, v] of this.resource.extension.entries()) {
+      r.mock_info.extensions.push([k, v]);
+    }
+
     return r;
   }
 
