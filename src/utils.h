@@ -12,5 +12,6 @@ bool qjs_bad_int_arg(JSContext *ctx, JSValue val, int index);
 bool qjs_bad_bigint_arg(JSContext *ctx, JSValue val, int index);
 bool qjs_bad_str_arg(JSContext *ctx, JSValue val, int index);
 void qjs_dbuf_init(JSContext *ctx, DynBuf *s);
+JSValue qjs_create_uint8_array(JSContext *ctx, const uint8_t *data, size_t length);
 
 #endif
