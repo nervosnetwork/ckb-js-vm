@@ -359,14 +359,14 @@ export function processId(): number;
 /**
  * Load block extension data
  * @param index - The index of the block extension
- * @param source - The source of the block extension
+ * @param source - The type of source (use SOURCE_* constants)
  * @param offset - Optional starting offset in the data (defaults to 0)
  * @param length - Optional length of data to load (defaults to reading until the end)
  * @returns The loaded block extension data as ArrayBuffer
  */
 export function loadBlockExtension(
   index: number,
-  source: number,
+  source: SourceType,
   offset?: number,
   length?: number,
 ): ArrayBuffer;
