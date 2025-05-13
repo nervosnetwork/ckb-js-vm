@@ -11,6 +11,10 @@ jobs:
       contents: write  # To push a branch
       pages: write  # To push to a GitHub Pages site
       id-token: write # To update the deployment status
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
         with:
