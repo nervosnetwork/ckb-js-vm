@@ -1,6 +1,13 @@
 // migrated from ccc
 import { Bytes, bytesConcat, bytesConcatTo, BytesLike } from "../bytes/index";
-import { Num, numFromBytes, NumLike, numToBytes } from "../num/index";
+import {
+  bigintFromBytes,
+  bigintToBytes,
+  Num,
+  numFromBytes,
+  NumLike,
+  numToBytes,
+} from "../num/index";
 
 export type CodecLike<Encodable, Decoded = Encodable> = {
   readonly encode: (encodable: Encodable) => Bytes;
@@ -610,6 +617,26 @@ export function uint(
     },
     decode: (buffer) => {
       return numFromBytes(buffer);
+    },
+  });
+}
+
+/**
+ * Create a codec to deal with fixed LE or BE bytes.
+ * @param byteLength
+ * @param littleEndian
+ */
+export function bigInt(
+  byteLength: number,
+  littleEndian = false,
+): Codec<bigint, bigint> {
+  return Codec.from({
+    byteLength,
+    encode: (numLike) => {
+      return bigintToBytes(numLike, byteLength);
+    },
+    decode: (buffer) => {
+      return bigintFromBytes(buffer);
     },
   });
 }

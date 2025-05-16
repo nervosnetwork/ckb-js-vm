@@ -73,7 +73,7 @@ export function bigintToBytes(val: bigint, bytes: number): Bytes {
     bytes !== 2 &&
     bytes !== 4 &&
     bytes !== 8 &&
-    bytes !== 16
+    bytes % 8 !== 0
   ) {
     throw new Error("Invalid bytes in bigintToBytes");
   }
@@ -89,8 +89,11 @@ export function bigintToBytes(val: bigint, bytes: number): Bytes {
   } else if (bytes === 8) {
     view.setBigUint64(0, val, true);
   } else {
-    view.setBigUint64(0, val, true);
-    view.setBigUint64(8, val >> 64n, true);
+    const mask = BigInt(0xffffffffffffffffn);
+    for (let i = 0; i < bytes / 8; i++) {
+      const item = (val >> BigInt(i * 64)) & mask;
+      view.setBigUint64(i * 8, item, true);
+    }
   }
 
   return result;
