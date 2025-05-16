@@ -4,8 +4,8 @@ type SourceType = number | bigint;
  * Source constants for loading cells/inputs/headers
  * Used as parameters in load functions to specify data source
  */
-export const SOURCE_CELL_DEP: number;
-export const SOURCE_HEADER_DEP: number;
+export const SOURCE_CELL_DEP: SourceType;
+export const SOURCE_HEADER_DEP: SourceType;
 export const SOURCE_INPUT: SourceType;
 export const SOURCE_OUTPUT: SourceType;
 export const SOURCE_GROUP_INPUT: SourceType;
@@ -359,14 +359,14 @@ export function processId(): number;
 /**
  * Load block extension data
  * @param index - The index of the block extension
- * @param source - The source of the block extension
+ * @param source - The type of source (use SOURCE_* constants)
  * @param offset - Optional starting offset in the data (defaults to 0)
  * @param length - Optional length of data to load (defaults to reading until the end)
  * @returns The loaded block extension data as ArrayBuffer
  */
 export function loadBlockExtension(
   index: number,
-  source: number,
+  source: SourceType,
   offset?: number,
   length?: number,
 ): ArrayBuffer;
@@ -676,3 +676,31 @@ export const console: {
  * Global scriptArgs array containing command line arguments
  */
 export const scriptArgs: string[];
+
+/**
+ * TextEncoder provides functionality for encoding strings into UTF-8 encoded bytes.
+ * This implementation follows the Web Standard TextEncoder interface.
+ */
+export class TextEncoder {
+  constructor();
+  /**
+   * Encodes a string into UTF-8 bytes
+   * @param input - The string to encode
+   * @returns An Uint8Array containing the UTF-8 encoded bytes
+   */
+  encode(input: string): Uint8Array;
+}
+
+/**
+ * TextDecoder provides functionality for decoding UTF-8 encoded bytes into strings.
+ * This implementation follows the Web Standard TextDecoder interface.
+ */
+export class TextDecoder {
+  constructor();
+  /**
+   * Decodes UTF-8 encoded bytes into a string
+   * @param input - The Uint8Array containing UTF-8 encoded bytes to decode
+   * @returns The decoded string
+   */
+  decode(input: Uint8Array): string;
+}

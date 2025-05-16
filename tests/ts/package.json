@@ -18,7 +18,7 @@
     "build": "echo 'no build steps'",
     "clean": "rimraf dist",
     "format": "prettier --write .",
-    "test": "jest"
+    "test": "NODE_OPTIONS='--no-warnings' jest"
   },
   "devDependencies": {
     "ckb-fs-packer": "workspace:*",

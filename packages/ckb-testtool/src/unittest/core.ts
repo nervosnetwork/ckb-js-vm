@@ -243,8 +243,8 @@ export class ScriptVerificationResult {
  */
 export class Resource {
   constructor(
-    public cells: Map<OutPoint, Cell> = new Map(),
-    public cellHeader: Map<Cell, Hex> = new Map(),
+    public cells: Map<string, Cell> = new Map(),
+    public cellHeader: Map<string, Hex> = new Map(),
     public cellOutpointHash: Hex = "0x0000000000000000000000000000000000000000000000000000000000000000",
     public cellOutpointIncr: Num = numFrom(0),
     public extension: Map<Hex, Hex> = new Map(),
@@ -278,7 +278,7 @@ export class Resource {
     );
     const cellOutput = new CellOutput(capacity, lock, type);
     const cell = new Cell(cellOutPoint, cellOutput, data);
-    this.cells.set(cellOutPoint, cell);
+    this.cells.set(cellOutPoint.toBytes().toString(), cell);
     this.cellOutpointIncr += numFrom(1);
     return cell;
   }
@@ -356,7 +356,7 @@ export class Resource {
     this.headerIncr += numFrom(1);
     this.extension.set(header.hash, extension);
     for (const cell of cells) {
-      this.cellHeader.set(cell, header.hash);
+      this.cellHeader.set(cell.outPoint.toBytes().toString(), header.hash);
     }
     return header.hash;
   }
@@ -586,7 +586,9 @@ export class UnitTestClient extends Client {
   }
 
   async getCell(outPointLike: OutPointLike): Promise<Cell | undefined> {
-    const cell = this.resource.cells.get(OutPoint.from(outPointLike));
+    const cell = this.resource.cells.get(
+      OutPoint.from(outPointLike).toBytes().toString(),
+    );
     if (!cell) {
       return;
     }
@@ -830,7 +832,7 @@ export class Verifier {
 
     // Add cell dependencies to the mock info.
     for (const e of this.tx.cellDeps) {
-      const cell = this.resource.cells.get(e.outPoint)!;
+      const cell = this.resource.cells.get(e.outPoint.toBytes().toString())!;
       r.mock_info.cell_deps.push({
         cell_dep: {
           out_point: JsonRpcTransformers.outPointFrom(cell.outPoint),
@@ -838,18 +840,24 @@ export class Verifier {
         },
         output: JsonRpcTransformers.cellOutputFrom(cell.cellOutput),
         data: cell.outputData,
-        header: this.resource.cellHeader.get(cell),
+        header: this.resource.cellHeader.get(
+          cell.outPoint.toBytes().toString(),
+        ),
       });
     }
 
     // Add inputs to the mock info.
     for (const e of this.tx.inputs) {
-      const cell = this.resource.cells.get(e.previousOutput)!;
+      const cell = this.resource.cells.get(
+        e.previousOutput.toBytes().toString(),
+      )!;
       r.mock_info.inputs.push({
         input: JsonRpcTransformers.cellInputFrom(e),
         output: JsonRpcTransformers.cellOutputFrom(cell.cellOutput),
         data: cell.outputData,
-        header: this.resource.cellHeader.get(cell),
+        header: this.resource.cellHeader.get(
+          cell.outPoint.toBytes().toString(),
+        ),
       });
     }
 
@@ -1017,7 +1025,9 @@ export class Verifier {
 
     // Verify input cells
     for (const [i, e] of this.tx.inputs.entries()) {
-      const cell = this.resource.cells.get(e.previousOutput)!;
+      const cell = this.resource.cells.get(
+        e.previousOutput.toBytes().toString(),
+      )!;
 
       // Verify lock script if not in group
       const lockHash = cell.cellOutput.lock.hash();
