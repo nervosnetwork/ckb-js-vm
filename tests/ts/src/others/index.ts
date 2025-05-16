@@ -35,6 +35,9 @@ function testMoleculeBigInt() {
         "0000000000000000",
     "Uint512",
   );
+
+  let value = mol.Ubigint64.encode(18446744073709551615n);
+  console.assert(hex.encode(value) === "ff".repeat(8), "Ubigint64");
 }
 
 function testMoleculeString() {

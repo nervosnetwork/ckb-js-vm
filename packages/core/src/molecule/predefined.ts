@@ -26,6 +26,10 @@ export const Uint64 = uint(8, true);
 export const Uint64Opt = option(Uint64);
 export const Uint64Vec = vector(Uint64);
 
+export const Ubigint64 = bigInt(8, true);
+export const Ubigint64Opt = option(Ubigint64);
+export const Ubigint64Vec = vector(Ubigint64);
+
 export const Uint128 = bigInt(16, true);
 export const Uint128Opt = option(Uint128);
 export const Uint128Vec = vector(Uint128);
