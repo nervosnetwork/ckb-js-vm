@@ -61,10 +61,16 @@ function testText() {
   console.assert(decoded === str);
 }
 
+function testMoleculeOption() {
+  let ret = mol.Uint8Opt.encode(0);
+  console.assert(hex.encode(ret) === "00", "Uint8Opt");
+}
+
 function main() {
   testText();
   testMoleculeBigInt();
   testMoleculeString();
+  testMoleculeOption();
 }
 
 main();

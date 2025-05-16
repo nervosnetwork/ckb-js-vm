@@ -245,7 +245,7 @@ export function option<Encodable, Decoded>(
 ): Codec<Encodable | undefined | null, Decoded | undefined> {
   return Codec.from({
     encode(userDefinedOrNull) {
-      if (!userDefinedOrNull) {
+      if (userDefinedOrNull === undefined || userDefinedOrNull === null) {
         return new ArrayBuffer(0);
       }
       try {
