@@ -7,16 +7,20 @@ function reportCycles() {
   log.debug(`current cycles = ${num} M`);
 }
 
+function bigintReplacer(key: string, value: any) {
+  return typeof value === "bigint" ? Number(value) : value;
+}
+
 function main() {
   log.setLevel(log.LogLevel.Debug);
   reportCycles();
 
   let script = HighLevel.loadScript();
-  log.debug(`current script: ${JSON.stringify(script)}`);
+  log.debug(`current script: ${JSON.stringify(script, bigintReplacer)}`);
   reportCycles();
 
   let cell = HighLevel.loadCell(0, HighLevel.SOURCE_INPUT);
-  log.debug(`first input cell: ${JSON.stringify(cell)}`);
+  log.debug(`first input cell: ${JSON.stringify(cell, bigintReplacer)}`);
   reportCycles();
 
   let iter = new HighLevel.QueryIter(
@@ -24,13 +28,17 @@ function main() {
     HighLevel.SOURCE_INPUT,
   );
   for (let item of iter) {
-    log.debug(`list all input lock scripts: ${JSON.stringify(item)}`);
+    log.debug(
+      `list all input lock scripts: ${JSON.stringify(item, bigintReplacer)}`,
+    );
   }
   reportCycles();
 
   let tx = HighLevel.loadTransaction();
   for (let output of tx.outputs) {
-    log.debug(`list all output cells: ${JSON.stringify(output)}`);
+    log.debug(
+      `list all output cells: ${JSON.stringify(output, bigintReplacer)}`,
+    );
   }
   reportCycles();
 }
