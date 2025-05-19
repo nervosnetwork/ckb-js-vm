@@ -22,8 +22,8 @@ import {
   Script,
   OutPoint,
 } from "../ckb";
-import { bigintFromBytes } from "../num";
 import { Bytes, bytesEq } from "../bytes";
+import { numFromBytes } from "../num";
 
 /**
  * Re-export constants from bindings to simplify imports.
@@ -228,7 +228,7 @@ export function loadCellCapacity(
     source,
     bindings.CELL_FIELD_CAPACITY,
   );
-  return bigintFromBytes(bytes);
+  return numFromBytes(bytes);
 }
 
 /**
@@ -253,7 +253,7 @@ export function loadCellOccupiedCapacity(
     source,
     bindings.CELL_FIELD_OCCUPIED_CAPACITY,
   );
-  return bigintFromBytes(bytes);
+  return numFromBytes(bytes);
 }
 
 /**
@@ -410,7 +410,7 @@ export function loadHeaderEpochNumber(
     source,
     bindings.HEADER_FIELD_EPOCH_NUMBER,
   );
-  return bigintFromBytes(bytes);
+  return numFromBytes(bytes);
 }
 
 /**
@@ -435,7 +435,7 @@ export function loadHeaderEpochStartBlockNumber(
     source,
     bindings.HEADER_FIELD_EPOCH_START_BLOCK_NUMBER,
   );
-  return bigintFromBytes(bytes);
+  return numFromBytes(bytes);
 }
 
 /**
@@ -460,7 +460,7 @@ export function loadHeaderEpochLength(
     source,
     bindings.HEADER_FIELD_EPOCH_LENGTH,
   );
-  return bigintFromBytes(bytes);
+  return numFromBytes(bytes);
 }
 
 /**
@@ -485,7 +485,7 @@ export function loadInputSince(
     source,
     bindings.INPUT_FIELD_SINCE,
   );
-  return bigintFromBytes(bytes);
+  return numFromBytes(bytes);
 }
 
 /**

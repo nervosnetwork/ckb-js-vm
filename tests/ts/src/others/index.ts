@@ -1,6 +1,6 @@
 import * as bindings from "@ckb-js-std/bindings";
 import { hex } from "@ckb-js-std/bindings";
-import { log, mol } from "@ckb-js-std/core";
+import { log, mol, numFromBytes, numToBytes } from "@ckb-js-std/core";
 
 function testMoleculeBigInt() {
   const num128 = 2n ** 64n + 3n;
@@ -36,8 +36,8 @@ function testMoleculeBigInt() {
     "Uint512",
   );
 
-  let value = mol.Ubigint64.encode(18446744073709551615n);
-  console.assert(hex.encode(value) === "ff".repeat(8), "Ubigint64");
+  let value = mol.Uint64.encode(18446744073709551615n);
+  console.assert(hex.encode(value) === "ff".repeat(8), "mol.Uint64");
 }
 
 function testMoleculeString() {
@@ -69,11 +69,39 @@ function testMoleculeOption() {
   console.assert(hex.encode(ret) === "00", "Uint8Opt");
 }
 
+function testNum() {
+  let part1 = "0100000000000000";
+  let part2 = "0200000000000000";
+  let part3 = "0300000000000000";
+  let part4 = "0400000000000000";
+  function checkNum(s: string) {
+    let bytes = hex.decode(s);
+    let num = numFromBytes(bytes);
+    let bytes2 = numToBytes(num, bytes.byteLength);
+    console.assert(bytes.toString() == bytes2.toString(), "checkNum on " + s);
+  }
+  checkNum(part1);
+  checkNum(part1 + part2);
+  checkNum(part1 + part2 + part3 + part4);
+  checkNum(part1 + part2 + part3 + part4);
+
+  // Test uint256 (32 bytes) with random combinations
+  checkNum(part2 + part1 + part4 + part3);
+  checkNum(part3 + part4 + part1 + part2);
+  checkNum(part4 + part3 + part2 + part1);
+
+  // Test uint512 (64 bytes) with random combinations
+  checkNum(part1 + part3 + part2 + part4 + part2 + part4 + part1 + part3);
+  checkNum(part4 + part2 + part3 + part1 + part3 + part1 + part4 + part2);
+  checkNum(part2 + part4 + part1 + part3 + part4 + part2 + part3 + part1);
+}
+
 function main() {
   testText();
   testMoleculeBigInt();
   testMoleculeString();
   testMoleculeOption();
+  testNum();
 }
 
 main();

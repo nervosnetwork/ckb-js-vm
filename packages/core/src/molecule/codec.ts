@@ -1,13 +1,6 @@
 // migrated from ccc
 import { Bytes, bytesConcat, bytesConcatTo, BytesLike } from "../bytes/index";
-import {
-  bigintFromBytes,
-  bigintToBytes,
-  Num,
-  numFromBytes,
-  NumLike,
-  numToBytes,
-} from "../num/index";
+import { Num, numFromBytes, NumLike, numToBytes } from "../num/index";
 
 export type CodecLike<Encodable, Decoded = Encodable> = {
   readonly encode: (encodable: Encodable) => Bytes;
@@ -245,7 +238,7 @@ export function option<Encodable, Decoded>(
 ): Codec<Encodable | undefined | null, Decoded | undefined> {
   return Codec.from({
     encode(userDefinedOrNull) {
-      if (userDefinedOrNull === undefined || userDefinedOrNull === null) {
+      if (userDefinedOrNull == null) {
         return new ArrayBuffer(0);
       }
       try {
@@ -633,10 +626,10 @@ export function bigInt(
   return Codec.from({
     byteLength,
     encode: (numLike) => {
-      return bigintToBytes(numLike, byteLength);
+      return numToBytes(numLike, byteLength);
     },
     decode: (buffer) => {
-      return bigintFromBytes(buffer);
+      return numFromBytes(buffer);
     },
   });
 }

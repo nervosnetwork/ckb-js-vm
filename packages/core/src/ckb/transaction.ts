@@ -1,6 +1,6 @@
 import { Bytes, BytesLike } from "../bytes/index";
 import { mol } from "../molecule/index";
-import { Num, NumLike, bigintFromBytes } from "../num/index";
+import { numFromBytes, NumLike } from "../num/index";
 import { apply } from "../utils/index";
 import { Script, ScriptLike, ScriptOpt } from "./script";
 
@@ -30,7 +30,7 @@ export class OutPoint extends mol.Entity.Base<OutPointLike, OutPoint>() {
 
   constructor(
     public txHash: Bytes,
-    public index: Num,
+    public index: NumLike,
   ) {
     super();
   }
@@ -82,7 +82,7 @@ export class CellOutput extends mol.Entity.Base<CellOutputLike, CellOutput>() {
    */
 
   constructor(
-    public capacity: Num,
+    public capacity: NumLike,
     public lock: Script,
     public type?: Script,
   ) {
@@ -223,7 +223,7 @@ export class CellInput extends mol.Entity.Base<CellInputLike, CellInput>() {
 
   constructor(
     public previousOutput: OutPoint,
-    public since: Num,
+    public since: NumLike,
     public cellOutput?: CellOutput,
     public outputData?: BytesLike,
   ) {
@@ -402,7 +402,7 @@ export class WitnessArgs extends mol.Entity.Base<
  */
 export function udtBalanceFrom(dataLike: BytesLike): bigint {
   const data = dataLike.slice(0, 16);
-  return bigintFromBytes(data);
+  return numFromBytes(data);
 }
 
 export const RawTransaction = mol.table({
@@ -464,7 +464,7 @@ export class Transaction extends mol.Entity.Base<
    */
 
   constructor(
-    public version: Num,
+    public version: NumLike,
     public cellDeps: CellDep[],
     public headerDeps: Bytes[],
     public inputs: CellInput[],
