@@ -24,7 +24,6 @@ export const rule = createRule<[], MessageId>({
   defaultOptions: [],
 
   create(context) {
-    // Only apply to index.ts or index.js
     const filename = context.filename;
     if (!/index\.(ts|js)$/i.test(filename)) {
       return {};
@@ -42,8 +41,6 @@ export const rule = createRule<[], MessageId>({
           node.callee.property.type === AST_NODE_TYPES.Identifier &&
           node.callee.property.name === "exit"
         ) {
-          // Check if it's a top-level call
-          // CallExpression -> ExpressionStatement -> Program
           if (
             node.parent?.type === AST_NODE_TYPES.ExpressionStatement &&
             node.parent.parent?.type === AST_NODE_TYPES.Program
@@ -57,7 +54,6 @@ export const rule = createRule<[], MessageId>({
               foundTopLevel = true;
             }
           } else {
-            // It's bindings.exit(...), but not at the top level
             context.report({
               node,
               messageId: "notTopLevel",

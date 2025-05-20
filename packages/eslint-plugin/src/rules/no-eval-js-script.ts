@@ -2,31 +2,26 @@ import type { TSESTree } from "@typescript-eslint/utils";
 import { AST_NODE_TYPES } from "@typescript-eslint/utils";
 import { createRule } from "../utils";
 
-export type MessageId = "noMountInMain";
+export type MessageId = "noEvalJsScript";
 
 export const rule = createRule<[], MessageId>({
-  name: "no-mount-in-main",
+  name: "no-eval-js-script",
   meta: {
     type: "problem",
     docs: {
       description:
-        "Disallow `bindings.mount` calls in main entry files (e.g., `index.js`, `index.bc`). Suggest using `init.js` or `init.bc` instead.",
+        "Disallow the use of `bindings.evalJsScript()` due to significant security risks when loading code from untrusted sources. Consider safer alternatives or restrict usage to trusted, validated inputs only.",
       recommended: true,
     },
     messages: {
-      noMountInMain:
-        "Avoid using `bindings.mount` in main files. Place it in an `init.js` or `init.bc` file to ensure filesystems are mounted before module imports.",
+      noEvalJsScript:
+        "Avoid using `bindings.evalJsScript()`. Loading and evaluating arbitrary JavaScript, especially from untrusted sources, can lead to severe security vulnerabilities. Ensure any use is strictly necessary and inputs are rigorously validated or from trusted sources.",
     },
     schema: [],
   },
   defaultOptions: [],
 
   create(context) {
-    const filename = context.filename;
-    if (!/index\.(ts|js)$/i.test(filename)) {
-      return {};
-    }
-
     return {
       CallExpression(node: TSESTree.CallExpression): void {
         if (
@@ -34,14 +29,11 @@ export const rule = createRule<[], MessageId>({
           node.callee.object.type === AST_NODE_TYPES.Identifier &&
           node.callee.object.name === "bindings" &&
           node.callee.property.type === AST_NODE_TYPES.Identifier &&
-          node.callee.property.name === "mount"
+          node.callee.property.name === "evalJsScript"
         ) {
           context.report({
-            node,
-            messageId: "noMountInMain",
-            data: {
-              filename: filename.split(/[\\/]/).pop() || "",
-            },
+            node: node.callee,
+            messageId: "noEvalJsScript",
           });
         }
       },
