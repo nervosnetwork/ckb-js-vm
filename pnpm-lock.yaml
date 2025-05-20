@@ -142,7 +142,7 @@ importers:
         specifier: ^2.0.0
         version: 2.1.2(eslint@9.27.0)(typescript@5.7.3)
       eslint-plugin-eslint-plugin:
-        specifier: ^6.3.2
+        specifier: ^6.4.0
         version: 6.4.0(eslint@9.27.0)
       typescript:
         specifier: ^5.7.2

@@ -27,7 +27,7 @@
     "dedent": "^1.6.0",
     "eslint": "^9.16.0",
     "eslint-doc-generator": "^2.0.0",
-    "eslint-plugin-eslint-plugin": "^6.3.2",
+    "eslint-plugin-eslint-plugin": "^6.4.0",
     "typescript": "^5.7.2",
     "typescript-eslint": "8.18.0",
     "vitest": "^2.1.8"
