@@ -1,0 +1,35 @@
+{
+  "name": "@ckb-js-std/eslint-plugin",
+  "type": "commonjs",
+  "version": "1.0.0",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    }
+  },
+  "main": "lib/index.js",
+  "scripts": {
+    "docs": "eslint-doc-generator",
+    "lint": "eslint",
+    "build": "tsc",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@typescript-eslint/utils": "8.18.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.16.0",
+    "@types/eslint": "^9.6.1",
+    "@types/eslint__js": "^8.42.3",
+    "@types/node": "^22.10.2",
+    "@typescript-eslint/rule-tester": "8.18.0",
+    "dedent": "^1.6.0",
+    "eslint": "^9.16.0",
+    "eslint-doc-generator": "^2.0.0",
+    "eslint-plugin-eslint-plugin": "^6.3.2",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "8.18.0",
+    "vitest": "^2.1.8"
+  }
+}
