@@ -30,7 +30,6 @@ class Serve implements RequestHandler {
 }
 
 function main() {
-  log.setLevel(log.LogLevel.Debug);
   runServer(new Serve());
 }
 
@@ -45,13 +44,13 @@ import { Channel, RequestPacket, spawnCellServer } from "@ckb-js-std/ipc";
 
 function main() {
   let jsVmCodeHash = ... // Your ckb-js-vm code hash
-  let serverCodeHash = ... // Your server code hash
+  let serverCellLocation = ... // server `code hash` + `hash type` in hex
 
   // spawn server
   let [readPipe, writePipe] = spawnCellServer(
     jsVmCodeHash.buffer,
     SCRIPT_HASH_TYPE_TYPE,
-    ["-t", serverCodeHash],
+    ["-t", serverCellLocation],
   );
 
   let channel = new Channel(readPipe, writePipe);
