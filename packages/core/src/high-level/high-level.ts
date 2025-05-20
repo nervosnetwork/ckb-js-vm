@@ -21,6 +21,7 @@ import {
   Transaction,
   Script,
   OutPoint,
+  Header,
 } from "../ckb";
 import { Bytes, bytesEq } from "../bytes";
 import { numFromBytes } from "../num";
@@ -461,6 +462,24 @@ export function loadHeaderEpochLength(
     bindings.HEADER_FIELD_EPOCH_LENGTH,
   );
   return numFromBytes(bytes);
+}
+
+/**
+ * Load header.
+ *
+ * @param index - The index of the header to load
+ * @param source - The source to load the header from
+ * @returns The header
+ * @throws Error if there's a system error or if the header cannot be found
+ *
+ * @example
+ * ```typescript
+ * const header = loadHeader(0, bindings.SOURCE_HEADER_DEP);
+ * ```
+ */
+export function loadHeader(index: number, source: bindings.SourceType): Header {
+  let bytes = bindings.loadHeader(index, source);
+  return Header.decode(bytes);
 }
 
 /**

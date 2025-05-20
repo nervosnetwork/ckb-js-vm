@@ -1,6 +1,12 @@
 import * as bindings from "@ckb-js-std/bindings";
 import { hex } from "@ckb-js-std/bindings";
-import { log, mol, numFromBytes, numToBytes } from "@ckb-js-std/core";
+import {
+  log,
+  mol,
+  numFromBytes,
+  numToBytes,
+  HighLevel,
+} from "@ckb-js-std/core";
 
 function testMoleculeBigInt() {
   const num128 = 2n ** 64n + 3n;
@@ -96,12 +102,43 @@ function testNum() {
   checkNum(part2 + part4 + part1 + part3 + part4 + part2 + part3 + part1);
 }
 
+function testHighLevel() {
+  let header = HighLevel.loadHeader(0, bindings.SOURCE_HEADER_DEP);
+  console.assert(header.rawHeader.version == 0n);
+  console.assert(header.rawHeader.compact_target == 1n);
+  console.assert(header.rawHeader.timestamp == 2n);
+  console.assert(header.rawHeader.number == 3n);
+  console.assert(header.rawHeader.epoch == 4n);
+  console.assert(
+    hex.encode(header.rawHeader.parent_hash) ==
+      "0000000000000000000000000000000000000000000000000000000000000005",
+  );
+  console.assert(
+    hex.encode(header.rawHeader.transactions_root) ==
+      "0000000000000000000000000000000000000000000000000000000000000006",
+  );
+  console.assert(
+    hex.encode(header.rawHeader.proposals_hash) ==
+      "0000000000000000000000000000000000000000000000000000000000000007",
+  );
+  console.assert(
+    hex.encode(header.rawHeader.extra_hash) ==
+      "0000000000000000000000000000000000000000000000000000000000000008",
+  );
+  console.assert(
+    hex.encode(header.rawHeader.dao) ==
+      "0000000000000000000000000000000000000000000000000000000000000009",
+  );
+  console.assert(header.nonce.toString() == "10");
+}
+
 function main() {
   testText();
   testMoleculeBigInt();
   testMoleculeString();
   testMoleculeOption();
   testNum();
+  testHighLevel();
 }
 
 main();
