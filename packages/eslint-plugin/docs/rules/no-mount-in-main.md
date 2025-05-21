@@ -21,10 +21,8 @@ If `index.js` contains:
 ```js
 // In index.js
 import * as bindings from "@ckb-js-std/bindings";
-import { someFunction } from "./my-module.js"; // Depends on a mounted filesystem
-
-// Attempt to mount the filesystem
 bindings.mount(2, bindings.SOURCE_CELL_DEP, "/");
+import { someFunction } from "./my-module.js"; // Depends on a mounted filesystem
 
 // Use the imported function
 someFunction();
