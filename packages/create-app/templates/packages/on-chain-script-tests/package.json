@@ -9,7 +9,7 @@
   "module": "./dist/index.js",
   "scripts": {
     "format": "prettier --write .",
-    "test": "jest",
+    "test": "NODE_OPTIONS='--no-warnings' jest",
     "clean": "rimraf dist/*"
   },
   "devDependencies": {
