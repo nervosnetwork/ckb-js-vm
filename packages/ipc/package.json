@@ -1,6 +1,6 @@
 {
   "name": "@ckb-js-std/ipc",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "on-chain script IPC implementation in TypeScript",
   "author": "CKB-VM Team",
   "license": "MIT",
