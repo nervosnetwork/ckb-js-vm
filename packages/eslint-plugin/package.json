@@ -13,7 +13,8 @@
     "docs": "eslint-doc-generator",
     "lint": "eslint",
     "build": "tsc",
-    "test": "vitest"
+    "test": "vitest",
+    "prepare": "vitest --run && tsc"
   },
   "dependencies": {
     "@typescript-eslint/utils": "8.18.0"
