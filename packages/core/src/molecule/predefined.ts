@@ -1,5 +1,14 @@
 import { BytesLike, Bytes as _Bytes } from "../bytes/index";
-import { byteVec, Codec, option, uint, uintNumber, vector } from "./codec";
+import {
+  bigInt,
+  byteVec,
+  Codec,
+  option,
+  uint,
+  uintNumber,
+  vector,
+} from "./codec";
+import { TextEncoder, TextDecoder } from "@ckb-js-std/bindings";
 
 export const Uint8 = uintNumber(1, true);
 export const Uint8Opt = option(Uint8);
@@ -81,7 +90,7 @@ export const String = byteVec({
   encode: (value: string) => {
     return new TextEncoder().encode(value);
   },
-  decode: (buffer) => new TextDecoder().decode(buffer),
+  decode: (buffer) => new TextDecoder().decode(new Uint8Array(buffer)),
 });
 export const StringVec = vector(String);
 export const StringOpt = option(String);

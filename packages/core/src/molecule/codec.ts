@@ -238,7 +238,7 @@ export function option<Encodable, Decoded>(
 ): Codec<Encodable | undefined | null, Decoded | undefined> {
   return Codec.from({
     encode(userDefinedOrNull) {
-      if (!userDefinedOrNull) {
+      if (userDefinedOrNull == null) {
         return new ArrayBuffer(0);
       }
       try {
@@ -603,6 +603,26 @@ export function uint(
   byteLength: number,
   littleEndian = false,
 ): Codec<NumLike, Num> {
+  return Codec.from({
+    byteLength,
+    encode: (numLike) => {
+      return numToBytes(numLike, byteLength);
+    },
+    decode: (buffer) => {
+      return numFromBytes(buffer);
+    },
+  });
+}
+
+/**
+ * Create a codec to deal with fixed LE or BE bytes.
+ * @param byteLength
+ * @param littleEndian
+ */
+export function bigInt(
+  byteLength: number,
+  littleEndian = false,
+): Codec<bigint, bigint> {
   return Codec.from({
     byteLength,
     encode: (numLike) => {

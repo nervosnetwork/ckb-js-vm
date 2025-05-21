@@ -172,6 +172,18 @@ function test_base64_decode() {
     console.log('test_base64_decode ok');
 }
 
+function test_base64_decode2() {
+    const base64Input = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=';
+    const expectedHex = '0000000000000000000000000000000000000000000000000000000000000000';
+
+    const decoded = misc.base64.decode(base64Input);
+    const result = misc.hex.encode(decoded);
+
+    console.assert(result === expectedHex, 'Base64 decoding failed');
+    console.log('test_base64_decode2 ok');
+}
+
+
 function test_import_meta() {
     console.assert(import.meta.main, 'import.meta.main should be true');
     console.assert(import.meta.url.length > 0, 'import.meta.url should be true');
@@ -213,7 +225,7 @@ function test_text_encoder() {
         0xe7, 0x95, 0x8c   // 界
     ]);
     console.assert(
-        encoded.byteLength === expected.length, 'Encoded length mismatch');
+        encoded.length === expected.length, 'Encoded length mismatch');
     for (let i = 0; i < encoded.length; i++) {
         console.assert(encoded[i] === expected[i], `Byte mismatch at position ${i}`);
     }
@@ -238,5 +250,6 @@ test_ckb_smt_verify3();
 test_ckb_smt_verify_invalid();
 test_base64_encode();
 test_base64_decode();
+test_base64_decode2();
 test_import_meta();
 console.log('test_misc.js ok');

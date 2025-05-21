@@ -1,5 +1,5 @@
 import * as bindings from "@ckb-js-std/bindings";
-import { Script, HighLevel, log } from "@ckb-js-std/core";
+import { HighLevel, log } from "@ckb-js-std/core";
 
 function reportCycles() {
   let cycles = bindings.currentCycles();
@@ -7,34 +7,38 @@ function reportCycles() {
   log.debug(`current cycles = ${num} M`);
 }
 
+function bigintReplacer(key: string, value: any) {
+  return typeof value === "bigint" ? Number(value) : value;
+}
+
 function main() {
   log.setLevel(log.LogLevel.Debug);
   reportCycles();
 
-  let script = bindings.loadScript();
-  log.debug(`raw current script: ${JSON.stringify(script)}`);
+  let script = HighLevel.loadScript();
+  log.debug(`current script: ${JSON.stringify(script, bigintReplacer)}`);
   reportCycles();
 
-  let script_obj = Script.decode(script);
-  log.debug(`current script: ${JSON.stringify(script_obj)}`);
-  reportCycles();
-
-  let cell = HighLevel.loadCell(0, bindings.SOURCE_INPUT);
-  log.debug(`first input cell: ${JSON.stringify(cell)}`);
+  let cell = HighLevel.loadCell(0, HighLevel.SOURCE_INPUT);
+  log.debug(`first input cell: ${JSON.stringify(cell, bigintReplacer)}`);
   reportCycles();
 
   let iter = new HighLevel.QueryIter(
     HighLevel.loadCellLock,
-    bindings.SOURCE_INPUT,
+    HighLevel.SOURCE_INPUT,
   );
   for (let item of iter) {
-    log.debug(`list all input lock scripts: ${JSON.stringify(item)}`);
+    log.debug(
+      `list all input lock scripts: ${JSON.stringify(item, bigintReplacer)}`,
+    );
   }
   reportCycles();
 
   let tx = HighLevel.loadTransaction();
   for (let output of tx.outputs) {
-    log.debug(`list all output cells: ${JSON.stringify(output)}`);
+    log.debug(
+      `list all output cells: ${JSON.stringify(output, bigintReplacer)}`,
+    );
   }
   reportCycles();
 }

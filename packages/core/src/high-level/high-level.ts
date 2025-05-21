@@ -21,9 +21,10 @@ import {
   Transaction,
   Script,
   OutPoint,
+  Header,
 } from "../ckb";
-import { bigintFromBytes } from "../num";
 import { Bytes, bytesEq } from "../bytes";
+import { numFromBytes } from "../num";
 
 /**
  * Re-export constants from bindings to simplify imports.
@@ -228,7 +229,7 @@ export function loadCellCapacity(
     source,
     bindings.CELL_FIELD_CAPACITY,
   );
-  return bigintFromBytes(bytes);
+  return numFromBytes(bytes);
 }
 
 /**
@@ -253,7 +254,7 @@ export function loadCellOccupiedCapacity(
     source,
     bindings.CELL_FIELD_OCCUPIED_CAPACITY,
   );
-  return bigintFromBytes(bytes);
+  return numFromBytes(bytes);
 }
 
 /**
@@ -410,7 +411,7 @@ export function loadHeaderEpochNumber(
     source,
     bindings.HEADER_FIELD_EPOCH_NUMBER,
   );
-  return bigintFromBytes(bytes);
+  return numFromBytes(bytes);
 }
 
 /**
@@ -435,7 +436,7 @@ export function loadHeaderEpochStartBlockNumber(
     source,
     bindings.HEADER_FIELD_EPOCH_START_BLOCK_NUMBER,
   );
-  return bigintFromBytes(bytes);
+  return numFromBytes(bytes);
 }
 
 /**
@@ -460,7 +461,25 @@ export function loadHeaderEpochLength(
     source,
     bindings.HEADER_FIELD_EPOCH_LENGTH,
   );
-  return bigintFromBytes(bytes);
+  return numFromBytes(bytes);
+}
+
+/**
+ * Load header.
+ *
+ * @param index - The index of the header to load
+ * @param source - The source to load the header from
+ * @returns The header
+ * @throws Error if there's a system error or if the header cannot be found
+ *
+ * @example
+ * ```typescript
+ * const header = loadHeader(0, bindings.SOURCE_HEADER_DEP);
+ * ```
+ */
+export function loadHeader(index: number, source: bindings.SourceType): Header {
+  let bytes = bindings.loadHeader(index, source);
+  return Header.decode(bytes);
 }
 
 /**
@@ -485,7 +504,7 @@ export function loadInputSince(
     source,
     bindings.INPUT_FIELD_SINCE,
   );
-  return bigintFromBytes(bytes);
+  return numFromBytes(bytes);
 }
 
 /**

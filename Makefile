@@ -98,6 +98,7 @@ build/ckb-js-vm: build/ckb-c-stdlib/impl.o \
                  build/src/qjs.o \
                  build/src/std_module.o \
 				 build/src/utils.o \
+				 build/src/base64.o \
                  deps/compiler-rt-builtins-riscv/build/libcompiler-rt.a
 	$(LD) $(LDFLAGS) -o $@ $^
 	cp $@ $@.debug

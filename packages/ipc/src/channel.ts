@@ -60,7 +60,7 @@ export class Channel {
    *
    * @param req - The request to send
    */
-  sendRequest(req: RequestPacket): void {
+  private sendRequest(req: RequestPacket): void {
     const bytes = req.serialize();
     this.writer.write(bytes);
     this.writer.flush();
@@ -71,7 +71,7 @@ export class Channel {
    *
    * @param resp - The response to send
    */
-  sendResponse(resp: ResponsePacket): void {
+  private sendResponse(resp: ResponsePacket): void {
     const bytes = resp.serialize();
     this.writer.write(bytes);
     this.writer.flush();
@@ -96,7 +96,7 @@ export class Channel {
    *
    * @returns The deserialized request
    */
-  receiveRequest(): RequestPacket {
+  private receiveRequest(): RequestPacket {
     return RequestPacket.readFrom(this.reader);
   }
 
@@ -105,7 +105,7 @@ export class Channel {
    *
    * @returns The deserialized response
    */
-  receiveResponse(): ResponsePacket {
+  private receiveResponse(): ResponsePacket {
     return ResponsePacket.readFrom(this.reader);
   }
 }

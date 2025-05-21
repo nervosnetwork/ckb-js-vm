@@ -69,9 +69,9 @@ function typeCheck(filePaths) {
 
   try {
     // Run tsc --noEmit on the files
-    execSync(`tsc --noEmit ${files.join(" ")}`, {
+    execSync(`tsc --noEmit`, {
       stdio: "inherit",
-      cwd: path.resolve(__dirname, "../../"),
+      cwd: __dirname,
     });
     return true;
   } catch (error) {

@@ -2,81 +2,32 @@
 
 import { BytesLike, Bytes } from "../bytes/index";
 
-export type Num = number;
-export type NumLike = number;
+export type Num = bigint;
+export type NumLike = number | bigint;
 
 export function numFromBytes(bytes: BytesLike): Num {
-  if (bytes.byteLength === 1) {
-    return new Uint8Array(bytes)[0];
-  } else if (bytes.byteLength === 2) {
-    return new DataView(bytes).getUint16(0, true);
-  } else if (bytes.byteLength === 4) {
-    return new DataView(bytes).getUint32(0, true);
-  } else {
-    let result = 0;
-    let view = new DataView(bytes);
-    for (let i = 0; i < view.byteLength; i++) {
-      if (i >= 7) {
-        console.assert(
-          view.getUint8(i) === 0,
-          "the value is too big to fit in a number, use bigintFromBytes instead",
-        );
-      }
-      result += view.getUint8(i) * Math.pow(256, i);
-    }
-    return result;
-  }
-}
-
-export function bigintFromBytes(bytes: BytesLike): bigint {
   let result = 0n;
-  if (bytes.byteLength === 1) {
+  const length = bytes.byteLength;
+  if (length === 1) {
     result = BigInt(new Uint8Array(bytes)[0]);
-  } else if (bytes.byteLength === 2) {
+  } else if (length === 2) {
     result = BigInt(new DataView(bytes).getUint16(0, true));
-  } else if (bytes.byteLength === 4) {
+  } else if (length === 4) {
     result = BigInt(new DataView(bytes).getUint32(0, true));
-  } else if (bytes.byteLength === 8) {
+  } else if (length === 8) {
     result = new DataView(bytes).getBigUint64(0, true);
-  } else {
+  } else if (length % 8 === 0) {
     let view = new DataView(bytes);
-    for (let i = 0; i < view.byteLength; i++) {
-      result += BigInt(view.getUint8(i)) * BigInt(Math.pow(256, i));
+    for (let i = 0; i < length / 8; i++) {
+      result += view.getBigUint64(i * 8, true) << BigInt(i * 64);
     }
+  } else {
+    throw new Error("Invalid bytes in numFromBytes");
   }
   return result;
 }
 
 export function numToBytes(val: NumLike, bytes: number): Bytes {
-  if (bytes !== 1 && bytes !== 2 && bytes !== 4 && bytes !== 8) {
-    throw new Error("Invalid bytes in numToBytes");
-  }
-  const result = new ArrayBuffer(bytes);
-  const view = new DataView(result);
-
-  if (bytes === 1) {
-    view.setUint8(0, val);
-  } else if (bytes === 2) {
-    view.setUint16(0, val, true);
-  } else if (bytes === 4) {
-    view.setUint32(0, val, true);
-  } else {
-    view.setBigUint64(0, BigInt(val), true);
-  }
-
-  return result;
-}
-
-export function bigintToBytes(val: bigint, bytes: number): Bytes {
-  if (
-    bytes !== 1 &&
-    bytes !== 2 &&
-    bytes !== 4 &&
-    bytes !== 8 &&
-    bytes !== 16
-  ) {
-    throw new Error("Invalid bytes in bigintToBytes");
-  }
   const result = new ArrayBuffer(bytes);
   const view = new DataView(result);
 
@@ -87,10 +38,16 @@ export function bigintToBytes(val: bigint, bytes: number): Bytes {
   } else if (bytes === 4) {
     view.setUint32(0, Number(val), true);
   } else if (bytes === 8) {
-    view.setBigUint64(0, val, true);
+    view.setBigUint64(0, BigInt(val), true);
+  } else if (bytes % 8 === 0) {
+    const mask = BigInt(0xffffffffffffffffn);
+    const bigVal = BigInt(val);
+    for (let i = 0; i < bytes / 8; i++) {
+      const item = (bigVal >> BigInt(i * 64)) & mask;
+      view.setBigUint64(i * 8, item, true);
+    }
   } else {
-    view.setBigUint64(0, val, true);
-    view.setBigUint64(8, val >> 64n, true);
+    throw new Error("Invalid value in numToBytes");
   }
 
   return result;

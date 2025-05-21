@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include "cutils.h"
+#include "quickjs.h"
 #include "misc_module.h"
 #define BLAKE2_IMPL_H
 #define BLAKE2_REF_C
@@ -9,6 +10,7 @@
 #include "ckb_smt.h"
 #include "qjs.h"
 #include "utils.h"
+#include "base64.h"
 
 static JSClassID js_smt_class_id;
 static JSClassID js_text_decoder_class_id;
@@ -192,31 +194,12 @@ static JSValue js_encode_base64(JSContext *ctx, JSValueConst this_val, int argc,
     uint8_t *data = JS_GetArrayBuffer(ctx, &data_len, argv[0]);
     if (!data) return JS_ThrowTypeError(ctx, "Expected ArrayBuffer");
 
-    static const char base64_chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-    size_t encoded_len = ((data_len + 2) / 3) * 4;
-    char *base64 = js_malloc(ctx, encoded_len + 1);
-    if (!base64) return JS_ThrowOutOfMemory(ctx);
-
-    size_t i = 0, j = 0;
-    while (i < data_len) {
-        uint32_t octet_a = i < data_len ? data[i++] : 0;
-        uint32_t octet_b = i < data_len ? data[i++] : 0;
-        uint32_t octet_c = i < data_len ? data[i++] : 0;
-
-        uint32_t triple = (octet_a << 16) + (octet_b << 8) + octet_c;
-
-        base64[j++] = base64_chars[(triple >> 18) & 0x3F];
-        base64[j++] = base64_chars[(triple >> 12) & 0x3F];
-        base64[j++] = base64_chars[(triple >> 6) & 0x3F];
-        base64[j++] = base64_chars[triple & 0x3F];
+    char *base64 = NULL;
+    size_t base64_len = 0;
+    int err = qjs_base64_encode((const char *)data, data_len, &base64, &base64_len);
+    if (err) {
+        return JS_ThrowTypeError(ctx, "base64 encode error");
     }
-
-    // Add padding
-    if (data_len % 3 >= 1) base64[encoded_len - 1] = '=';
-    if (data_len % 3 == 1) base64[encoded_len - 2] = '=';
-    base64[encoded_len] = '\0';
-
     JSValue result = JS_NewString(ctx, base64);
     js_free(ctx, base64);
     return result;
@@ -226,53 +209,13 @@ static JSValue js_encode_base64(JSContext *ctx, JSValueConst this_val, int argc,
 static JSValue js_decode_base64(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv) {
     const char *base64 = JS_ToCString(ctx, argv[0]);
     if (!base64) return JS_ThrowTypeError(ctx, "Expected string");
+    unsigned char *data = NULL;
+    size_t data_len = 0;
 
-    static const uint8_t base64_table[256] = {
-        64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
-        64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 62, 64, 64, 64, 63, 52, 53, 54, 55, 56, 57,
-        58, 59, 60, 61, 64, 64, 64, 64, 64, 64, 64, 0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15,
-        16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 64, 64, 64, 64, 64, 64, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36,
-        37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
-        64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
-        64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
-        64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
-        64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64};
-
-    size_t base64_len = strlen(base64);
-    if (base64_len % 4 != 0) {
+    int err = qjs_base64_decode(base64, &data, &data_len);
+    if (err) {
         JS_FreeCString(ctx, base64);
-        return JS_ThrowTypeError(ctx, "Invalid base64 string length");
-    }
-
-    size_t padding = 0;
-    if (base64_len > 0 && base64[base64_len - 1] == '=') padding++;
-    if (base64_len > 1 && base64[base64_len - 2] == '=') padding++;
-
-    size_t data_len = (base64_len / 4) * 3 - padding;
-    uint8_t *data = js_malloc(ctx, data_len);
-    if (!data) {
-        JS_FreeCString(ctx, base64);
-        return JS_ThrowOutOfMemory(ctx);
-    }
-
-    size_t i = 0, j = 0;
-    while (i < base64_len) {
-        uint32_t sextet_a = base64_table[(uint8_t)base64[i++]];
-        uint32_t sextet_b = base64_table[(uint8_t)base64[i++]];
-        uint32_t sextet_c = base64_table[(uint8_t)base64[i++]];
-        uint32_t sextet_d = base64_table[(uint8_t)base64[i++]];
-
-        if (sextet_a == 64 || sextet_b == 64 || sextet_c == 64 || sextet_d == 64) {
-            js_free(ctx, data);
-            JS_FreeCString(ctx, base64);
-            return JS_ThrowTypeError(ctx, "Invalid base64 character");
-        }
-
-        uint32_t triple = (sextet_a << 18) + (sextet_b << 12) + (sextet_c << 6) + sextet_d;
-
-        if (j < data_len) data[j++] = (triple >> 16) & 0xFF;
-        if (j < data_len) data[j++] = (triple >> 8) & 0xFF;
-        if (j < data_len) data[j++] = triple & 0xFF;
+        return JS_ThrowTypeError(ctx, "base64 decode error");
     }
 
     JS_FreeCString(ctx, base64);
@@ -511,17 +454,18 @@ static const JSCFunctionListEntry js_misc_funcs[] = {
 
 // TextDecoder decode method
 static JSValue js_text_decoder_decode(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv) {
-    size_t data_len;
-    uint8_t *data;
+    size_t data_len = 0;
+    uint8_t *data = NULL;
+    size_t per_element = 0;
+    JSValue value = JS_GetTypedArrayBuffer(ctx, argv[0], NULL, NULL, &per_element);
 
-    data = JS_GetArrayBuffer(ctx, &data_len, argv[0]);
-
-    if (!data) {
-        return JS_ThrowTypeError(ctx, "Failed to get array buffer data");
+    if (JS_IsException(value) || per_element != 1) {
+        return JS_ThrowTypeError(ctx, "Invalid argument type");
     }
-
-    // UTF-8 decoding
-    return JS_NewStringLen(ctx, (char *)data, data_len);
+    data = JS_GetArrayBuffer(ctx, &data_len, value);
+    JSValue result = JS_NewStringLen(ctx, (char *)data, data_len);
+    JS_FreeValue(ctx, value);
+    return result;
 }
 
 // TextEncoder encode method
@@ -531,7 +475,7 @@ static JSValue js_text_encoder_encode(JSContext *ctx, JSValueConst this_val, int
     if (!str) {
         return JS_ThrowTypeError(ctx, "Expected string");
     }
-    JSValue uint8_array = JS_NewArrayBufferCopy(ctx, (uint8_t *)str, str_len);
+    JSValue uint8_array = qjs_create_uint8_array(ctx, (uint8_t *)str, str_len);
     JS_FreeCString(ctx, str);
     return uint8_array;
 }
