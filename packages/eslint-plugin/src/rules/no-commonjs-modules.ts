@@ -15,11 +15,11 @@ export const rule = createRule<[], MessageId>({
     },
     messages: {
       noRequire:
-        "Avoid using `require()`. Use ES6 import syntax instead as ckb-js-vm supports ESM.",
+        "Use ES6 imports instead of `require()`. ckb-js-vm supports ESM only.",
       noModuleExports:
-        "Avoid using `module.exports` or assigning directly to `exports`. Use ES6 export syntax instead as ckb-js-vm supports ESM.",
+        "Use ES6 exports instead of `module.exports` or `exports = ...`. ckb-js-vm supports ESM only.",
       noExportsAssignment:
-        "Avoid assigning to `exports.xxx`. Use ES6 named exports instead as ckb-js-vm supports ESM.",
+        "Use ES6 named exports instead of `exports.xxx`. ckb-js-vm supports ESM only.",
     },
     schema: [],
   },

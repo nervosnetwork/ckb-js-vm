@@ -15,7 +15,7 @@ export const rule = createRule<[], MessageId>({
     },
     messages: {
       noEvalJsScript:
-        "Avoid using `bindings.evalJsScript()`. Loading and evaluating arbitrary JavaScript, especially from untrusted sources, can lead to severe security vulnerabilities. Ensure any use is strictly necessary and inputs are rigorously validated or from trusted sources.",
+        "`bindings.evalJsScript()` is insecure. Avoid use or ensure inputs are trusted and validated.",
     },
     schema: [],
   },

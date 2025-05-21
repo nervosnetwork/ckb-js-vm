@@ -15,7 +15,7 @@ export const rule = createRule<[], MessageId>({
     },
     messages: {
       noMountInMain:
-        "Avoid using `bindings.mount` in main files. Place it in an `init.js` or `init.bc` file to ensure filesystems are mounted before module imports.",
+        "`bindings.mount` in main entry files can cause issues. Use `init.js` or `init.bc` instead.",
     },
     schema: [],
   },

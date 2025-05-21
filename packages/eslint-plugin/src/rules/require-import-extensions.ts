@@ -17,7 +17,7 @@ export const rule = createRule<[], MessageId>({
       recommended: true,
     },
     messages: {
-      missingExtension: `Relative module path '{{path}}' must end with one of the allowed extensions: ${ALLOWED_EXTENSIONS.join(", ")}.`,
+      missingExtension: `Relative import '{{path}}' must include a .js or .bc extension.`,
     },
     schema: [],
   },
