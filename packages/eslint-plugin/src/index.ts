@@ -15,9 +15,12 @@ const plugin = {
 
 const recommended = {
   plugins: {
-    "ckb-js-std": plugin,
+    'ckb-js-std': plugin,
   },
-  rules,
+  rules: Object.keys(rules).reduce((acc, rule) => {
+    acc[`ckb-js-std/${rule}`] = "error";
+    return acc;
+  }, {} as Record<string, string>),
 };
 
 export = plugin;

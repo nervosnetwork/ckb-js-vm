@@ -15,7 +15,7 @@ export const rule = createRule<[], MessageId>({
     },
     messages: {
       missingBindingsExitMain:
-        "In `index.ts` (or `index.js`), the script must exit with a top-level call to `bindings.exit(main());`.",
+        "The script must exit with a top-level call to `bindings.exit(main());`.",
       notTopLevel:
         "The `bindings.exit(main());` call must be at the top level of the module.",
     },
