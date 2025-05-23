@@ -10,6 +10,7 @@ import {
   bindingVersion,
   cccCoreVersion,
   coreVersion,
+  eslintPluginVersion,
   testtoolVersion,
 } from "./config";
 
@@ -124,6 +125,7 @@ function updatePackageJson1(projectPath: string) {
     try {
       json = fs.readJsonSync(packageJsonPath);
       json.name = projectName;
+      json.devDependencies["@ckb-js-std/eslint-plugin"] = eslintPluginVersion;
       json.devDependencies["ckb-testtool"] = testtoolVersion;
       json.dependencies["@ckb-js-std/bindings"] = bindingVersion;
       json.dependencies["@ckb-js-std/core"] = coreVersion;
