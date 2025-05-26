@@ -24,4 +24,4 @@ jobs:
     - name: Generate typedoc
       run: pnpm run docs
     - name: Create app
-      run: cd .. && node ckb-js-vm/packages/create-app/dist/index.js test-app && cd test-app && pnpm build && pnpm test
+      run: cd .. && node ckb-js-vm/packages/create-app/dist/index.js test-app && cd test-app && pnpm build && pnpm test && pnpm lint

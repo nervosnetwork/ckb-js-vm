@@ -3,3 +3,4 @@ export const bindingVersion = "~1.0.0";
 export const coreVersion = "~1.0.0";
 export const testtoolVersion = "~1.0.0";
 export const cccCoreVersion = "~1.8.0";
+export const eslintPluginVersion = "~1.0.0";
