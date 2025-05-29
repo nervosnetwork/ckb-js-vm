@@ -67,7 +67,7 @@ describe("example", () => {
       "Transaction verification failed. See details above.",
     );
     await expect(verifier.verifyFailure(2)).rejects.toThrow(
-      "Transaction verification failed with unexpected error code: expected 2, got -1.",
+      "Transaction verification failed with unexpected error code: expected 2, got -1. See details above.",
     );
     jest.spyOn(console, "log").mockRestore();
   });

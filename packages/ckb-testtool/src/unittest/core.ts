@@ -965,7 +965,7 @@ export class Verifier {
             e.reportSummary();
           }
           assert.fail(
-            `Transaction verification failed with unexpected error code: expected ${expectedErrorCode}, got ${e.scriptErrorCode}.`,
+            `Transaction verification failed with unexpected error code: expected ${expectedErrorCode}, got ${e.scriptErrorCode}. See details above.`,
           );
         } else {
           return;
