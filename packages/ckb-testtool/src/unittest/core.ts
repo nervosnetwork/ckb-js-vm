@@ -952,22 +952,24 @@ export class Verifier {
   async verifyFailure(expectedErrorCode?: number, enableLog: boolean = false) {
     const runResults = await this.verify();
     for (const e of runResults) {
+      if (enableLog) {
+        e.reportSummary();
+      }
       if (e.status != 0) {
         if (expectedErrorCode === undefined) {
           return;
         }
 
         if (e.scriptErrorCode != expectedErrorCode) {
-          e.reportSummary();
+          if (!enableLog) {
+            e.reportSummary();
+          }
           assert.fail(
             `Transaction verification failed with unexpected error code: expected ${expectedErrorCode}, got ${e.scriptErrorCode}. See details above.`,
           );
         } else {
           return;
         }
-      }
-      if (enableLog) {
-        e.reportSummary();
       }
     }
     assert.fail(
