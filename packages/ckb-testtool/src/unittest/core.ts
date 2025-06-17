@@ -946,11 +946,17 @@ export class Verifier {
    * @param expectedErrorCode - Optional. If provided, asserts that the verification fails with this specific error code.
    * @param enableLog - When true, prints detailed verification summaries for each script execution,
    *                   including stdout and stderr output. Defaults to false.
+   * @param config - Optional configuration object
+   * @param config.codeHash - When provided, only runs the script specified by this code hash
    * @throws {AssertionError} If expectedErrorCode is provided and the actual error code doesn't match,
    *                          or if no verification failure occurs when one is expected.
    */
-  async verifyFailure(expectedErrorCode?: number, enableLog: boolean = false) {
-    const runResults = await this.verify();
+  async verifyFailure(
+    expectedErrorCode?: number,
+    enableLog: boolean = false,
+    config?: { codeHash: Hex },
+  ) {
+    const runResults = await this.verify(config);
     for (const e of runResults) {
       if (enableLog) {
         e.reportSummary();
@@ -982,13 +988,18 @@ export class Verifier {
    *
    * @param enableLog - When true, prints detailed verification summaries for each script execution,
    *                   including stdout and stderr output. Defaults to false.
+   * @param config - Optional configuration object
+   * @param config.codeHash - When provided, only runs the script specified by this code hash
    * @throws {AssertionError} If any script verification fails. The error message
    *         will include a detailed summary of the failed verification.
    * @returns The total number of cycles consumed by all script executions
    */
-  async verifySuccess(enableLog: boolean = false): Promise<number> {
+  async verifySuccess(
+    enableLog: boolean = false,
+    config?: { codeHash?: Hex },
+  ): Promise<number> {
     let cycles = 0;
-    const runResults = await this.verify();
+    const runResults = await this.verify(config);
     for (const e of runResults) {
       if (e.status != 0) {
         e.reportSummary();
@@ -1018,7 +1029,9 @@ export class Verifier {
    * This method spawns a new process for each input/output in the transaction and checks for errors.
    * @returns An array of results from the debugger tool (contains information about verification status).
    */
-  async verify(): Promise<ScriptVerificationResult[]> {
+  async verify(config?: {
+    codeHash?: Hex;
+  }): Promise<ScriptVerificationResult[]> {
     const txFile = JSON.stringify(this.txFile());
     const result: ScriptVerificationResult[] = [];
     // only run the first script in same group, according to the CKB cell model
@@ -1035,10 +1048,14 @@ export class Verifier {
       const lockHash = cell.cellOutput.lock.hash();
       if (!lockGroup.has(lockHash)) {
         lockGroup.add(lockHash);
-        if (this.useWasmDebugger) {
-          result.push(await this.wasmVerifyScript("lock", "input", i, txFile));
-        } else {
-          result.push(this.verifyScript("lock", "input", i, txFile));
+        if (!config?.codeHash || config.codeHash === lockHash) {
+          if (this.useWasmDebugger) {
+            result.push(
+              await this.wasmVerifyScript("lock", "input", i, txFile),
+            );
+          } else {
+            result.push(this.verifyScript("lock", "input", i, txFile));
+          }
         }
       }
 
@@ -1047,12 +1064,14 @@ export class Verifier {
         const typeHash = cell.cellOutput.type.hash();
         if (!typeGroup.has(typeHash)) {
           typeGroup.add(typeHash);
-          if (this.useWasmDebugger) {
-            result.push(
-              await this.wasmVerifyScript("type", "input", i, txFile),
-            );
-          } else {
-            result.push(this.verifyScript("type", "input", i, txFile));
+          if (!config?.codeHash || config.codeHash === typeHash) {
+            if (this.useWasmDebugger) {
+              result.push(
+                await this.wasmVerifyScript("type", "input", i, txFile),
+              );
+            } else {
+              result.push(this.verifyScript("type", "input", i, txFile));
+            }
           }
         }
       }
@@ -1066,14 +1085,22 @@ export class Verifier {
       const typeHash = e.type.hash();
       if (!typeGroup.has(typeHash)) {
         typeGroup.add(typeHash);
-        if (this.useWasmDebugger) {
-          result.push(await this.wasmVerifyScript("type", "output", i, txFile));
-        } else {
-          result.push(this.verifyScript("type", "output", i, txFile));
+        if (!config?.codeHash || config.codeHash === typeHash) {
+          if (this.useWasmDebugger) {
+            result.push(
+              await this.wasmVerifyScript("type", "output", i, txFile),
+            );
+          } else {
+            result.push(this.verifyScript("type", "output", i, txFile));
+          }
         }
       }
     }
-
+    if (result.length === 0) {
+      throw new Error(
+        "No scripts found to verify. Please check your configuration parameters and ensure scripts are present in the transaction.",
+      );
+    }
     return result;
   }
 

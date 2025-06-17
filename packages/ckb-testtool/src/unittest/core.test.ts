@@ -45,6 +45,43 @@ describe("example", () => {
     );
     jest.spyOn(console, "log").mockRestore();
   });
+  test("should run script specified by code hash", async () => {
+    const resource = Resource.default();
+    const tx = Transaction.default();
+
+    // deploy a cell with risc-v binary, return a script.
+    const lockScript = resource.deployCell(
+      hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_SUCCESS)),
+      tx,
+      false,
+    );
+    // update args
+    lockScript.args = "0xEEFF";
+
+    // mock a input cell with the created script as lock script
+    const inputCell = resource.mockCell(lockScript);
+
+    // add input cell to the transaction
+    tx.inputs.push(Resource.createCellInput(inputCell));
+    // add output cell to the transaction
+    tx.outputs.push(Resource.createCellOutput(lockScript));
+    // add output data to the transaction
+    tx.outputsData.push(hexFrom("0x"));
+
+    // verify the transaction
+    const verifier = Verifier.from(resource, tx);
+    await verifier.verifySuccess(false, { codeHash: lockScript.hash() });
+    await expect(
+      verifier.verifyFailure(undefined, false, { codeHash: lockScript.hash() }),
+    ).rejects.toThrow(
+      "Transaction verification should fail. No verification failure occurred.",
+    );
+    await expect(
+      verifier.verifySuccess(false, { codeHash: "0x00000" }),
+    ).rejects.toThrow(
+      "No scripts found to verify. Please check your configuration parameters and ensure scripts are present in the transaction.",
+    );
+  });
 
   test("alwaysFailure", async () => {
     const resource = Resource.default();
