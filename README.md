@@ -50,3 +50,7 @@ To run the example project:
 cd packages/examples
 pnpm run start
 ```
+
+## Demo
+
+[ckb-js-pokemon](https://github.com/cryptape/ckb-js-pokemon): A blockchain-based Pokemon NFT collection platform
