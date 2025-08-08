@@ -11,7 +11,7 @@ Ensure you have the following installed:
 
 - [pnpm](https://pnpm.io/), >= 10.4
 - [ckb-debugger](https://github.com/nervosnetwork/ckb-standalone-debugger), >= v0.200.1
-- clang-18
+- clang-19
 
 
 ## Quick Start with create-ckb-js-vm-app (Recommended)
