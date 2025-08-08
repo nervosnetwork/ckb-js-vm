@@ -16,8 +16,8 @@ cleanup() {
 trap cleanup EXIT
 
 DOCKER="${DOCKER:-docker}"
-# docker pull docker.io/cryptape/llvm-n-rust:20240630
-DOCKER_IMAGE="${DOCKER_IMAGE:-docker.io/cryptape/llvm-n-rust@sha256:bafaf76d4f342a69b8691c08e77a330b7740631f3d1d9c9bee4ead521b29ee55}"
+# docker pull docker.io/cryptape/llvm-n-rust:20250617
+DOCKER_IMAGE="${DOCKER_IMAGE:-docker.io/cryptape/llvm-n-rust@sha256:d6d1f9a6656039273210de91913c828f5b4aa4a3282d2c93ed19bcb7bbf728fe}"
 CHECKSUM_FILE_PATH="${CHECKSUM_FILE_PATH:-checksums.txt}"
 
 # We are parsing command line arguments based on tips from:
