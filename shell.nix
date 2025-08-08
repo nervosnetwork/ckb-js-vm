@@ -5,7 +5,7 @@ let
     sha256 = "1p9n1pk48sj0f7jsnnk09clkwh7sgcf47a14rwki24hgqlf6r4mn";
   };
   pkgs = import nixpkgs {};
-  llvmPackages = pkgs.llvmPackages_18;
+  llvmPackages = pkgs.llvmPackages_19;
 in
 pkgs.mkShell {
   buildInputs = with pkgs; [
