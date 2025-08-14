@@ -14,7 +14,7 @@ git submodule update --init
 make all
 ```
 
-clang-18 is required for compilation. After building, the binary will be available at `build/ckb-js-vm`.
+clang-19 is required for compilation. After building, the binary will be available at `build/ckb-js-vm`.
 
 If you need a reproducible build (ensuring the same binary is generated regardless of build environment), you can use:
 
