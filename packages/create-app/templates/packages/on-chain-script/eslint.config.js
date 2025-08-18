@@ -1,10 +1,10 @@
-import { defineConfig } from 'eslint/config';
-import ckbJsStd from '@ckb-js-std/eslint-plugin';
+import { defineConfig } from "eslint/config";
+import ckbJsStd from "@ckb-js-std/eslint-plugin";
 
 export default defineConfig([
   {
-    files: ['**/*.ts'],
+    files: ["**/*.ts"],
     plugins: { ckbJsStd },
-    extends: ['ckbJsStd/recommended'],
+    extends: ["ckbJsStd/recommended"],
   },
 ]);

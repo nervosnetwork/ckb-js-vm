@@ -23,5 +23,7 @@ jobs:
       run: cd packages/examples && pnpm run start
     - name: Generate typedoc
       run: pnpm run docs
-    - name: Create app
+    - name: Create app(npm)
+      run: cd .. && node ckb-js-vm/packages/create-app/dist/index.js test-app-npm --use-npm && cd test-app-npm && npm run build && npm run test && npm run lint
+    - name: Create app(pnpm)
       run: cd .. && node ckb-js-vm/packages/create-app/dist/index.js test-app && cd test-app && pnpm build && pnpm test && pnpm lint

@@ -46,6 +46,10 @@ const program = new Command(packageJson.name)
     "--skip-install",
     "Explicitly tell the CLI to skip installing packages.",
   )
+  .option(
+    "--use-npm",
+    "Explicitly tell the CLI to generate npm packages(default pnpm)",
+  )
   .action((name: string) => {
     // Commander does not implicitly support negated options. When they are used
     // by the user they will be interpreted as the positional argument (name) in
@@ -58,6 +62,14 @@ const program = new Command(packageJson.name)
   .parse(process.argv);
 
 const opts = program.opts();
+
+function getPkgManager(): string {
+  if (opts.useNpm) {
+    return "npm";
+  } else {
+    return "pnpm";
+  }
+}
 
 const packageManager = getPkgManager();
 
@@ -79,10 +91,6 @@ function validateNpmName(name: string): ValidationResult {
       ...(nameValidation.warnings || []),
     ],
   };
-}
-
-function getPkgManager(): string {
-  return "pnpm";
 }
 
 function isFolderEmpty(folderPath: string): boolean {
@@ -115,7 +123,7 @@ export async function install(packageManager: string): Promise<void> {
   });
 }
 
-function updatePackageJson1(projectPath: string) {
+function updateProjectPackage(projectPath: string) {
   const packageJsonPath = path.join(
     projectPath,
     "packages/on-chain-script/package.json",
@@ -149,7 +157,7 @@ function updatePackageJson1(projectPath: string) {
   }
 }
 
-function updatePackageJson2(projectPath: string) {
+function updateTestPackage(projectPath: string) {
   const packageJsonPath = path.join(
     projectPath,
     "packages/on-chain-script-tests/package.json",
@@ -158,7 +166,7 @@ function updatePackageJson2(projectPath: string) {
   if (fs.pathExistsSync(packageJsonPath)) {
     try {
       json = fs.readJsonSync(packageJsonPath);
-      json.name = projectName;
+      json.name = projectName + "-tests";
       json.devDependencies["ckb-testtool"] = testtoolVersion;
       json.devDependencies["@ckb-ccc/core"] = cccCoreVersion;
 
@@ -176,6 +184,47 @@ function updatePackageJson2(projectPath: string) {
     console.error(
       red(
         `Could not find packages/on-chain-script/package.json in the template. Make sure your template includes a package.json.`,
+      ),
+    );
+    process.exit(1);
+  }
+}
+
+function updateRootPackage(projectPath: string) {
+  const packageJsonPath = path.join(projectPath, "package.json");
+  let json: any = "";
+  if (fs.pathExistsSync(packageJsonPath)) {
+    try {
+      json = fs.readJsonSync(packageJsonPath);
+
+      // Update scripts to use npm workspaces commands if using npm
+      if (getPkgManager() === "npm") {
+        json.scripts = {
+          build: "npm run build --workspaces --if-present",
+          clean: "npm run clean --workspaces --if-present",
+          test: "npm run test --workspaces --if-present",
+          format: "npm run format --workspaces --if-present",
+          lint: "npm run lint --workspaces --if-present",
+        };
+
+        // Remove pnpm specific configuration
+        if (json.pnpm) {
+          delete json.pnpm;
+        }
+      }
+
+      fs.writeJsonSync(packageJsonPath, json, { spaces: 2 });
+      console.log(green(`Updated root package.json.`));
+    } catch (error: any) {
+      console.error(
+        red(`Failed to update root package.json: ${error.message}`),
+      );
+      process.exit(1);
+    }
+  } else {
+    console.error(
+      red(
+        `Could not find package.json in the template. Make sure your template includes a package.json.`,
       ),
     );
     process.exit(1);
@@ -264,8 +313,9 @@ async function run(): Promise<void> {
   fs.ensureDirSync(projectPath);
   fs.copySync(templatePath, projectPath);
 
-  updatePackageJson1(projectName);
-  updatePackageJson2(projectName);
+  updateRootPackage(projectPath);
+  updateProjectPackage(projectName);
+  updateTestPackage(projectName);
 
   console.log(`\n🎉 Project ${projectName} created!\n`);
 
@@ -289,6 +339,36 @@ async function run(): Promise<void> {
     console.log();
   }
 
+  // Create soft link for npm package manager to let ckb-debugger to find the path
+  if (getPkgManager() === "npm") {
+    const nodeModulesPath = path.join(
+      projectPath,
+      "packages/on-chain-script/node_modules",
+    );
+    const testtoolLinkPath = path.join(nodeModulesPath, "ckb-testtool");
+    const testtoolTargetPath = "node_modules/ckb-testtool";
+
+    try {
+      fs.ensureDirSync(nodeModulesPath);
+      // Remove existing link/directory if it exists
+      if (fs.pathExistsSync(testtoolLinkPath)) {
+        fs.removeSync(testtoolLinkPath);
+      }
+      fs.ensureSymlinkSync(testtoolTargetPath, testtoolLinkPath);
+      console.log(
+        green(
+          `Created symlink: node_modules/ckb-testtool -> ${testtoolTargetPath}`,
+        ),
+      );
+    } catch (error: any) {
+      console.warn(
+        yellow(
+          `Warning: Failed to create ckb-testtool symlink: ${error.message}`,
+        ),
+      );
+    }
+  }
+
   console.log(`${green("Success!")} Created ${projectName} at ${projectPath}`);
   console.log();
 }
@@ -300,7 +380,8 @@ async function notifyUpdate(): Promise<void> {
     const updateInfo = await update;
     if (updateInfo?.latest) {
       const global: Record<string, string> = {
-        pnpm: "pnpm add -g",
+        pnpm: "pnpm add",
+        npm: "npm install",
       };
       const updateMessage = `${global[packageManager]} ${packageJson.name}`;
       console.log(

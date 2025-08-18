@@ -29,7 +29,6 @@
     "@ckb-js-std/bindings": "~0.1.0",
     "@ckb-js-std/core": "~0.1.0",
     "@ckb-js-std/eslint-plugin": "~1.0.0",
-    "eslint": "^9.27.0",
-    "ckb-default-app": "link:"
+    "eslint": "^9.27.0"
   }
 }
