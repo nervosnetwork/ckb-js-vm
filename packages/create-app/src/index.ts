@@ -381,7 +381,7 @@ async function notifyUpdate(): Promise<void> {
     if (updateInfo?.latest) {
       const global: Record<string, string> = {
         pnpm: "pnpm add",
-        npm: "npm install",
+        npm: "npm update",
       };
       const updateMessage = `${global[packageManager]} ${packageJson.name}`;
       console.log(
@@ -392,7 +392,6 @@ async function notifyUpdate(): Promise<void> {
           "\n",
       );
     }
-    process.exit(0);
   } catch {
     // ignore error
   }
@@ -415,7 +414,6 @@ async function exit(reason: ExitReason): Promise<void> {
     );
   }
   console.log();
-  await notifyUpdate();
   process.exit(1);
 }
 
