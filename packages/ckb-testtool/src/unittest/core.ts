@@ -162,7 +162,7 @@ export class ScriptVerificationResult {
     public stderr: string,
     private cachedCycles: number | null = null,
     private cachedScriptErrorCode: number | null = null,
-  ) {}
+  ) { }
 
   /**
    * Gets the error code returned by the script execution.
@@ -251,7 +251,7 @@ export class Resource {
     public header: Map<Hex, HeaderView> = new Map(),
     public headerIncr: Num = numFrom(0),
     public typeidIncr: Num = numFrom(0),
-  ) {}
+  ) { }
 
   // Static method to return a default Resource instance.
   static default(): Resource {
@@ -289,6 +289,10 @@ export class Resource {
    * @param depType - The type of dependency (Code, DepGroup).
    * @returns A CellDep object representing the Cell dependency.
    */
+  static createCellDep(cell: Cell, depType: DepType): CellDep {
+    return new CellDep(cell.outPoint, depType);
+  }
+
   createCellDep(cell: Cell, depType: DepType): CellDep {
     return new CellDep(cell.outPoint, depType);
   }
@@ -441,7 +445,7 @@ export class Resource {
       typeScript,
       data,
     );
-    tx.cellDeps.push(this.createCellDep(deployedCell, "code"));
+    tx.cellDeps.push(Resource.createCellDep(deployedCell, "code"));
     if (isType) {
       return this.createScriptByType(deployedCell, "0x");
     } else {

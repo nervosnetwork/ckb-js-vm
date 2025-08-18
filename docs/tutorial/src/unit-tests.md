@@ -25,49 +25,46 @@ This combination provides a complete unit testing framework for CKB scripts writ
 
 ```typescript
 describe("example", () => {
-  test("alwaysSuccess", () => {
+  test("alwaysSuccess", async () => {
     const resource = Resource.default();
-    const tx = Transaction.default();
-
-    // deploy a cell with risc-v binary, return a script.
-    const lockScript = resource.deployCell(
+    // deploy a cell with risc-v binary, return a cell.
+    const lockCell = resource.mockCell(
+      resource.createScriptUnused(),
+      resource.createScriptTypeID(),
       hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_SUCCESS)),
-      tx,
-      false,
     );
-    // update args
-    lockScript.args = "0xEEFF";
-
-    // mock a input cell with the created script as lock script
+    const lockScript = resource.createScriptByType(lockCell, "0xEEFF");
+    // deploy a cell with always success lock.
     const inputCell = resource.mockCell(lockScript);
 
-    // add input cell to the transaction
-    tx.inputs.push(Resource.createCellInput(inputCell));
-    // add output cell to the transaction
-    tx.outputs.push(Resource.createCellOutput(lockScript));
-    // add output data to the transaction
-    tx.outputsData.push(hexFrom("0x"));
+    const tx = Transaction.from({
+      inputs: [Resource.createCellInput(inputCell)],
+      cellDeps: [Resource.createCellDep(lockCell, "code")],
+    });
 
     // verify the transaction
     const verifier = Verifier.from(resource, tx);
-    verifier.verifySuccess();
+    await verifier.verifySuccess();
   });
 
   test("alwaysFailure", () => {
     const resource = Resource.default();
-    const tx = Transaction.default();
-
-    const lockScript = resource.deployCell(
+    const lockCell = resource.mockCell(
+      resource.createScriptUnused(),
+      resource.createScriptTypeID(),
       hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_FAILURE)),
-      tx,
-      false,
     );
+    const lockScript = resource.createScriptByType(lockCell, "0xEEFF");
     const inputCell = resource.mockCell(lockScript);
-    tx.inputs.push(Resource.createCellInput(inputCell));
+
+    const tx = Transaction.from({
+      inputs: [Resource.createCellInput(inputCell)],
+      cellDeps: [Resource.createCellDep(lockCell, "code")],
+    });
 
     const verifier = Verifier.from(resource, tx);
-    verifier.verifyFailure();
-    verifier.verifyFailure(-1);
+    await verifier.verifyFailure();
+    await verifier.verifyFailure(-1);
   });
 });
 ```

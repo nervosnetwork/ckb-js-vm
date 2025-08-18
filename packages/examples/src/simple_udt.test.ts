@@ -8,42 +8,49 @@ import {
 
 async function main() {
   const resource = Resource.default();
-  const tx = Transaction.default();
-
-  const mainScript = resource.deployCell(
-    hexFrom(readFileSync("../../build/ckb-js-vm")),
-    tx,
-    false,
-  );
-  const alwaysSuccessScript = resource.deployCell(
+  const alwaysSuccessCell = resource.mockCell(
+    resource.createScriptUnused(),
+    undefined,
     hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_SUCCESS)),
-    tx,
-    false,
   );
-  const sudtScript = resource.deployCell(
+  const alwaysSuccessScript = resource.createScriptByData(alwaysSuccessCell, "0x");
+  const sudtCell = resource.mockCell(
+    resource.createScriptUnused(),
+    undefined,
     hexFrom(readFileSync("./dist/simple_udt.bc")),
-    tx,
-    false,
   );
-  mainScript.args = hexFrom(
+  const sudtScript = resource.createScriptByData(sudtCell, "0x");
+  const mainCell = resource.mockCell(
+    resource.createScriptUnused(),
+    undefined,
+    hexFrom(readFileSync("../../build/ckb-js-vm"))
+  );
+  const mainScript = resource.createScriptByData(mainCell, hexFrom(
     "0x0000" +
-      sudtScript.codeHash.slice(2) +
-      hexFrom(hashTypeToBytes(sudtScript.hashType)).slice(2) +
-      "0000000000000000000000000000000000000000000000000000000000000000",
-  );
-  // 1 input cell
-  const inputCell = resource.mockCell(
-    alwaysSuccessScript,
-    mainScript,
-    "0xFF000000000000000000000000000000",
-  );
-  tx.inputs.push(Resource.createCellInput(inputCell));
+    sudtScript.codeHash.slice(2) +
+    hexFrom(hashTypeToBytes(sudtScript.hashType)).slice(2) +
+    "0000000000000000000000000000000000000000000000000000000000000000",
+  ))
+  const inputCell = resource.mockCell(alwaysSuccessScript, mainScript, "0xFF000000000000000000000000000000");
 
-  // 2 output cells
-  tx.outputs.push(Resource.createCellOutput(alwaysSuccessScript, mainScript));
-  tx.outputsData.push(hexFrom("0xFE000000000000000000000000000000"));
-  tx.outputs.push(Resource.createCellOutput(alwaysSuccessScript, mainScript));
-  tx.outputsData.push(hexFrom("0x01000000000000000000000000000000"));
+  const tx = Transaction.from({
+    cellDeps: [
+      Resource.createCellDep(alwaysSuccessCell, "code"),
+      Resource.createCellDep(sudtCell, "code"),
+      Resource.createCellDep(mainCell, "code"),
+    ],
+    inputs: [
+      Resource.createCellInput(inputCell),
+    ],
+    outputs: [
+      Resource.createCellOutput(alwaysSuccessScript, mainScript),
+      Resource.createCellOutput(alwaysSuccessScript, mainScript),
+    ],
+    outputsData: [
+      hexFrom("0xFE000000000000000000000000000000"),
+      hexFrom("0x01000000000000000000000000000000"),
+    ],
+  })
 
   const verifier = Verifier.from(resource, tx);
   verifier.verifySuccess(true);

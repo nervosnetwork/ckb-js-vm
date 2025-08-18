@@ -10,43 +10,53 @@ import { SERVER_BYTECODE_PATH, CLIENT_BYTECODE_PATH } from "./build.cjs";
 
 function main() {
   const resource = Resource.default();
-  const tx = Transaction.default();
-
-  const mainScript = resource.deployCell(
+  const mainCell = resource.mockCell(
+    resource.createScriptUnused(),
+    resource.createScriptTypeID(),
     hexFrom(readFileSync("../../build/ckb-js-vm")),
-    tx,
-    true,
   );
-  // console.log("ckb-js-vm script:", JSON.stringify(mainScript));
-  const alwaysSuccessScript = resource.deployCell(
+  const alwaysSuccessCell = resource.mockCell(
+    resource.createScriptUnused(),
+    undefined,
     hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_SUCCESS)),
-    tx,
-    false,
   );
-  const clientCellScript = resource.deployCell(
+  const alwaysSuccessScript = resource.createScriptByData(alwaysSuccessCell, "0x");
+  const clientCell = resource.mockCell(
+    resource.createScriptUnused(),
+    resource.createScriptTypeID(),
     hexFrom(readFileSync(CLIENT_BYTECODE_PATH)),
-    tx,
-    true,
   );
-  const serverCellScript = resource.deployCell(
+  const clientCellScript = resource.createScriptByType(clientCell, "0x");
+  const serverCell = resource.mockCell(
+    resource.createScriptUnused(),
+    resource.createScriptTypeID(),
     hexFrom(readFileSync(SERVER_BYTECODE_PATH)),
-    tx,
-    true,
   );
-  // console.log("server script:", JSON.stringify(serverCellScript));
-  mainScript.args = hexFrom(
+  const mainScript = resource.createScriptByType(mainCell, hexFrom(
     "0x0000" +
-      clientCellScript.codeHash.slice(2) +
-      hexFrom(hashTypeToBytes(clientCellScript.hashType)).slice(2),
-  );
-  // 1 input cell
+    clientCellScript.codeHash.slice(2) +
+    hexFrom(hashTypeToBytes(clientCellScript.hashType)).slice(2),
+  ));
+
   const inputCell = resource.mockCell(mainScript, undefined, "0x");
-  tx.inputs.push(Resource.createCellInput(inputCell));
 
-  // 1 output cell
-  tx.outputs.push(Resource.createCellOutput(alwaysSuccessScript));
-  tx.outputsData.push(hexFrom("0x"));
-
+  const tx = Transaction.from({
+    cellDeps: [
+      Resource.createCellDep(mainCell, "code"),
+      Resource.createCellDep(alwaysSuccessCell, "code"),
+      Resource.createCellDep(clientCell, "code"),
+      Resource.createCellDep(serverCell, "code"),
+    ],
+    inputs: [
+      Resource.createCellInput(inputCell),
+    ],
+    outputs: [
+      Resource.createCellOutput(alwaysSuccessScript),
+    ],
+    outputsData: [
+      hexFrom("0x"),
+    ]
+  })
   const verifier = Verifier.from(resource, tx);
   verifier.verifySuccess(false);
 }
