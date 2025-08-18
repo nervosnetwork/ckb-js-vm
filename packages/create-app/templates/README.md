@@ -5,11 +5,17 @@ This is an on-chain script project powered by [ckb-js-vm](https://github.com/ner
 Build on-chain script:
 
 ```bash
+# using pnpm
 pnpm build
+# using npm
+npm run build
 ```
 
 Test on-chain script:
 
 ```bash
+# using pnpm
 pnpm test
+# using npm
+npm run test
 ```
