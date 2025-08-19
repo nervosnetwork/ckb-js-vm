@@ -10,17 +10,9 @@ import { OUTPUT_FS, OUTPUT_FS_2, OUTPUT_FS_BC } from "./build.cjs";
 
 async function runFileSystem(path: string) {
   const resource = Resource.default();
-  const alwaysSuccessCell = resource.mockCell(
-    resource.createScriptUnused(),
-    undefined,
-    hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_SUCCESS)),
-  );
+  const alwaysSuccessCell = resource.mockCellAsCellDep(hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_SUCCESS)));
   const alwaysSuccessScript = resource.createScriptByData(alwaysSuccessCell, "0x");
-  const fileSystemCell = resource.mockCell(
-    resource.createScriptUnused(),
-    undefined,
-    hexFrom(readFileSync(path)),
-  );
+  const fileSystemCell = resource.mockCellAsCellDep(hexFrom(readFileSync(path)));
   // the position of the file system should be at index 2
   const fileSystemScript = resource.createScriptByData(fileSystemCell, "0x");
   const mainCell = resource.mockCell(

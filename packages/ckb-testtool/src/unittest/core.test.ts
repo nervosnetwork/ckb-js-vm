@@ -15,11 +15,7 @@ describe("example", () => {
   test("alwaysSuccess", async () => {
     const resource = Resource.default();
     // deploy a cell with risc-v binary, return a cell.
-    const lockCell = resource.mockCell(
-      resource.createScriptUnused(),
-      resource.createScriptTypeID(),
-      hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_SUCCESS)),
-    );
+    const lockCell = resource.mockCellAsCellDep(hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_SUCCESS)));
     const lockScript = resource.createScriptByType(lockCell, "0xEEFF");
     // deploy a cell with always success lock.
     const inputCell = resource.mockCell(lockScript);
@@ -41,11 +37,7 @@ describe("example", () => {
   });
   test("should run script specified by code hash", async () => {
     const resource = Resource.default();
-    const lockCell = resource.mockCell(
-      resource.createScriptUnused(),
-      resource.createScriptTypeID(),
-      hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_SUCCESS)),
-    );
+    const lockCell = resource.mockCellAsCellDep(hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_SUCCESS)));
     const lockScript = resource.createScriptByType(lockCell, "0xEEFF");
     const inputCell = resource.mockCell(lockScript);
 
@@ -71,11 +63,7 @@ describe("example", () => {
 
   test("alwaysFailure", async () => {
     const resource = Resource.default();
-    const lockCell = resource.mockCell(
-      resource.createScriptUnused(),
-      resource.createScriptTypeID(),
-      hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_FAILURE)),
-    );
+    const lockCell = resource.mockCellAsCellDep(hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_FAILURE)));
     const lockScript = resource.createScriptByType(lockCell, "0xEEFF");
     const inputCell = resource.mockCell(lockScript);
 
@@ -100,11 +88,7 @@ describe("example", () => {
 
   test("parse", async () => {
     const resource = Resource.default();
-    const lockCell = resource.mockCell(
-      resource.createScriptUnused(),
-      resource.createScriptTypeID(),
-      hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_FAILURE)),
-    );
+    const lockCell = resource.mockCellAsCellDep(hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_FAILURE)));
     const lockScript = resource.createScriptByType(lockCell, "0xEEFF");
     const inputCell = resource.mockCell(lockScript);
 
@@ -121,11 +105,7 @@ describe("example", () => {
   test("signHashInfo", async () => {
     const resource = Resource.default();
     const client = new UnitTestClient(resource);
-    const lockCell = resource.mockCell(
-      resource.createScriptUnused(),
-      resource.createScriptTypeID(),
-      hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_SUCCESS)),
-    );
+    const lockCell = resource.mockCellAsCellDep(hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_SUCCESS)));
     const lockScript = resource.createScriptByType(lockCell, "0xEEFF");
     const inputCell = resource.mockCell(lockScript);
 
@@ -151,11 +131,7 @@ describe("example", () => {
 
   test("alwaysSuccessWasmDebugger", async () => {
     const resource = Resource.default();
-    const lockCell = resource.mockCell(
-      resource.createScriptUnused(),
-      resource.createScriptTypeID(),
-      hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_SUCCESS)),
-    );
+    const lockCell = resource.mockCellAsCellDep(hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_SUCCESS)));
     const lockScript = resource.createScriptByType(lockCell, "0xEEFF");
     const inputCell = resource.mockCell(lockScript);
 

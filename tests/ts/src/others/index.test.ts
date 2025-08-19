@@ -11,17 +11,9 @@ import { BYTECODE_PATH } from "./build.cjs";
 
 async function run(path: string) {
   const resource = Resource.default();
-  const alwaysSuccessCell = resource.mockCell(
-    resource.createScriptUnused(),
-    undefined,
-    hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_SUCCESS)),
-  );
+  const alwaysSuccessCell = resource.mockCellAsCellDep(hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_SUCCESS)));
   const alwaysSuccessScript = resource.createScriptByData(alwaysSuccessCell, "0x");
-  const lockCell = resource.mockCell(
-    resource.createScriptUnused(),
-    undefined,
-    hexFrom(readFileSync(path)),
-  );
+  const lockCell = resource.mockCellAsCellDep(hexFrom(readFileSync(path)));
   const lockScript = resource.createScriptByData(lockCell, "0x");
   const mainCell = resource.mockCell(
     resource.createScriptUnused(),

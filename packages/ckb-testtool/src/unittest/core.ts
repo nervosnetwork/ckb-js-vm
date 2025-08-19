@@ -284,6 +284,16 @@ export class Resource {
   }
 
   /**
+   * Mock a new Cell with only data. This is a simple wrapper around mockCell.
+   * It is useful when you only need this cell as a cell dep.
+   * @param data - The data to be stored in the Cell. default is "0x".
+   * @returns A cell object representing the newly created Cell.
+   */
+  mockCellAsCellDep(data: Hex): Cell {
+    return this.mockCell(this.createScriptUnused(), this.createScriptTypeID(), data)
+  }
+
+  /**
    * Creates a CellDep (Cell Dependency) for the given cell.
    * @param cell - The metadata of the Cell.
    * @param depType - The type of dependency (Code, DepGroup).
@@ -293,6 +303,9 @@ export class Resource {
     return new CellDep(cell.outPoint, depType);
   }
 
+  /**
+   * Deprecated. Use static createCellDep instead.
+   */
   createCellDep(cell: Cell, depType: DepType): CellDep {
     return new CellDep(cell.outPoint, depType);
   }

@@ -8,17 +8,9 @@ import {
 
 async function main() {
   const resource = Resource.default();
-  const alwaysSuccessCell = resource.mockCell(
-    resource.createScriptUnused(),
-    undefined,
-    hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_SUCCESS)),
-  );
+  const alwaysSuccessCell = resource.mockCellAsCellDep(hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_SUCCESS)));
   const alwaysSuccessScript = resource.createScriptByData(alwaysSuccessCell, "0x");
-  const sudtCell = resource.mockCell(
-    resource.createScriptUnused(),
-    undefined,
-    hexFrom(readFileSync("./dist/simple_udt.bc")),
-  );
+  const sudtCell = resource.mockCellAsCellDep(hexFrom(readFileSync("./dist/simple_udt.bc")));
   const sudtScript = resource.createScriptByData(sudtCell, "0x");
   const mainCell = resource.mockCell(
     resource.createScriptUnused(),

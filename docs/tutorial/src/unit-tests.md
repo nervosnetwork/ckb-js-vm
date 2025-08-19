@@ -28,11 +28,7 @@ describe("example", () => {
   test("alwaysSuccess", async () => {
     const resource = Resource.default();
     // deploy a cell with risc-v binary, return a cell.
-    const lockCell = resource.mockCell(
-      resource.createScriptUnused(),
-      resource.createScriptTypeID(),
-      hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_SUCCESS)),
-    );
+    const lockCell = resource.mockCellAsCellDep(hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_SUCCESS)));
     const lockScript = resource.createScriptByType(lockCell, "0xEEFF");
     // deploy a cell with always success lock.
     const inputCell = resource.mockCell(lockScript);
@@ -49,11 +45,7 @@ describe("example", () => {
 
   test("alwaysFailure", () => {
     const resource = Resource.default();
-    const lockCell = resource.mockCell(
-      resource.createScriptUnused(),
-      resource.createScriptTypeID(),
-      hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_FAILURE)),
-    );
+    const lockCell = resource.mockCellAsCellDep(hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_FAILURE)));
     const lockScript = resource.createScriptByType(lockCell, "0xEEFF");
     const inputCell = resource.mockCell(lockScript);
 

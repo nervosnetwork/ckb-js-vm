@@ -18,17 +18,9 @@ async function main() {
   const pubkey = privateKey.publicKey;
 
   const resource = Resource.default();
-  const lockCell = resource.mockCell(
-    resource.createScriptUnused(),
-    undefined,
-    hexFrom(readFileSync("./dist/secp256k1_blake160_lock.bc")),
-  );
+  const lockCell = resource.mockCellAsCellDep(hexFrom(readFileSync("./dist/secp256k1_blake160_lock.bc")));
   const lockScript = resource.createScriptByData(lockCell, "0x");
-  const mainCell = resource.mockCell(
-    resource.createScriptUnused(),
-    undefined,
-    hexFrom(readFileSync("../../build/ckb-js-vm")),
-  );
+  const mainCell = resource.mockCellAsCellDep(hexFrom(readFileSync("../../build/ckb-js-vm")));
   const mainScript = resource.createScriptByData(mainCell, hexFrom(
     "0x0000" +
     lockScript.codeHash.slice(2) +
