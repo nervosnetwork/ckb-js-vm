@@ -134,7 +134,6 @@ function updateProjectPackage(projectPath: string) {
       json = fs.readJsonSync(packageJsonPath);
       json.name = projectName;
       json.devDependencies["@ckb-js-std/eslint-plugin"] = eslintPluginVersion;
-      json.devDependencies["ckb-testtool"] = testtoolVersion;
       json.dependencies["@ckb-js-std/bindings"] = bindingVersion;
       json.dependencies["@ckb-js-std/core"] = coreVersion;
       fs.writeJsonSync(packageJsonPath, json, { spaces: 2 });
@@ -167,7 +166,6 @@ function updateTestPackage(projectPath: string) {
     try {
       json = fs.readJsonSync(packageJsonPath);
       json.name = projectName + "-tests";
-      json.devDependencies["ckb-testtool"] = testtoolVersion;
       json.devDependencies["@ckb-ccc/core"] = cccCoreVersion;
 
       fs.writeJsonSync(packageJsonPath, json, { spaces: 2 });
@@ -196,6 +194,7 @@ function updateRootPackage(projectPath: string) {
   if (fs.pathExistsSync(packageJsonPath)) {
     try {
       json = fs.readJsonSync(packageJsonPath);
+      json.devDependencies["ckb-testtool"] = testtoolVersion;
 
       // Update scripts to use npm workspaces commands if using npm
       if (getPkgManager() === "npm") {
@@ -337,36 +336,6 @@ async function run(): Promise<void> {
     await install(packageManager);
     console.log("Packages installed.");
     console.log();
-  }
-
-  // Create soft link for npm package manager to let ckb-debugger to find the path
-  if (getPkgManager() === "npm") {
-    const nodeModulesPath = path.join(
-      projectPath,
-      "packages/on-chain-script/node_modules",
-    );
-    const testtoolLinkPath = path.join(nodeModulesPath, "ckb-testtool");
-    const testtoolTargetPath = "node_modules/ckb-testtool";
-
-    try {
-      fs.ensureDirSync(nodeModulesPath);
-      // Remove existing link/directory if it exists
-      if (fs.pathExistsSync(testtoolLinkPath)) {
-        fs.removeSync(testtoolLinkPath);
-      }
-      fs.ensureSymlinkSync(testtoolTargetPath, testtoolLinkPath);
-      console.log(
-        green(
-          `Created symlink: node_modules/ckb-testtool -> ${testtoolTargetPath}`,
-        ),
-      );
-    } catch (error: any) {
-      console.warn(
-        yellow(
-          `Warning: Failed to create ckb-testtool symlink: ${error.message}`,
-        ),
-      );
-    }
   }
 
   console.log(`${green("Success!")} Created ${projectName} at ${projectPath}`);

@@ -13,7 +13,6 @@
     "clean": "rimraf dist/*"
   },
   "devDependencies": {
-    "ckb-testtool": "~0.1.1",
     "@types/node": "~22.13.8",
     "@types/jest": "~29.5.14",
     "ts-jest": "~29.2.6",
