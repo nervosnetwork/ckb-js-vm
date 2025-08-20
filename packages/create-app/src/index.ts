@@ -471,6 +471,12 @@ async function add(): Promise<void> {
     );
     process.exit(1);
   }
+
+  // Step 4: install dependencies
+  console.log("\nInstalling dependencies:");
+  await install(packageManager);
+  console.log("Packages installed.");
+  console.log();
 }
 
 (async () => {
