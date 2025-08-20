@@ -1,6 +1,6 @@
 {
   "name": "create-ckb-js-vm-app",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "CLI tool to quickly bootstrap CKB on-chain script with ckb-js-vm.",
   "private": false,
   "homepage": "https://github.com/nervosnetwork/ckb-js-vm",

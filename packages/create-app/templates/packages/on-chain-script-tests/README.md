@@ -7,5 +7,8 @@ This project was bootstrapped with [`create-ckb-js-vm-app`](https://github.com/n
 To run and test src/index.ts:
 
 ```bash
+# using pnpm
 pnpm test
+# using npm
+npm run test
 ```
