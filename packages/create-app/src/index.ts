@@ -50,6 +50,10 @@ const program = new Command(packageJson.name)
     "--use-npm",
     "Explicitly tell the CLI to generate npm packages(default pnpm)",
   )
+  .option(
+    "--add <package name>",
+    "Add on-chain script package to current project"
+  )
   .action((name: string) => {
     // Commander does not implicitly support negated options. When they are used
     // by the user they will be interpreted as the positional argument (name) in
@@ -123,25 +127,27 @@ export async function install(packageManager: string): Promise<void> {
   });
 }
 
-function updateProjectPackage(projectPath: string) {
+function updateProjectPackage(projectPath: string, packageName?: string) {
+  // Use packageName if provided, otherwise use the global projectName
+  const targetPackageName = packageName || projectName;
   const packageJsonPath = path.join(
     projectPath,
-    "packages/on-chain-script/package.json",
+    packageName ? `packages/${packageName}/package.json` : "packages/on-chain-script/package.json",
   );
   let json: any = "";
   if (fs.pathExistsSync(packageJsonPath)) {
     try {
       json = fs.readJsonSync(packageJsonPath);
-      json.name = projectName;
+      json.name = targetPackageName;
       json.devDependencies["@ckb-js-std/eslint-plugin"] = eslintPluginVersion;
       json.dependencies["@ckb-js-std/bindings"] = bindingVersion;
       json.dependencies["@ckb-js-std/core"] = coreVersion;
       fs.writeJsonSync(packageJsonPath, json, { spaces: 2 });
-      console.log(green(`Updated ${projectName}/package.json.`));
+      console.log(green(`Updated ${targetPackageName}/package.json.`));
     } catch (error: any) {
       console.error(
         red(
-          `Failed to update packages/on-chain-script/package.json: ${error.message}`,
+          `Failed to update ${packageName ? `packages/${packageName}` : 'packages/on-chain-script'}/package.json: ${error.message}`,
         ),
       );
       process.exit(1);
@@ -149,7 +155,7 @@ function updateProjectPackage(projectPath: string) {
   } else {
     console.error(
       red(
-        `Could not find packages/on-chain-script/package.json in the template. Make sure your template includes a package.json.`,
+        `Could not find ${packageName ? `packages/${packageName}` : 'packages/on-chain-script'}/package.json in the template. Make sure your template includes a package.json.`,
       ),
     );
     process.exit(1);
@@ -386,9 +392,95 @@ async function exit(reason: ExitReason): Promise<void> {
   process.exit(1);
 }
 
+async function add(): Promise<void> {
+  // Step 1: Check that package.json exists in current directory
+  const currentDir = process.cwd();
+  const packageJsonPath = path.join(currentDir, "package.json");
+
+  if (!fs.pathExistsSync(packageJsonPath)) {
+    console.error(
+      red("Failed: package.json not found in current directory.")
+    );
+    process.exit(1);
+  }
+
+  // Get the package name from the --add option
+  const packageName = opts.add;
+  if (!packageName || typeof packageName !== 'string') {
+    console.error(
+      red("Failed: package name is required when using --add option.")
+    );
+    process.exit(1);
+  }
+
+  // Validate the package name
+  const validation = validateNpmName(packageName);
+  if (!validation.valid) {
+    console.error(
+      `Could not create a package called ${red(
+        `"${packageName}"`,
+      )} because of npm naming restrictions:`,
+    );
+    validation.problems?.forEach((p) =>
+      console.error(`    ${red(bold("*"))} ${p}`),
+    );
+    process.exit(1);
+  }
+
+  // Step 2: Copy templates/packages/on-chain-script to packages/new-name
+  const templateSourcePath = path.join(__dirname, "../templates/packages/on-chain-script");
+  const targetPath = path.join(currentDir, "packages", packageName);
+
+  if (!fs.pathExistsSync(templateSourcePath)) {
+    console.error(
+      red(`Failed: Template not found at ${templateSourcePath}`)
+    );
+    process.exit(1);
+  }
+
+  // Check if target directory already exists
+  if (fs.pathExistsSync(targetPath)) {
+    console.error(
+      red(`Failed: Package directory ${targetPath} already exists.`)
+    );
+    process.exit(1);
+  }
+
+  // Ensure the packages directory exists
+  const packagesDir = path.join(currentDir, "packages");
+  fs.ensureDirSync(packagesDir);
+
+  // Copy the template
+  try {
+    fs.copySync(templateSourcePath, targetPath);
+    console.log(green(`Copied template to packages/${packageName}`));
+  } catch (error: any) {
+    console.error(
+      red(`Failed to copy template: ${error.message}`)
+    );
+    process.exit(1);
+  }
+
+  // Step 3: Call updateProjectPackage on it
+  try {
+    updateProjectPackage(currentDir, packageName);
+    console.log(green(`✅ Successfully added package "${packageName}"`));
+  } catch (error: any) {
+    console.error(
+      red(`Failed to update package: ${error.message}`)
+    );
+    process.exit(1);
+  }
+}
+
 (async () => {
   try {
-    await run();
+    // Check if --add option is provided
+    if (opts.add) {
+      await add();
+    } else {
+      await run();
+    }
     await notifyUpdate();
   } catch (error) {
     await exit(error as ExitReason);
