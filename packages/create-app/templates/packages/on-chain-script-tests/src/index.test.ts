@@ -9,42 +9,52 @@ import {
 
 async function main() {
   const resource = Resource.default();
-  const tx = Transaction.default();
-
-  const mainScript = resource.deployCell(
-    hexFrom(readFileSync(DEFAULT_SCRIPT_CKB_JS_VM)),
-    tx,
-    false,
-  );
-  const alwaysSuccessScript = resource.deployCell(
+  const alwaysSuccessCell = resource.mockCell(
+    resource.createScriptUnused(),
+    undefined,
     hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_SUCCESS)),
-    tx,
-    false,
-  );
-  const jsScript = resource.deployCell(
+  )
+  const alwaysSuccessScript = resource.createScriptByData(alwaysSuccessCell, "0x")
+  const jsCell = resource.mockCell(
+    resource.createScriptUnused(),
+    undefined,
     hexFrom(readFileSync("../on-chain-script/dist/index.bc")),
-    tx,
-    false,
-  );
-  mainScript.args = hexFrom(
+  )
+  const jsScript = resource.createScriptByData(jsCell, "0x")
+  const mainCell = resource.mockCell(
+    resource.createScriptUnused(),
+    undefined,
+    hexFrom(readFileSync(DEFAULT_SCRIPT_CKB_JS_VM)),
+  )
+  const mainScript = resource.createScriptByData(mainCell, hexFrom(
     "0x0000" +
-      jsScript.codeHash.slice(2) +
-      hexFrom(hashTypeToBytes(jsScript.hashType)).slice(2) +
-      "0000000000000000000000000000000000000000000000000000000000000000",
-  );
-  // 1 input cell
+    jsScript.codeHash.slice(2) +
+    hexFrom(hashTypeToBytes(jsScript.hashType)).slice(2) +
+    "0000000000000000000000000000000000000000000000000000000000000000",
+  ));
+
   const inputCell = resource.mockCell(
     alwaysSuccessScript,
     mainScript,
     "0xFF000000000000000000000000000000",
   );
-  tx.inputs.push(Resource.createCellInput(inputCell));
 
-  // 2 output cells
-  tx.outputs.push(Resource.createCellOutput(alwaysSuccessScript, mainScript));
-  tx.outputsData.push(hexFrom("0xFE000000000000000000000000000000"));
-  tx.outputs.push(Resource.createCellOutput(alwaysSuccessScript, mainScript));
-  tx.outputsData.push(hexFrom("0x01000000000000000000000000000000"));
+  const tx = Transaction.from({
+    cellDeps: [
+      resource.createCellDep(alwaysSuccessCell, "code"),
+      resource.createCellDep(jsCell, "code"),
+      resource.createCellDep(mainCell, "code"),
+    ],
+    inputs: [Resource.createCellInput(inputCell)],
+    outputs: [
+      Resource.createCellOutput(alwaysSuccessScript, mainScript),
+      Resource.createCellOutput(alwaysSuccessScript, mainScript),
+    ],
+    outputsData: [
+      hexFrom("0xFE000000000000000000000000000000"),
+      hexFrom("0x01000000000000000000000000000000"),
+    ],
+  })
 
   const verifier = Verifier.from(resource, tx);
   verifier.verifySuccess(true);

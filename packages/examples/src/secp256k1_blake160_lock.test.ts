@@ -18,43 +18,43 @@ async function main() {
   const pubkey = privateKey.publicKey;
 
   const resource = Resource.default();
-  const tx = Transaction.default();
-
-  const mainScript = resource.deployCell(
-    hexFrom(readFileSync("../../build/ckb-js-vm")),
-    tx,
-    false,
-  );
-  const lockScript = resource.deployCell(
-    hexFrom(readFileSync("./dist/secp256k1_blake160_lock.bc")),
-    tx,
-    false,
-  );
-  mainScript.args = hexFrom(
+  const lockCell = resource.mockCellAsCellDep(hexFrom(readFileSync("./dist/secp256k1_blake160_lock.bc")));
+  const lockScript = resource.createScriptByData(lockCell, "0x");
+  const mainCell = resource.mockCellAsCellDep(hexFrom(readFileSync("../../build/ckb-js-vm")));
+  const mainScript = resource.createScriptByData(mainCell, hexFrom(
     "0x0000" +
-      lockScript.codeHash.slice(2) +
-      hexFrom(hashTypeToBytes(lockScript.hashType)).slice(2) +
-      hashCkb(pubkey).slice(2, 42),
-  );
-  // 1 input cell
+    lockScript.codeHash.slice(2) +
+    hexFrom(hashTypeToBytes(lockScript.hashType)).slice(2) +
+    hashCkb(pubkey).slice(2, 42),
+  ));
   const inputCell = resource.mockCell(mainScript);
-  tx.inputs.push(Resource.createCellInput(inputCell));
 
-  // 2 output cells
-  tx.outputs.push(Resource.createCellOutput(mainScript));
-  tx.outputsData.push(hexFrom("0x00"));
-  tx.outputs.push(Resource.createCellOutput(mainScript));
-  tx.outputsData.push(hexFrom("0x01"));
-
-  tx.witnesses.push(
-    hexFrom(
-      new WitnessArgs(
-        hexFrom(new Uint8Array(65)),
-        undefined,
-        undefined,
-      ).toBytes(),
-    ),
-  );
+  const tx = Transaction.from({
+    cellDeps: [
+      Resource.createCellDep(lockCell, "code"),
+      Resource.createCellDep(mainCell, "code"),
+    ],
+    inputs: [
+      Resource.createCellInput(inputCell),
+    ],
+    outputs: [
+      Resource.createCellOutput(mainScript),
+      Resource.createCellOutput(mainScript),
+    ],
+    outputsData: [
+      hexFrom("0x00"),
+      hexFrom("0x01"),
+    ],
+    witnesses: [
+      hexFrom(
+        new WitnessArgs(
+          hexFrom(new Uint8Array(65)),
+          undefined,
+          undefined,
+        ).toBytes(),
+      )
+    ],
+  })
 
   let mh = await tx.getSignHashInfo(mainScript, new UnitTestClient(resource))!;
   let signature = await privateKey._signMessage(mh!.message);

@@ -9,51 +9,50 @@ import {
 
 async function main(path: string) {
   const resource = Resource.default();
-  const tx = Transaction.default();
 
-  const mainScript = resource.deployCell(
-    hexFrom(readFileSync("../../build/ckb-js-vm")),
-    tx,
-    true,
-  );
-  const alwaysSuccessScript = resource.deployCell(
-    hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_SUCCESS)),
-    tx,
-    false,
-  );
-  const onChainScript = resource.deployCell(
-    hexFrom(readFileSync(path)),
-    tx,
-    false,
-  );
-  // flag: NO file system
-  mainScript.args = hexFrom(
-    "0x0000" +
-      onChainScript.codeHash.slice(2) +
-      hexFrom(hashTypeToBytes(onChainScript.hashType)).slice(2),
-  );
-  // 1 input cell
+  const mainCell = resource.mockCellAsCellDep(hexFrom(readFileSync("../../build/ckb-js-vm")));
+  const alwaysSuccessCell = resource.mockCellAsCellDep(hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_SUCCESS)));
+  const onChainCell = resource.mockCellAsCellDep(hexFrom(readFileSync(path)));
+  const alwaysSuccessScript = resource.createScriptByType(alwaysSuccessCell, "0x");
+  const onChainScript = resource.createScriptByData(onChainCell, "0x");
+  const mainScript = resource.createScriptByType(mainCell, hexFrom(
+    "0x0000" + // flag: NO file system
+    onChainScript.codeHash.slice(2) +
+    hexFrom(hashTypeToBytes(onChainScript.hashType)).slice(2),
+  ))
   const inputCell = resource.mockCell(mainScript, undefined, "0x");
-  tx.inputs.push(Resource.createCellInput(inputCell));
 
-  // 1 output cell
-  tx.outputs.push(Resource.createCellOutput(alwaysSuccessScript));
-  tx.outputsData.push(hexFrom("0x0001020304050607"));
-
-  tx.witnesses.push(hexFrom("0x0001020304050607"));
-
-  const headerHashByHeaderDep = resource.mockHeader(
-    createHeaderViewTemplate(),
-    "0x00",
-    [],
-  );
-  tx.headerDeps.push(headerHashByHeaderDep);
-  const headerHashByInput = resource.mockHeader(
-    createHeaderViewTemplate(),
-    "0x0000",
-    [inputCell],
-  );
-  tx.headerDeps.push(headerHashByInput);
+  const tx = Transaction.from({
+    cellDeps: [
+      Resource.createCellDep(mainCell, "code"),
+      Resource.createCellDep(alwaysSuccessCell, "code"),
+      Resource.createCellDep(onChainCell, "code"),
+    ],
+    headerDeps: [
+      resource.mockHeader(
+        createHeaderViewTemplate(),
+        "0x00",
+        [],
+      ),
+      resource.mockHeader(
+        createHeaderViewTemplate(),
+        "0x0000",
+        [inputCell],
+      ),
+    ],
+    inputs: [
+      Resource.createCellInput(inputCell),
+    ],
+    outputs: [
+      Resource.createCellOutput(alwaysSuccessScript),
+    ],
+    outputsData: [
+      hexFrom("0x0001020304050607"),
+    ],
+    witnesses: [
+      hexFrom("0x0001020304050607"),
+    ]
+  });
 
   const verifier = Verifier.from(resource, tx);
   verifier.verifySuccess(true);

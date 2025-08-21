@@ -26,28 +26,22 @@ import { hexFrom, Transaction } from "@ckb-ccc/core";
 import { readFileSync } from "fs";
 
 const resource = Resource.default();
-const tx = Transaction.default();
-
-// deploy a cell with risc-v binary, return a script.
-const lockScript = resource.deployCell(
+// deploy a cell with risc-v binary, return a cell.
+const lockCell = resource.mockCell(
+  resource.createScriptUnused(),
+  resource.createScriptTypeID(),
   hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_SUCCESS)),
-  tx,
-  false,
 );
-// update args
-lockScript.args = "0xEEFF";
-
-// mock a input cell with the created script as lock script
+const lockScript = resource.createScriptByType(lockCell, "0xEEFF");
+// deploy a cell with always success lock.
 const inputCell = resource.mockCell(lockScript);
 
-// add input cell to the transaction
-tx.inputs.push(Resource.createCellInput(inputCell));
-// add output cell to the transaction
-tx.outputs.push(Resource.createCellOutput(lockScript));
-// add output data to the transaction
-tx.outputsData.push(hexFrom("0x"));
+const tx = Transaction.from({
+  inputs: [Resource.createCellInput(inputCell)],
+  cellDeps: [Resource.createCellDep(lockCell, "code")],
+});
 
 // verify the transaction
 const verifier = Verifier.from(resource, tx);
-verifier.verifySuccess(true);
+await verifier.verifySuccess();
 ```
