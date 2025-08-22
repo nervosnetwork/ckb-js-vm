@@ -20,6 +20,12 @@ Ensure you have the following installed:
 pnpm create ckb-js-vm-app
 ```
 
+Or
+
+```bash
+npx create-ckb-js-vm-app
+```
+
 
 ## Documentation
   - [The Little Book of ckb-js-vm](https://nervosnetwork.github.io/ckb-js-vm/) - Step-by-step instructions for beginners
