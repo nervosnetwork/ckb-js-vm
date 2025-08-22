@@ -31,6 +31,8 @@ jobs:
         npm run build
         npm run test
         npm run lint
+        node ../ckb-js-vm/packages/create-app/dist/index.js --add another-script
+        npm run build
     - name: Create app(pnpm)
       run: |
         cd ..
@@ -39,3 +41,5 @@ jobs:
         pnpm build
         pnpm test
         pnpm lint
+        node ../ckb-js-vm/packages/create-app/dist/index.js --add another-script
+        pnpm build
