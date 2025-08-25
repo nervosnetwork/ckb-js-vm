@@ -19,7 +19,10 @@ When prompted, choose the default project name: `my-ckb-script`. After a few mom
 Let's explore the project structure to understand its components:
 
 - `packages/on-chain-script` - Contains the TypeScript code that will be compiled and deployed on the CKB blockchain
-- `packages/on-chain-script-tests` - Contains the off-chain TypeScript code for testing your on-chain script
+- `packages/on-chain-script-tests` - Contains the off-chain TypeScript code for testing your on-chain script. Note that a
+single test project can test multiple output files from different on-chain script projects. That's why there is a
+dedicated test project.
+
 
 ## Building and Testing
 
