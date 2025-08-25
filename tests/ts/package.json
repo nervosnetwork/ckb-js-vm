@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "ckb-fs-packer": "workspace:*",
-    "@ckb-ccc/core": "^1.5.0",
+    "@ckb-ccc/core": "^1.11.0",
     "ckb-testtool": "workspace:*"
   },
   "dependencies": {

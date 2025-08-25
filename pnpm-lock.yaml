@@ -65,8 +65,8 @@ importers:
   packages/ckb-testtool:
     dependencies:
       '@ckb-ccc/core':
-        specifier: ^1.5.0
-        version: 1.5.0(typescript@5.8.3)
+        specifier: ^1.11.0
+        version: 1.11.1(typescript@5.8.3)
 
   packages/core:
     dependencies:
@@ -164,8 +164,8 @@ importers:
         version: link:../core
     devDependencies:
       '@ckb-ccc/core':
-        specifier: ^1.5.0
-        version: 1.5.0(typescript@5.8.3)
+        specifier: ^1.11.0
+        version: 1.11.1(typescript@5.8.3)
       ckb-testtool:
         specifier: workspace:*
         version: link:../ckb-testtool
@@ -194,8 +194,8 @@ importers:
         version: link:../../packages/ipc
     devDependencies:
       '@ckb-ccc/core':
-        specifier: ^1.5.0
-        version: 1.5.0(typescript@5.8.3)
+        specifier: ^1.11.0
+        version: 1.11.1(typescript@5.8.3)
       ckb-fs-packer:
         specifier: workspace:*
         version: link:../../packages/fs-packer
@@ -373,8 +373,8 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
-  '@ckb-ccc/core@1.5.0':
-    resolution: {integrity: sha512-4ccRWgXjapumfIw6iBMfbcaSA6AesMGCf8dAD1XshP1utcFkBNGZx0ANAillF4/tAIj2ZqOT6P56iP5R2ZpCog==}
+  '@ckb-ccc/core@1.11.1':
+    resolution: {integrity: sha512-UD8oVmniAXxffHIljADeGes6gjnI89YBAO6m3wVdfFeKw6X8AG3z+bpIQYSOIWRJWBqIhhz9Ta2MP+sVg7FUzg==}
 
   '@esbuild/aix-ppc64@0.21.5':
     resolution: {integrity: sha512-1SDgH6ZSPTlggy1yI6+Dbkiz8xzpHJEVAlF/AM1tHPLsf5STom9rwtjE4hKAF20FfXXNTFqEYXyJNWh1GiZedQ==}
@@ -3246,7 +3246,7 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@ckb-ccc/core@1.5.0(typescript@5.8.3)':
+  '@ckb-ccc/core@1.11.1(typescript@5.8.3)':
     dependencies:
       '@joyid/ckb': 1.1.1(typescript@5.8.3)
       '@noble/ciphers': 0.5.3

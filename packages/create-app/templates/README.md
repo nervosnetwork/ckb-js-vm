@@ -11,6 +11,7 @@ pnpm install
 ```
 
 ### Build on-chain scripts
+
 ```bash
 pnpm build
 ```
@@ -18,11 +19,13 @@ pnpm build
 **Note:** You can use `npm install` and `npm run build` if you chose npm when creating the project.
 
 ### Run tests
+
 ```bash
 pnpm test
 ```
 
 ## Project Structure
+
 ```
 ├── packages/
 │ ├── on-chain-script/ # source code
@@ -32,7 +35,9 @@ pnpm test
 ├── package.json
 └── README.md
 ```
+
 ## Reference
+
 - [A little book of ckb-js-vm](https://nervosnetwork.github.io/ckb-js-vm/)
 - [ckb-js-vm](https://github.com/nervosnetwork/ckb-js-vm)
 - [ckb-debugger](https://github.com/nervosnetwork/ckb-standalone-debugger)
