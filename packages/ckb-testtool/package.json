@@ -1,6 +1,6 @@
 {
   "name": "ckb-testtool",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "CKB Test Tool",
   "author": "CKB VM Team",
   "license": "MIT",
@@ -36,6 +36,6 @@
     "access": "public"
   },
   "dependencies": {
-    "@ckb-ccc/core": "^1.5.0"
+    "@ckb-ccc/core": "^1.11.0"
   }
 }
