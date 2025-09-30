@@ -25,7 +25,7 @@
     "test": "jest"
   },
   "devDependencies": {
-    "@ckb-ccc/core": "^1.11.0",
+    "@ckb-ccc/core": "^1.12.2",
     "ckb-testtool": "workspace:*"
   },
   "dependencies": {

@@ -36,6 +36,6 @@
     "access": "public"
   },
   "dependencies": {
-    "@ckb-ccc/core": "^1.11.0"
+    "@ckb-ccc/core": "^1.12.2"
   }
 }
