@@ -29,7 +29,7 @@ describe("example", () => {
     const verifier = Verifier.from(resource, tx);
     await verifier.verifySuccess();
     // turn off console.log
-    jest.spyOn(console, "log").mockImplementation(() => {});
+    jest.spyOn(console, "log").mockImplementation(() => { });
     await expect(verifier.verifyFailure()).rejects.toThrow(
       "Transaction verification should fail. No verification failure occurred.",
     );
@@ -48,14 +48,14 @@ describe("example", () => {
 
     // verify the transaction
     const verifier = Verifier.from(resource, tx);
-    await verifier.verifySuccess(false, { codeHash: lockScript.hash() });
+    await verifier.verifySuccess(false, false, { codeHash: lockScript.hash() });
     await expect(
       verifier.verifyFailure(undefined, false, { codeHash: lockScript.hash() }),
     ).rejects.toThrow(
       "Transaction verification should fail. No verification failure occurred.",
     );
     await expect(
-      verifier.verifySuccess(false, { codeHash: "0x00000" }),
+      verifier.verifySuccess(false, false, { codeHash: "0x00000" }),
     ).rejects.toThrow(
       "No scripts found to verify. Please check your configuration parameters and ensure scripts are present in the transaction.",
     );
@@ -76,7 +76,7 @@ describe("example", () => {
     await verifier.verifyFailure();
     await verifier.verifyFailure(-1);
     // turn off console.log
-    jest.spyOn(console, "log").mockImplementation(() => {});
+    jest.spyOn(console, "log").mockImplementation(() => { });
     await expect(verifier.verifySuccess()).rejects.toThrow(
       "Transaction verification failed. See details above.",
     );
