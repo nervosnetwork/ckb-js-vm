@@ -1,3 +1,5 @@
+export * from "./debugger";
+
 /**
  * A type safe way to apply a transformer on a value if it's not empty.
  * @public

@@ -1,5 +1,5 @@
 import * as bindings from "@ckb-js-std/bindings";
-import { HighLevel, log } from "@ckb-js-std/core";
+import { HighLevel, log, logError } from "@ckb-js-std/core";
 
 function reportCycles() {
   let cycles = bindings.currentCycles();
@@ -43,4 +43,8 @@ function main() {
   reportCycles();
 }
 
-main();
+try {
+  main();
+} catch (e) {
+  logError(e);
+}
