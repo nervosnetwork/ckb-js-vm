@@ -48,14 +48,14 @@ describe("example", () => {
 
     // verify the transaction
     const verifier = Verifier.from(resource, tx);
-    await verifier.verifySuccess(false, false, { codeHash: lockScript.hash() });
+    await verifier.verifySuccess(false, { codeHash: lockScript.hash() });
     await expect(
-      verifier.verifyFailure(undefined, false, false, { codeHash: lockScript.hash() }),
+      verifier.verifyFailure(undefined, false, { codeHash: lockScript.hash() }),
     ).rejects.toThrow(
       "Transaction verification should fail. No verification failure occurred.",
     );
     await expect(
-      verifier.verifySuccess(false, false, { codeHash: "0x00000" }),
+      verifier.verifySuccess(false, { codeHash: "0x00000" }),
     ).rejects.toThrow(
       "No scripts found to verify. Please check your configuration parameters and ensure scripts are present in the transaction.",
     );

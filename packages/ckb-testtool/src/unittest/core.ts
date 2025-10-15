@@ -1043,7 +1043,6 @@ export class Verifier {
   async verifyFailure(
     expectedErrorCode?: number,
     enableLog: boolean = false,
-    outputCrash: boolean = false,
     config?: { codeHash: Hex },
   ) {
     const runResults = await this.verify(config);
@@ -1060,7 +1059,7 @@ export class Verifier {
           if (!enableLog) {
             e.reportSummary();
           }
-          if (outputCrash) {
+          if (this.resource.enableDebug) {
             printCrashStack(e, this);
           }
           assert.fail(
@@ -1089,7 +1088,6 @@ export class Verifier {
    */
   async verifySuccess(
     enableLog: boolean = false,
-    outputCrash: boolean = false,
     config?: { codeHash?: Hex },
   ): Promise<number> {
     let cycles = 0;
@@ -1097,7 +1095,7 @@ export class Verifier {
     for (const e of runResults) {
       if (e.status != 0) {
         e.reportSummary();
-        if (outputCrash) {
+        if (this.resource.enableDebug) {
           printCrashStack(e, this);
         }
 
