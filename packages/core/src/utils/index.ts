@@ -1,4 +1,4 @@
-export * from "./debugger";
+export * from "./crashStack";
 
 /**
  * A type safe way to apply a transformer on a value if it's not empty.
