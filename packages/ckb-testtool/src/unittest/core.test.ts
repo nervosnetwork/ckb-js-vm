@@ -29,7 +29,7 @@ describe("example", () => {
     const verifier = Verifier.from(resource, tx);
     await verifier.verifySuccess();
     // turn off console.log
-    jest.spyOn(console, "log").mockImplementation(() => { });
+    jest.spyOn(console, "log").mockImplementation(() => {});
     await expect(verifier.verifyFailure()).rejects.toThrow(
       "Transaction verification should fail. No verification failure occurred.",
     );
@@ -76,7 +76,7 @@ describe("example", () => {
     await verifier.verifyFailure();
     await verifier.verifyFailure(-1);
     // turn off console.log
-    jest.spyOn(console, "log").mockImplementation(() => { });
+    jest.spyOn(console, "log").mockImplementation(() => {});
     await expect(verifier.verifySuccess()).rejects.toThrow(
       "Transaction verification failed. See details above.",
     );
