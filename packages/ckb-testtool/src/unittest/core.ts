@@ -48,10 +48,9 @@ import {
   SpawnSyncReturns,
 } from "child_process";
 import { randomBytes } from "crypto";
-import { realpathSync, unlinkSync, writeFileSync, readFileSync, existsSync, fstat } from "fs";
+import { realpathSync, unlinkSync, writeFileSync, readFileSync } from "fs";
 import path from "path";
 import { run as runWasmDebugger } from "../wasm-debugger";
-import { DEFAULT_SCRIPT_CKB_JS_VM } from "./defaultScript";
 import { printCrashStack } from "./crashStack"
 
 function getNextFilename(basename: string): string {
@@ -253,9 +252,7 @@ export class Resource {
     public header: Map<Hex, HeaderView> = new Map(),
     public headerIncr: Num = numFrom(0),
     public typeidIncr: Num = numFrom(0),
-    public jSScriptsMap: Map<Script, string> = new Map(),
-    public depCells: Map<Hex, [Cell, CellDep]> = new Map(),
-    public enableDebug: boolean = false,
+    public debugMapFiles: Map<Cell, string> = new Map(),
   ) { }
 
   // Static method to return a default Resource instance.
@@ -296,6 +293,18 @@ export class Resource {
    */
   mockCellAsCellDep(data: Hex): Cell {
     return this.mockCell(this.createScriptUnused(), this.createScriptTypeID(), data)
+  }
+
+  /**
+ * Mock a new Cell with js on-chain script. Used to collect exception information when a crash occurs.
+ * @param path - JS script path (It's *.debug.js not *.bc).
+ * @returns A cell object representing the newly created Cell.
+ */
+  mockDebugCellAsCellDep(path: string): Cell {
+    const cell = this.mockCellAsCellDep(hexFrom(readFileSync(path)));
+    this.debugMapFiles.set(cell, path);
+
+    return cell;
   }
 
   /**
@@ -434,65 +443,6 @@ export class Resource {
   }
 
   /**
-   * Create a Script using ckb-js-vm.
-   * @param data - JS code path.
-   * @param args - The arguments to be used in the script.
-   * @param tx - The transaction to which the cell dependency will be added.
-   * @returns A Script object (With ckb-js-vm)
-   */
-  createJSScript(scriptPath: string, args: Hex,): Script {
-    if (this.enableDebug) {
-      const dbgScriptPath = path.join(
-        path.dirname(scriptPath),
-        path.basename(scriptPath, ".bc") + ".debug.js"
-      );
-      if (existsSync(dbgScriptPath)) {
-        scriptPath = dbgScriptPath;
-      }
-    }
-    const jsCode = readFileSync(scriptPath);
-    const jsCodeHash = hashCkb(jsCode);
-    let jsCodeCell;
-    let jsDepsInfo = this.depCells.get(jsCodeHash);
-    if (jsDepsInfo == undefined) {
-      jsCodeCell = this.mockCell(
-        this.createScriptUnused(),
-        undefined,
-        hexFrom(jsCode),
-      );
-      const deps = this.createCellDep(jsCodeCell, "code");
-      this.depCells.set(jsCodeHash, [jsCodeCell, deps]);
-    } else {
-      jsCodeCell = jsDepsInfo[0];
-    }
-
-    const jsVmCode = hexFrom(readFileSync(DEFAULT_SCRIPT_CKB_JS_VM));
-    const jsVmCodeHash = hashCkb(jsVmCode);
-    let jsVmDepsInfo = this.depCells.get(jsVmCodeHash);
-    let jsVmCodeCell;
-    if (jsVmDepsInfo == undefined) {
-      jsVmCodeCell = this.mockCell(
-        this.createScriptUnused(),
-        undefined,
-        hexFrom(readFileSync(DEFAULT_SCRIPT_CKB_JS_VM)),
-      );
-      const deps = this.createCellDep(jsVmCodeCell, "code");
-      this.depCells.set(jsVmCodeHash, [jsVmCodeCell, deps]);
-    } else {
-      jsVmCodeCell = jsVmDepsInfo[0];
-      jsVmCodeCell = jsVmDepsInfo[0];
-    }
-
-    const jsVMScript = this.createScriptByData(jsVmCodeCell, "0x")
-    jsVMScript.args = hexFrom(
-      "0x0000" + jsCodeHash.slice(2) + "04" + args.slice(2),
-    );
-
-    this.jSScriptsMap.set(jsVMScript, scriptPath);
-    return jsVMScript;
-  }
-
-  /**
    * Deploys a new Cell with given data and adds it as a cell dependency to the transaction.
    * @param data - The data to be stored in the deployed cell.
    * @param tx - The transaction to which the cell dependency will be added.
@@ -528,14 +478,6 @@ export class Resource {
     } else {
       return this.createScriptByData(deployedCell, "0x");
     }
-  }
-
-  completeTx(tx: Transaction): Transaction {
-    for (let [codeHash, [cell, depsCell]] of this.depCells) {
-      tx.cellDeps.push(depsCell);
-    }
-
-    return tx;
   }
 }
 
@@ -1059,7 +1001,7 @@ export class Verifier {
           if (!enableLog) {
             e.reportSummary();
           }
-          if (this.resource.enableDebug) {
+          if (this.resource.debugMapFiles.size != 0) {
             printCrashStack(e, this);
           }
           assert.fail(
@@ -1095,7 +1037,7 @@ export class Verifier {
     for (const e of runResults) {
       if (e.status != 0) {
         e.reportSummary();
-        if (this.resource.enableDebug) {
+        if (this.resource.debugMapFiles.size != 0) {
           printCrashStack(e, this);
         }
 

@@ -2,10 +2,12 @@
 import { ScriptVerificationResult, Verifier, } from "./core"
 import path from "path";
 import { readFileSync, existsSync, accessSync } from "fs";
+import { hashCkb, hashTypeFromBytes, hexFrom, bytesFrom } from "@ckb-ccc/core";
 import {
     TraceMap, originalPositionFor,
     GREATEST_LOWER_BOUND, LEAST_UPPER_BOUND
 } from "@jridgewell/trace-mapping";
+import { Script } from "vm";
 
 export function printCrashStack(result: ScriptVerificationResult, verifier: Verifier,) {
     if (result.status == 0) {
@@ -29,18 +31,8 @@ export function printCrashStack(result: ScriptVerificationResult, verifier: Veri
 
     let dStack = remapStackString(crashStack, scriptPath, map);
 
-    console.log(`dirname: ${path.dirname(scriptPath)}`);
-    const projectRoot = findPackageRoot(path.dirname(scriptPath));
-
-    const crashStack2 = replacePathToRootRelative(
-        dStack,
-        "../src/index.ts",
-        scriptPath,
-        projectRoot
-    );
-
     console.log(`------------------------------------------------------------
-${crashStack2}
+${dStack}
 ------------------------------------------------------------`);
 }
 
@@ -67,7 +59,23 @@ function getScriptPath(result: ScriptVerificationResult, verifier: Verifier): st
             throw "Unknow Error!";
         }
     }
-    const scriptPath = verifier.resource.jSScriptsMap.get(script);
+
+    let scriptPath;
+    let jsCodeHash = hexFrom(bytesFrom(script.args).slice(2, 34));
+    let jsHashType = hashTypeFromBytes(bytesFrom(script.args).slice(34, 35));
+    for (let [cell, path] of verifier.resource.debugMapFiles) {
+        let codeHash;
+        if (jsHashType == "type") {
+            codeHash = cell.cellOutput.type?.hash();
+        } else {
+            codeHash = hashCkb(cell.outputData);
+        }
+        if (codeHash == jsCodeHash) {
+            scriptPath = path;
+            break;
+        }
+    }
+
     if (scriptPath == undefined) {
         throw "Unknow Script"
     }
@@ -98,7 +106,7 @@ function remapStackString(
         `(\\)?)`,
         "g"
     );
-
+    const projectRoot = findPackageRoot(path.dirname(targetBase));
     return stack.replace(
         re,
         (_m, pre: string, _file: string, line: string, col?: string, closer?: string) => {
@@ -119,7 +127,8 @@ function remapStackString(
             if (!pos.source || pos.line == null || pos.column == null) {
                 return `${pre}${_file}:${line}${hasCol ? `:${col}` : ""}${closer ?? ""}`;
             }
-            return `${pre}${pos.source}:${pos.line}:${pos.column}${closer ?? ""}`;
+            const source2 = toRelFromProject(projectRoot, pos.source);
+            return `${pre}${source2}:${pos.line}:${pos.column}${closer ?? ""}`;
         }
     );
 }
@@ -161,28 +170,9 @@ function findPackageRoot(startDir: string): string {
 
 }
 
-
-
-function replacePathToRootRelative(
-    text: string,
-    oldRelFromAnchor: string,
-    anchorFileAbs: string,
-    rootDirAbs: string
-) {
-    function toRootRelative(
-        targetRelFromAnchor: string,
-        anchorFileAbs: string,
-        rootDirAbs: string
-    ) {
-        const targetAbs = path.resolve(path.dirname(anchorFileAbs), targetRelFromAnchor);
-        return path.relative(rootDirAbs, targetAbs).split(path.sep).join("/");
-    }
-
-    function escapeRegExp(s: string) {
-        return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    }
-
-    const newRel = toRootRelative(oldRelFromAnchor, anchorFileAbs, rootDirAbs);
-    const re = new RegExp(escapeRegExp(oldRelFromAnchor), "g");
-    return text.replace(re, newRel);
+export function toRelFromProject(projectDir: string, relFromCwd: string) {
+    const projectAbs = path.resolve(projectDir);
+    const targetAbs = path.resolve(relFromCwd);
+    console.log(`projectAbs :${projectAbs}, targetAbs: ${targetAbs}`);
+    return path.relative(projectAbs, targetAbs).split(path.sep).join("/");
 }
