@@ -1043,6 +1043,7 @@ export class Verifier {
   async verifyFailure(
     expectedErrorCode?: number,
     enableLog: boolean = false,
+    outputCrash: boolean = false,
     config?: { codeHash: Hex },
   ) {
     const runResults = await this.verify(config);
@@ -1058,6 +1059,9 @@ export class Verifier {
         if (e.scriptErrorCode != expectedErrorCode) {
           if (!enableLog) {
             e.reportSummary();
+          }
+          if (outputCrash) {
+            printCrashStack(e, this);
           }
           assert.fail(
             `Transaction verification failed with unexpected error code: expected ${expectedErrorCode}, got ${e.scriptErrorCode}. See details above.`,

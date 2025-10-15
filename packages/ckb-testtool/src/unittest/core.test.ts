@@ -50,7 +50,7 @@ describe("example", () => {
     const verifier = Verifier.from(resource, tx);
     await verifier.verifySuccess(false, false, { codeHash: lockScript.hash() });
     await expect(
-      verifier.verifyFailure(undefined, false, { codeHash: lockScript.hash() }),
+      verifier.verifyFailure(undefined, false, false, { codeHash: lockScript.hash() }),
     ).rejects.toThrow(
       "Transaction verification should fail. No verification failure occurred.",
     );
