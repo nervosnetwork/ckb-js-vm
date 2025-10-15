@@ -253,7 +253,6 @@ export class Resource {
     public header: Map<Hex, HeaderView> = new Map(),
     public headerIncr: Num = numFrom(0),
     public typeidIncr: Num = numFrom(0),
-    public enableDebugger: boolean = false,
     public jSScriptsMap: Map<Script, string> = new Map(),
     public depCells: Map<Hex, [Cell, CellDep]> = new Map(),
     public enableDebug: boolean = false,
