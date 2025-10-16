@@ -173,6 +173,5 @@ function findPackageRoot(startDir: string): string {
 export function toRelFromProject(projectDir: string, relFromCwd: string) {
     const projectAbs = path.resolve(projectDir);
     const targetAbs = path.resolve(relFromCwd);
-    console.log(`projectAbs :${projectAbs}, targetAbs: ${targetAbs}`);
     return path.relative(projectAbs, targetAbs).split(path.sep).join("/");
 }
