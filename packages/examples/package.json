@@ -16,16 +16,17 @@
   "module": "./dist/index.js",
   "scripts": {
     "start": "ckb-debugger --read-file dist/index.bc --bin ../../build/ckb-js-vm -- -r",
-    "build": "pnpm run build:index && pnpm run build:simple_udt && pnpm run build:lock",
+    "build": "pnpm run build:index && pnpm run build:simple_udt && pnpm run build:lock && pnpm run build:simple_stack_trace",
     "build:index": "tsc --noEmit && esbuild --platform=neutral --minify --bundle --external:@ckb-js-std/bindings --target=es2022 src/index.ts --outfile=dist/index.js && ckb-debugger --read-file dist/index.js --bin ../../build/ckb-js-vm -- -c dist/index.bc",
     "build:simple_udt": "tsc --noEmit && esbuild --platform=neutral --minify --bundle --external:@ckb-js-std/bindings --target=es2022 src/simple_udt.ts --outfile=dist/simple_udt.js && ckb-debugger --read-file dist/simple_udt.js --bin ../../build/ckb-js-vm -- -c dist/simple_udt.bc",
     "build:lock": "tsc --noEmit && esbuild --platform=neutral --minify --bundle --external:@ckb-js-std/bindings --target=es2022 src/secp256k1_blake160_lock.ts --outfile=dist/secp256k1_blake160_lock.js && ckb-debugger --read-file dist/secp256k1_blake160_lock.js --bin ../../build/ckb-js-vm -- -c dist/secp256k1_blake160_lock.bc",
+    "build:simple_stack_trace": "tsc --noEmit && esbuild --platform=neutral --minify --bundle --external:@ckb-js-std/bindings --target=es2022 src/simple_stack_trace.ts --outfile=dist/simple_stack_trace.js && ckb-debugger --read-file dist/simple_stack_trace.js --bin ../../build/ckb-js-vm -- -c dist/simple_stack_trace.bc && esbuild src/simple_stack_trace.ts --bundle --platform=neutral --target=es2022 --external:@ckb-js-std/bindings --sourcemap=external  --sources-content --keep-names --minify=false --define:DEBUG=true --loader:.map=json --outfile=dist/simple_stack_trace.debug.js",
     "clean": "rimraf dist",
     "format": "prettier --write .",
     "test": "jest"
   },
   "devDependencies": {
-    "@ckb-ccc/core": "^1.11.0",
+    "@ckb-ccc/core": "^1.12.2",
     "ckb-testtool": "workspace:*"
   },
   "dependencies": {

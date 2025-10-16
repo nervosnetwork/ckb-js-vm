@@ -16,7 +16,9 @@
   "module": "./dist/index.js",
   "scripts": {
     "start": "ckb-debugger --read-file dist/index.bc --bin ../../node_modules/ckb-testtool/src/unittest/defaultScript/ckb-js-vm -- -r",
-    "build": "tsc --noEmit && esbuild --platform=neutral --minify --bundle --external:@ckb-js-std/bindings --target=es2022 src/index.ts --outfile=dist/index.js && ckb-debugger --read-file dist/index.js --bin ../../node_modules/ckb-testtool/src/unittest/defaultScript/ckb-js-vm -- -c dist/index.bc",
+    "build": "pnpm build:release",
+    "build:release": "tsc --noEmit && esbuild --platform=neutral --minify --bundle --external:@ckb-js-std/bindings --target=es2022 src/index.ts --outfile=dist/index.js && ckb-debugger --read-file dist/index.js --bin ../../node_modules/ckb-testtool/src/unittest/defaultScript/ckb-js-vm -- -c dist/index.bc",
+    "build:debug": "tsc --noEmit && esbuild src/index.ts --bundle --platform=neutral --target=es2022 --external:@ckb-js-std/bindings --sourcemap=external  --sources-content --keep-names --minify=false --define:DEBUG=true --loader:.map=json --outfile=dist/index.debug.js",
     "format": "prettier --write .",
     "lint": "eslint ./src",
     "clean": "rimraf dist/*"

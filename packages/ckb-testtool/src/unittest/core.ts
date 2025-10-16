@@ -48,9 +48,10 @@ import {
   SpawnSyncReturns,
 } from "child_process";
 import { randomBytes } from "crypto";
-import { realpathSync, unlinkSync, writeFileSync } from "fs";
+import { realpathSync, unlinkSync, writeFileSync, readFileSync } from "fs";
 import path from "path";
 import { run as runWasmDebugger } from "../wasm-debugger";
+import { printCrashStack } from "./crashStack"
 
 function getNextFilename(basename: string): string {
   const timestamp = Date.now();
@@ -251,6 +252,7 @@ export class Resource {
     public header: Map<Hex, HeaderView> = new Map(),
     public headerIncr: Num = numFrom(0),
     public typeidIncr: Num = numFrom(0),
+    public debugMapFiles: Map<Cell, string> = new Map(),
   ) { }
 
   // Static method to return a default Resource instance.
@@ -291,6 +293,18 @@ export class Resource {
    */
   mockCellAsCellDep(data: Hex): Cell {
     return this.mockCell(this.createScriptUnused(), this.createScriptTypeID(), data)
+  }
+
+  /**
+ * Mock a new Cell with js on-chain script. Used to collect exception information when a crash occurs.
+ * @param path - JS script path (It's *.debug.js not *.bc).
+ * @returns A cell object representing the newly created Cell.
+ */
+  mockDebugCellAsCellDep(path: string): Cell {
+    const cell = this.mockCellAsCellDep(hexFrom(readFileSync(path)));
+    this.debugMapFiles.set(cell, path);
+
+    return cell;
   }
 
   /**
@@ -987,6 +1001,9 @@ export class Verifier {
           if (!enableLog) {
             e.reportSummary();
           }
+          if (this.resource.debugMapFiles.size != 0) {
+            printCrashStack(e, this);
+          }
           assert.fail(
             `Transaction verification failed with unexpected error code: expected ${expectedErrorCode}, got ${e.scriptErrorCode}. See details above.`,
           );
@@ -1020,6 +1037,10 @@ export class Verifier {
     for (const e of runResults) {
       if (e.status != 0) {
         e.reportSummary();
+        if (this.resource.debugMapFiles.size != 0) {
+          printCrashStack(e, this);
+        }
+
         assert.fail("Transaction verification failed. See details above.");
       }
       if (enableLog) {
