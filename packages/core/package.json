@@ -1,6 +1,6 @@
 {
   "name": "@ckb-js-std/core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Write scripts in JavaScript on CKB-VM",
   "author": "CKB-VM Team",
   "license": "MIT",
