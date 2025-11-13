@@ -11,7 +11,7 @@
 
 #define CKB_SS (sizeof(size_t))
 #define CKB_ALIGN (sizeof(size_t) - 1)
-#define CKB_ONES ((size_t) - 1 / UCHAR_MAX)
+#define CKB_ONES ((size_t)-1 / UCHAR_MAX)
 #define CKB_HIGHS (CKB_ONES * (UCHAR_MAX / 2 + 1))
 #define CKB_HASZERO(x) (((x) - CKB_ONES) & ~(x) & CKB_HIGHS)
 

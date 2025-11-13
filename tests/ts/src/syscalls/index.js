@@ -250,6 +250,10 @@ function test_exec() {
   ckb.exit(-10);
 }
 
+function test_load_cell_data_bug() {
+    let data = ckb.loadCellData(0, ckb.SOURCE_INPUT);
+}
+
 test_misc();
 test_partial_loading(ckb.loadWitness);
 test_partial_loading(ckb.loadCellData);
@@ -264,6 +268,8 @@ test_partial_loading_field_without_comparing(
   ckb.loadInputByField,
   ckb.INPUT_FIELD_OUT_POINT,
 );
+test_load_cell_data_bug();
+
 test_spawn();
 // this test must be at the end
 test_exec();

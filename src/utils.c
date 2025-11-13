@@ -45,7 +45,7 @@ JSValue qjs_create_uint8_array(JSContext *ctx, const uint8_t *data, size_t lengt
     // Create constructor arguments
     JSValue args[3];
     args[0] = buffer;
-    args[1] = JS_NewInt64(ctx, 0);  // offset
+    args[1] = JS_NewInt64(ctx, 0);       // offset
     args[2] = JS_NewInt64(ctx, length);  // length
 
     // Get Uint8Array constructor
