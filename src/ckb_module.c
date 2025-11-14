@@ -16,7 +16,7 @@
 // argument 3: offset (optional, default to 0)
 // argument 4: length (optional, default to full length)
 //
-#define NO_VALUE ((size_t) - 1)
+#define NO_VALUE ((size_t)-1)
 // a temporary error code which should be not returned to exit
 #define ERROR_TEMP (-100)
 
@@ -135,7 +135,8 @@ static JSValue syscall_load(JSContext *ctx, LoadData *data) {
         CHECK(err);
     }
 
-    addr = js_malloc(ctx, data->length);
+    // avoid to alloc zero length
+    addr = js_malloc(ctx, data->length == 0 ? 4 : data->length);
     CHECK2(addr != NULL, QJS_ERROR_MEMORY_ALLOCATION);
     uint64_t len = data->length;
     err = data->func(addr, &len, data);
