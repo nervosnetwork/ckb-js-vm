@@ -99,6 +99,8 @@ function remapStackString(
     targetBase: string,
     traceMap: TraceMap,
 ): string {
+    const mapDir = path.dirname(targetBase);
+    const sourceBase = traceMap.sourceRoot ? path.resolve(mapDir, traceMap.sourceRoot) : mapDir;
     const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const re = new RegExp(
         `(at (?:[^(\n]*\\()?)` +
@@ -127,7 +129,7 @@ function remapStackString(
             if (!pos.source || pos.line == null || pos.column == null) {
                 return `${pre}${_file}:${line}${hasCol ? `:${col}` : ""}${closer ?? ""}`;
             }
-            const source2 = toRelFromProject(projectRoot, pos.source);
+            const source2 = toRelFromProject(projectRoot, pos.source, sourceBase);
             return `${pre}${source2}:${pos.line}:${pos.column}${closer ?? ""}`;
         }
     );
@@ -170,8 +172,8 @@ function findPackageRoot(startDir: string): string {
 
 }
 
-export function toRelFromProject(projectDir: string, relFromCwd: string) {
+export function toRelFromProject(projectDir: string, relFromCwd: string, sourceResolveBase?: string) {
     const projectAbs = path.resolve(projectDir);
-    const targetAbs = path.resolve(relFromCwd);
+    const targetAbs = path.resolve(sourceResolveBase ?? "", relFromCwd);
     return path.relative(projectAbs, targetAbs).split(path.sep).join("/");
 }
