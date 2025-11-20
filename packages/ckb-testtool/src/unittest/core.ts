@@ -991,6 +991,8 @@ export class Verifier {
     for (const e of runResults) {
       if (enableLog) {
         e.reportSummary();
+        if (this.resource.debugMapFiles.size != 0)
+          printCrashStack(e, this);
       }
       if (e.status != 0) {
         if (expectedErrorCode === undefined) {
