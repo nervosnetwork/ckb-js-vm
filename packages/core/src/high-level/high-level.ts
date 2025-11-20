@@ -627,6 +627,16 @@ export class QueryIter<T> implements Iterator<T> {
     }
     return results;
   }
+
+  /**
+   * Get the current index of the iterator
+   */
+  pos(): number | null {
+    if (this.index == 0)
+      return null;
+    else
+      return this.index - 1;
+  }
 }
 
 /**
