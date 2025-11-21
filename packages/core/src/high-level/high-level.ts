@@ -629,6 +629,17 @@ export class QueryIter<T> implements Iterator<T> {
   }
 
   /**
+   */
+  enumerate(): [number, T][] {
+    const result: ([number, T])[] = [];
+    for (const item of this) {
+      const index = this.pos()!;
+      result.push([index, item]);
+    }
+    return result;
+  }
+
+  /**
    * Get the current index of the iterator
    */
   pos(): number | null {
