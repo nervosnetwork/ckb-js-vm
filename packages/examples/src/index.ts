@@ -1,5 +1,5 @@
 import * as bindings from "@ckb-js-std/bindings";
-import { HighLevel, log, logError } from "@ckb-js-std/core";
+import { bytesEq, HighLevel, log, logError } from "@ckb-js-std/core";
 
 function reportCycles() {
   let cycles = bindings.currentCycles();
@@ -31,6 +31,14 @@ function main() {
     log.debug(
       `list all input lock scripts: ${JSON.stringify(item, bigintReplacer)}`,
     );
+  }
+  reportCycles();
+
+  const scriptHash = script.hash();
+  const iterLockHash = new HighLevel.QueryIter(HighLevel.loadCellLockHash, HighLevel.SOURCE_INPUT,);
+  for (const it of iterLockHash) {
+    if (bytesEq(scriptHash, it))
+      log.debug(`This script index: ${iterLockHash.pos()}`);
   }
   reportCycles();
 
