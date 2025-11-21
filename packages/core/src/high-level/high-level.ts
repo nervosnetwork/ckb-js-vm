@@ -629,6 +629,17 @@ export class QueryIter<T> implements Iterator<T> {
   }
 
   /**
+   * Collect all remaining items with their indices
+   * @returns Array of `[index, item]` tuples
+   *
+   * @example
+   * ```typescript
+   * impimport { HighLevel, log } from "@ckb-js-std/core";
+   *
+   * for (const [index, script] of new HighLevel.QueryIter(HighLevel.loadCellLock, HighLevel.SOURCE_INPUT).enumerate()) {
+   *   log.debug(`index: ${index}, Code Hash: ${script.codeHash}`);
+   * }
+   * ```
    */
   enumerate(): [number, T][] {
     const result: ([number, T])[] = [];
@@ -640,7 +651,20 @@ export class QueryIter<T> implements Iterator<T> {
   }
 
   /**
-   * Get the current index of the iterator
+   * Get the zero-based index of the last yielded item
+   * @returns The current index, or null if iteration has not started
+   *
+   * @example
+   * ```typescript
+   * import { HighLevel, log } from "@ckb-js-std/core";
+   *
+   * const scriptHash = script.hash();
+   * const iterLockHash = new HighLevel.QueryIter(HighLevel.loadCellLockHash, HighLevel.SOURCE_INPUT);
+   * for (const it of iterLockHash) {
+   * if (bytesEq(scriptHash, it))
+   *   log.debug(`This script index: ${iterLockHash.pos()}`);
+   * }
+   * ```
    */
   pos(): number | null {
     if (this.index == 0)
