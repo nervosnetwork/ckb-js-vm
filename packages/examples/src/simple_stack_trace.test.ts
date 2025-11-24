@@ -36,7 +36,7 @@ async function main() {
     })
 
     const verifier = Verifier.from(resource, tx);
-    verifier.verifyFailure(-2);
+    verifier.verifyFailure(-2, true);
 }
 
 describe("simple-stack-trace", () => {

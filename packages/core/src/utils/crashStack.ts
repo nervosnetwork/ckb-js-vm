@@ -1,5 +1,10 @@
 
 export function logError(e: unknown): void {
+    if (e instanceof Error) {
+        console.log(`${e.name} : ${e.message}`);
+    } else if (e instanceof String) {
+        console.log(`Error: ${e}`);
+    }
     const root = e instanceof Error ? e : new Error(String(e));
     const lines: string[] = [];
     const dump = (err: any, prefix = "") => {
