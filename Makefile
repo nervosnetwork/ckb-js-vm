@@ -3,13 +3,15 @@ LD := ld.lld
 OBJCOPY := llvm-objcopy
 AR := llvm-ar
 
+# bug in https://github.com/llvm/llvm-project/pull/157220/files
+# so we add `-mno-outline`
 define get_cfi_cflags
 $(if $(1),\
     $(info Info: build with CFI enabled)\
     $(eval _CLANG_VERSION := $(shell $(CC) --version | head -n1 | sed -n 's/.*version \([0-9]*\)\..*/\1/p'))\
     $(if $(shell test $(_CLANG_VERSION) -ge 21 && echo 1),\
         --target=riscv64 -march=rv64imc_zba_zbb_zbc_zbs_zicfiss1p0_zicfilp1p0 \
-        -menable-experimental-extensions -fcf-protection=full \
+        -menable-experimental-extensions -fcf-protection=full -mno-outline\
         $(if $(filter unlabeled,$(1)),\
             -mcf-branch-label-scheme=unlabeled,\
         $(if $(filter func-sig,$(1)),\
@@ -127,7 +129,8 @@ build/ckb-js-vm: build/ckb-c-stdlib/impl.o \
 	$(OBJCOPY) --strip-debug --strip-all $@
 	ls -lh build/ckb-js-vm
 ifdef CFI
-	llvm-readelf -n build/ckb-js-vm
+# manually enable LPAD
+	bash update-gnu-notes.sh build/ckb-js-vm
 endif
 
 build/ckb-c-stdlib/%.o: deps/ckb-c-stdlib/libc/src/%.c

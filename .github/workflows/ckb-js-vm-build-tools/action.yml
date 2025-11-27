@@ -18,6 +18,7 @@ runs:
       sudo ln -sf $(which llvm-objcopy-21) /usr/bin/llvm-objcopy || true
       sudo ln -sf $(which ld.lld-21) /usr/bin/ld.lld || true
       sudo ln -sf $(which llvm-readelf-21) /usr/bin/llvm-readelf || true
+      sudo ln -sf $(which llvm-objcopy-21) /usr/bin/llvm-objcopy || true
   - name: Setup Node.js
     uses: actions/setup-node@v4
     with:
