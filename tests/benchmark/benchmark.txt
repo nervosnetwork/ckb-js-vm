@@ -2,41 +2,41 @@ Script log: Run from file, local access enabled. For Testing only.
 Script log: Benchmark started. Every test may iterate 1 internally ...
 Script log: empty_loop: 4 K cycles
 Script log: prop_read: 16 K cycles
-Script log: prop_write: 15 K cycles
+Script log: prop_write: 16 K cycles
 Script log: prop_create: 14 K cycles
 Script log: prop_delete: 9 K cycles
-Script log: array_read: 25 K cycles
-Script log: array_write: 24 K cycles
-Script log: array_prop_create: 1102 K cycles
-Script log: array_length_decr: 2072 K cycles
-Script log: array_hole_length_decr: 3904 K cycles
-Script log: array_push: 1517 K cycles
-Script log: array_pop: 1753 K cycles
+Script log: array_read: 26 K cycles
+Script log: array_write: 25 K cycles
+Script log: array_prop_create: 1127 K cycles
+Script log: array_length_decr: 2136 K cycles
+Script log: array_hole_length_decr: 3957 K cycles
+Script log: array_push: 1551 K cycles
+Script log: array_pop: 1787 K cycles
 Script log: typed_array_read: 28 K cycles
-Script log: typed_array_write: 27 K cycles
+Script log: typed_array_write: 28 K cycles
 Script log: global_read: 5 K cycles
 Script log: global_write: 6 K cycles
-Script log: global_write_strict: 4 K cycles
-Script log: local_destruct: 98 K cycles
-Script log: global_destruct: 49 K cycles
-Script log: global_destruct_strict: 69 K cycles
-Script log: func_call: 14 K cycles
-Script log: int_arith: 1555 K cycles
-Script log: set_collection_add: 1053 K cycles
-Script log: array_for: 216 K cycles
-Script log: array_for_in: 440 K cycles
+Script log: global_write_strict: 5 K cycles
+Script log: local_destruct: 102 K cycles
+Script log: global_destruct: 57 K cycles
+Script log: global_destruct_strict: 71 K cycles
+Script log: func_call: 15 K cycles
+Script log: int_arith: 1569 K cycles
+Script log: set_collection_add: 1077 K cycles
+Script log: array_for: 223 K cycles
+Script log: array_for_in: 449 K cycles
 Script log: array_for_of: 242 K cycles
-Script log: math_min: 1748 K cycles
-Script log: string_build1: 181 K cycles
-Script log: string_build2: 193 K cycles
-Script log: string_build3: 201 K cycles
-Script log: string_build4: 197 K cycles
-Script log: int_to_string: 11 K cycles
-Script log: float_to_string: 22 K cycles
+Script log: math_min: 1767 K cycles
+Script log: string_build1: 191 K cycles
+Script log: string_build2: 202 K cycles
+Script log: string_build3: 208 K cycles
+Script log: string_build4: 208 K cycles
+Script log: int_to_string: 12 K cycles
+Script log: float_to_string: 23 K cycles
 Script log: string_to_int: 7 K cycles
 Script log: string_to_float: 10 K cycles
-Script log: sort_bench(5000 numbers): 25746 K cycles
-Script log: json_parse_bench: 130 K cycles
-Script log: json_stringify_bench: 222 K cycles
+Script log: sort_bench(5000 numbers): 25805 K cycles
+Script log: json_parse_bench: 132 K cycles
+Script log: json_stringify_bench: 227 K cycles
 Run result: 0
-All cycles: 61035353(58.2M)
+All cycles: 61687702(58.8M)

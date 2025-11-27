@@ -3,30 +3,31 @@ description: 'Setup build tools for ckb-js-vm projects'
 runs:
   using: "composite"
   steps:
-  - name: Install llvm 19
+  - name: Install llvm 21
     shell: bash
     run: |
-      sudo apt-get purge --auto-remove llvm python3-lldb-14 llvm-14
       wget https://apt.llvm.org/llvm.sh
       chmod +x llvm.sh
-      sudo ./llvm.sh 19
+      sudo ./llvm.sh 21
       rm llvm.sh
   - name: Fix llvm-ar path
     shell: bash
     run: |
-      sudo ln -s $(which llvm-ar-19) /usr/bin/llvm-ar || true
-      sudo ln -s $(which llvm-objcopy-19) /usr/bin/llvm-objcopy || true
-      sudo ln -s $(which ld.lld-19) /usr/bin/ld.lld || true
+      sudo ln -sf $(which clang-21) /usr/bin/clang || true
+      sudo ln -sf $(which llvm-ar-21) /usr/bin/llvm-ar || true
+      sudo ln -sf $(which llvm-objcopy-21) /usr/bin/llvm-objcopy || true
+      sudo ln -sf $(which ld.lld-21) /usr/bin/ld.lld || true
+      sudo ln -sf $(which llvm-readelf-21) /usr/bin/llvm-readelf || true
   - name: Setup Node.js
     uses: actions/setup-node@v4
     with:
       node-version: '22'
-  - name: Install ckb-debugger
+  - name: Install ckb-debugger CFI version
     shell: bash
     run: |
-      wget 'https://github.com/nervosnetwork/ckb-standalone-debugger/releases/download/v0.200.1/ckb-debugger_v0.200.1_x86_64-unknown-linux-gnu.tar.gz'
-      tar xzvf ckb-debugger_v0.200.1_x86_64-unknown-linux-gnu.tar.gz
-      mv ckb-debugger ~/.cargo/bin
+      sudo apt update
+      sudo apt install protobuf-compiler
+      cargo install --git https://github.com/mohanson-fork/ckb-standalone-debugger.git ckb-debugger --branch cfi
   - name: Install pnpm
     shell: bash
     run: npm install -g pnpm

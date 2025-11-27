@@ -3,7 +3,29 @@ LD := ld.lld
 OBJCOPY := llvm-objcopy
 AR := llvm-ar
 
-CFLAGS_TARGET = --target=riscv64 -march=rv64imc_zba_zbb_zbc_zbs
+define get_cfi_cflags
+$(if $(1),\
+    $(info Info: build with CFI enabled)\
+    $(eval _CLANG_VERSION := $(shell $(CC) --version | head -n1 | sed -n 's/.*version \([0-9]*\)\..*/\1/p'))\
+    $(if $(shell test $(_CLANG_VERSION) -ge 21 && echo 1),\
+        --target=riscv64 -march=rv64imc_zba_zbb_zbc_zbs_zicfiss1p0_zicfilp1p0 \
+        -menable-experimental-extensions -fcf-protection=full \
+        $(if $(filter unlabeled,$(1)),\
+            -mcf-branch-label-scheme=unlabeled,\
+        $(if $(filter func-sig,$(1)),\
+            -mcf-branch-label-scheme=func-sig,\
+            $(error Error: CFI is set to '$(1)' but expected 'unlabeled' or 'func-sig'))),\
+        $(error Error: CFI requires clang version 21 or above, but found version $(_CLANG_VERSION))),\
+    --target=riscv64 -march=rv64imc_zba_zbb_zbc_zbs)
+endef
+
+define get_cfi_ldflags
+$(if $(1),\
+    -z zicfiss-report=error)
+endef
+
+CFLAGS_TARGET := $(call get_cfi_cflags,$(CFI))
+
 CFLAGS_OPTIMIZE = -g -Oz -fdata-sections -ffunction-sections
 CFLAGS_WARNNING = -Wno-incompatible-library-redeclaration -Wno-invalid-noreturn -Wno-implicit-const-int-float-conversion
 CFLAGS_NO_BUILTIN = -fno-builtin-printf -fno-builtin-memcmp
@@ -52,7 +74,7 @@ CFLAGS_BASE_SECP256k1 = $(CFLAGS_BASE) \
 	-DENABLE_MODULE_SCHNORRSIG \
 	-DENABLE_MODULE_EXTRAKEYS
 
-LDFLAGS := -static --gc-sections
+LDFLAGS := -static --gc-sections $(call get_cfi_ldflags,$(CFI))
 LDFLAGS += -Ldeps/compiler-rt-builtins-riscv/build -lcompiler-rt
 
 all: out build/ckb-js-vm
@@ -104,6 +126,9 @@ build/ckb-js-vm: build/ckb-c-stdlib/impl.o \
 	cp $@ $@.debug
 	$(OBJCOPY) --strip-debug --strip-all $@
 	ls -lh build/ckb-js-vm
+ifdef CFI
+	llvm-readelf -n build/ckb-js-vm
+endif
 
 build/ckb-c-stdlib/%.o: deps/ckb-c-stdlib/libc/src/%.c
 	@echo build $<
