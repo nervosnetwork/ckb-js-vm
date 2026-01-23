@@ -21,6 +21,24 @@ function getNextFilename(basename: string): string {
   return `${timestamp}-${random}-${basename}`;
 }
 
+/**
+ * Converts a Windows path to a POSIX-style path for WASI compatibility.
+ * On non-Windows platforms, returns the path unchanged.
+ * @param windowsPath - The path to convert
+ * @returns The POSIX-style path
+ * @internal
+ */
+export function toPosixPath(windowsPath: string): string {
+  if (process.platform !== "win32") {
+    return windowsPath;
+  }
+  // Convert backslashes to forward slashes and handle drive letters
+  // e.g., "C:\Users\foo" -> "/c/Users/foo"
+  return windowsPath
+    .replace(/^([A-Za-z]):/, (_, drive) => `/${drive.toLowerCase()}`)
+    .replace(/\\/g, "/");
+}
+
 export interface Result {
   status: number;
   stdout: string;
@@ -63,7 +81,8 @@ export async function run(
   const preopens: Record<string, string> = {};
   for (let i = 0; i < real_preopens_path.length; i++) {
     const dir = path.dirname(real_preopens_path[i]);
-    preopens[dir] = dir;
+    // Use POSIX path for key (WASI compatibility on Windows)
+    preopens[toPosixPath(dir)] = dir;
   }
 
   const wasm_debugger_path = path.join(
@@ -80,10 +99,30 @@ export async function run(
 
   const stdoutFd = openSync(stdoutPath, "w");
   const stderrFd = openSync(stderrPath, "w");
+
+  // Convert args that contain paths to POSIX style for WASI on Windows
+  const wasiArgs = args.map((arg) => {
+    const cleanArg = arg.replace(/^["']|["']$/g, ""); // Remove quotes
+    // Check if the arg looks like an absolute path (Windows or Unix)
+    if (path.isAbsolute(cleanArg)) {
+      return toPosixPath(cleanArg);
+    }
+    return cleanArg;
+  });
+
+  // Convert user-provided preopens to use POSIX keys
+  const normalizedPreopens: Record<string, string> = {};
+  for (const [key, value] of Object.entries(preopens)) {
+    normalizedPreopens[toPosixPath(key)] = value;
+  }
+
   const wasi_host = new WASI({
     version: "preview1",
-    args: ["ckb-debugger", ...args],
-    preopens: preopens,
+    args: ["ckb-debugger", ...wasiArgs],
+    preopens: {
+      "/": ".",
+      ...normalizedPreopens,
+    },
     stdout: stdoutFd,
     stderr: stderrFd,
   });
