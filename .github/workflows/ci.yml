@@ -11,7 +11,7 @@ jobs:
         submodules: recursive
     - uses: ./.github/workflows/ckb-js-vm-build-tools
     - name: Build
-      run: make all
+      run: make all CFI=unlabeled
     - name: Tests
       run: make test
     - name: Benchmark
