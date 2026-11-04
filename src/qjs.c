@@ -290,7 +290,10 @@ static int eval_buf(JSContext *ctx, const void *buf, int buf_len, const char *fi
 }
 
 int run_from_file_system_buf(JSContext *ctx, char *buf, size_t buf_size) {
+    // ckb_load_fs borrows the archive. Keep it alive until VM exit, including
+    // while queued jobs load scripts or resolve dynamic imports.
     int err = ckb_load_fs("/", buf, buf_size);
+    if (err) free(buf);
     CHECK(err);
 
     FSFile *init_file = NULL;
@@ -333,7 +336,10 @@ static int run_from_local_file(JSContext *ctx, bool enable_fs) {
         }
     }
     if (enable_fs) {
-        return run_from_file_system_buf(ctx, buf, (size_t)count);
+        char *fs_buf = malloc(count ? (size_t)count : 1);
+        if (!fs_buf) return QJS_ERROR_MEMORY_ALLOCATION;
+        memcpy(fs_buf, buf, count);
+        return run_from_file_system_buf(ctx, fs_buf, (size_t)count);
     } else {
         buf[count] = 0;
         return eval_buf(ctx, buf, count, "<run_from_file>", true);
@@ -351,14 +357,14 @@ static int run_from_cell_data(JSContext *ctx, bool enable_fs) {
     }
 
     char *buf = malloc(buf_size + 1);
+    if (!buf) return QJS_ERROR_MEMORY_ALLOCATION;
     err = qjs_load_cell_code(buf_size, index, (uint8_t *)buf);
     if (err) {
+        free(buf);
         return err;
     }
     if (enable_fs || use_filesystem) {
-        err = run_from_file_system_buf(ctx, buf, buf_size);
-        free(buf);
-        return err;
+        return run_from_file_system_buf(ctx, buf, buf_size);
     } else {
         buf[buf_size] = 0;
         err = eval_buf(ctx, buf, buf_size, "<run_from_file>", true);
@@ -391,15 +397,15 @@ static int run_from_target(JSContext *ctx, const char *target, bool enable_fs) {
     }
 
     char *buf = malloc(buf_size + 1);
+    if (!buf) return QJS_ERROR_MEMORY_ALLOCATION;
     err = qjs_load_cell_code(buf_size, index, (uint8_t *)buf);
     if (err) {
+        free(buf);
         return err;
     }
 
     if (enable_fs) {
-        err = run_from_file_system_buf(ctx, buf, buf_size);
-        free(buf);
-        return err;
+        return run_from_file_system_buf(ctx, buf, buf_size);
     } else {
         buf[buf_size] = 0;
         err = eval_buf(ctx, buf, buf_size, "<run_from_file>", true);
