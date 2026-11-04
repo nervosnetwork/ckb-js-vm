@@ -21,4 +21,4 @@ runs:
       mv ckb-debugger ~/.cargo/bin
   - name: Install pnpm
     shell: bash
-    run: npm install -g pnpm
+    run: npm install -g pnpm@10.4.1
