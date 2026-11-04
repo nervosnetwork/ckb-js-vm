@@ -715,6 +715,7 @@ JSValue qjs_eval_script(JSContext *ctx, const char *str, int len, bool enable_mo
         switch (promise_state) {
             case JS_PROMISE_REJECTED: {
                 JSValue error = JS_PromiseResult(ctx, val);
+                js_std_promise_rejection_handled(ctx, val);
                 JS_FreeValue(ctx, val);
                 JS_Throw(ctx, error);
                 val = JS_EXCEPTION;

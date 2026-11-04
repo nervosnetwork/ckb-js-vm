@@ -1,6 +1,10 @@
 #ifndef __QJS_H__
 #define __QJS_H__
 
+#include "quickjs.h"
+
+void js_std_promise_rejection_handled(JSContext *ctx, JSValueConst promise);
+
 // Define meaningful enum names for exit codes
 typedef enum {
     QJS_SUCCESS = 0,

@@ -11,6 +11,41 @@ DEBUGGER = os.environ.get("CKB_DEBUGGER", "ckb-debugger")
 
 
 class NativeRegressions(unittest.TestCase):
+    def test_async_failures_reject_transaction(self):
+        for source in [
+            'await Promise.resolve(); throw new Error("async failure");',
+            'Promise.reject(new Error("async failure"));',
+            'Promise.resolve().then(() => { throw new Error("async failure"); });',
+            '(async () => { await 0; throw new Error("async failure"); })();',
+            'Promise.reject(null);',
+            'Promise.reject(undefined);',
+            '''const p = Promise.reject({toString() {
+                   p.catch(() => {}); return "late handler";
+               }});''',
+            'await new Promise(() => {});',
+            '''import {evalJsScript} from "@ckb-js-std/bindings";
+               globalThis.reason = new Error("shared reason");
+               Promise.reject(reason);
+               try { evalJsScript("throw globalThis.reason", true); } catch (_) {}''',
+        ]:
+            with self.subTest(source=source):
+                self.run_script(source, success=False)
+
+    def test_handled_async_failures_succeed(self):
+        self.run_script('''
+            import {evalJsScript} from "@ckb-js-std/bindings";
+            await Promise.resolve();
+            await Promise.reject("expected").catch(() => {});
+            const p = Promise.reject("handled in a later job");
+            Promise.resolve().then(() => p.catch(() => {}));
+            for (const module of [false, true]) {
+                let caught = false;
+                try { evalJsScript('throw new Error("expected")', module); }
+                catch (e) { caught = e.message === "expected"; }
+                if (!caught) throw new Error("lost exception");
+            }
+        ''')
+
     def test_long_module_names(self):
         for length in [252, 253, 512, 2048]:
             output = self.run_script('import "' + 'a' * length + '.js";', success=False)
