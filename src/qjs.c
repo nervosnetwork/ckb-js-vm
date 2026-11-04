@@ -77,6 +77,48 @@ void js_std_dump_error(JSContext *ctx) {
     JS_FreeValue(ctx, exception_val);
 }
 
+typedef struct PromiseRejection {
+    JSValue promise;
+    JSValue reason;
+    struct PromiseRejection *next;
+} PromiseRejection;
+
+static PromiseRejection *promise_rejections;
+static bool promise_tracking_failed;
+
+void js_std_promise_rejection_handled(JSContext *ctx, JSValueConst promise) {
+    PromiseRejection **link = &promise_rejections;
+    while (*link) {
+        PromiseRejection *entry = *link;
+        if (JS_VALUE_GET_PTR(entry->promise) == JS_VALUE_GET_PTR(promise)) {
+            *link = entry->next;
+            JS_FreeValue(ctx, entry->promise);
+            JS_FreeValue(ctx, entry->reason);
+            free(entry);
+            return;
+        }
+        link = &entry->next;
+    }
+}
+
+static void js_std_promise_rejection_tracker(JSContext *ctx, JSValueConst promise,
+                                             JSValueConst reason, JS_BOOL is_handled, void *opaque) {
+    if (is_handled) {
+        js_std_promise_rejection_handled(ctx, promise);
+        return;
+    }
+    PromiseRejection *entry = malloc(sizeof(*entry));
+    if (!entry) {
+        // Losing a rejection must never turn a failed validation into success.
+        promise_tracking_failed = true;
+        return;
+    }
+    entry->promise = JS_DupValue(ctx, promise);
+    entry->reason = JS_DupValue(ctx, reason);
+    entry->next = promise_rejections;
+    promise_rejections = entry;
+}
+
 int js_std_loop(JSContext *ctx) {
     JSContext *ctx1;
     int ret = 0;
@@ -90,6 +132,21 @@ int js_std_loop(JSContext *ctx) {
             }
             break;
         }
+    }
+    if (promise_tracking_failed) {
+        printf("Unable to track promise rejection\n");
+        ret = QJS_ERROR_EXCEPTION;
+    }
+    while (promise_rejections) {
+        // Formatting a rejection can execute JS (for example, toString).
+        // Detach this entry first so a newly attached handler cannot free it.
+        PromiseRejection *entry = promise_rejections;
+        promise_rejections = entry->next;
+        js_std_dump_error1(ctx, entry->reason);
+        JS_FreeValue(ctx, entry->promise);
+        JS_FreeValue(ctx, entry->reason);
+        free(entry);
+        ret = QJS_ERROR_EXCEPTION;
     }
     return ret;
 }
@@ -195,6 +252,21 @@ static int eval_buf(JSContext *ctx, const void *buf, int buf_len, const char *fi
     } else {
         val = JS_Eval(ctx, buf, buf_len, filename, eval_flags);
     }
+    // A module can suspend at top-level await. Its result is only final after
+    // the queued jobs run; an empty queue with a pending module is incomplete.
+    while (JS_PromiseState(ctx, val) == JS_PROMISE_PENDING) {
+        JSContext *job_ctx;
+        int status = JS_ExecutePendingJob(JS_GetRuntime(ctx), &job_ctx);
+        if (status <= 0) {
+            if (status < 0) {
+                js_std_dump_error(job_ctx);
+            } else {
+                printf("Module evaluation is still pending\n");
+            }
+            JS_FreeValue(ctx, val);
+            return QJS_ERROR_EXCEPTION;
+        }
+    }
     if (JS_IsException(val)) {
         js_std_dump_error(ctx);
         ret = QJS_ERROR_GENERIC;
@@ -218,7 +290,10 @@ static int eval_buf(JSContext *ctx, const void *buf, int buf_len, const char *fi
 }
 
 int run_from_file_system_buf(JSContext *ctx, char *buf, size_t buf_size) {
+    // ckb_load_fs borrows the archive. Keep it alive until VM exit, including
+    // while queued jobs load scripts or resolve dynamic imports.
     int err = ckb_load_fs("/", buf, buf_size);
+    if (err) free(buf);
     CHECK(err);
 
     FSFile *init_file = NULL;
@@ -261,7 +336,10 @@ static int run_from_local_file(JSContext *ctx, bool enable_fs) {
         }
     }
     if (enable_fs) {
-        return run_from_file_system_buf(ctx, buf, (size_t)count);
+        char *fs_buf = malloc(count ? (size_t)count : 1);
+        if (!fs_buf) return QJS_ERROR_MEMORY_ALLOCATION;
+        memcpy(fs_buf, buf, count);
+        return run_from_file_system_buf(ctx, fs_buf, (size_t)count);
     } else {
         buf[count] = 0;
         return eval_buf(ctx, buf, count, "<run_from_file>", true);
@@ -279,14 +357,14 @@ static int run_from_cell_data(JSContext *ctx, bool enable_fs) {
     }
 
     char *buf = malloc(buf_size + 1);
+    if (!buf) return QJS_ERROR_MEMORY_ALLOCATION;
     err = qjs_load_cell_code(buf_size, index, (uint8_t *)buf);
     if (err) {
+        free(buf);
         return err;
     }
     if (enable_fs || use_filesystem) {
-        err = run_from_file_system_buf(ctx, buf, buf_size);
-        free(buf);
-        return err;
+        return run_from_file_system_buf(ctx, buf, buf_size);
     } else {
         buf[buf_size] = 0;
         err = eval_buf(ctx, buf, buf_size, "<run_from_file>", true);
@@ -319,15 +397,15 @@ static int run_from_target(JSContext *ctx, const char *target, bool enable_fs) {
     }
 
     char *buf = malloc(buf_size + 1);
+    if (!buf) return QJS_ERROR_MEMORY_ALLOCATION;
     err = qjs_load_cell_code(buf_size, index, (uint8_t *)buf);
     if (err) {
+        free(buf);
         return err;
     }
 
     if (enable_fs) {
-        err = run_from_file_system_buf(ctx, buf, buf_size);
-        free(buf);
-        return err;
+        return run_from_file_system_buf(ctx, buf, buf_size);
     } else {
         buf[buf_size] = 0;
         err = eval_buf(ctx, buf, buf_size, "<run_from_file>", true);
@@ -420,6 +498,7 @@ int main(int argc, const char **argv) {
         printf("qjs: cannot allocate JS runtime\n");
         return QJS_ERROR_GENERIC;
     }
+    JS_SetHostPromiseRejectionTracker(rt, js_std_promise_rejection_tracker, NULL);
     if (memory_limit != 0) JS_SetMemoryLimit(rt, memory_limit);
     // see docs/src/security.md for more information.
     size_t stack_size = CKB_MEMORY_LIMIT - CKB_BRK_MAX - 4096;

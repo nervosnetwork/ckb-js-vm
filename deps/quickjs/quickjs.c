@@ -28742,6 +28742,13 @@ static int js_execute_sync_module(JSContext *ctx, JSModuleDef *m,
             JS_FreeValue(ctx, promise);
         } else if (state == JS_PROMISE_REJECTED) {
             *pvalue = JS_PromiseResult(ctx, promise);
+            /* This internal promise is consumed here. The module's public
+               evaluation promise carries the rejection to the host. */
+            if (ctx->rt->host_promise_rejection_tracker) {
+                ctx->rt->host_promise_rejection_tracker(
+                    ctx, promise, *pvalue, TRUE,
+                    ctx->rt->host_promise_rejection_tracker_opaque);
+            }
             JS_FreeValue(ctx, promise);
             return -1;
         } else {

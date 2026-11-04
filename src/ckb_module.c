@@ -358,6 +358,10 @@ static JSValue syscall_exec_cell(JSContext *ctx, JSValueConst this_value, int ar
     const char *passed_argv[256] = {0};
     uint8_t code_hash[32];
 
+    if (argc < argv_offset || argc - argv_offset > countof(passed_argv)) {
+        return JS_ThrowRangeError(ctx, "execCell accepts at most 256 script arguments");
+    }
+
     uint8_t *p = JS_GetArrayBuffer(ctx, &code_hash_len, argv[0]);
     if (code_hash_len != 32 || p == NULL) {
         return JS_ThrowTypeError(ctx, "invalid code_hash format");
@@ -379,6 +383,7 @@ static JSValue syscall_exec_cell(JSContext *ctx, JSValueConst this_value, int ar
     for (int i = argv_offset; i < argc; i++) {
         CHECK2(!qjs_bad_str_arg(ctx, argv[i], i), ERROR_TEMP);
         passed_argv[i - argv_offset] = JS_ToCString(ctx, argv[i]);
+        CHECK2(passed_argv[i - argv_offset] != NULL, ERROR_TEMP);
     }
     err = ckb_exec_cell(code_hash, (uint8_t)hash_type, offset, length, argc - argv_offset, passed_argv);
     CHECK(err);
@@ -710,6 +715,7 @@ JSValue qjs_eval_script(JSContext *ctx, const char *str, int len, bool enable_mo
         switch (promise_state) {
             case JS_PROMISE_REJECTED: {
                 JSValue error = JS_PromiseResult(ctx, val);
+                js_std_promise_rejection_handled(ctx, val);
                 JS_FreeValue(ctx, val);
                 JS_Throw(ctx, error);
                 val = JS_EXCEPTION;

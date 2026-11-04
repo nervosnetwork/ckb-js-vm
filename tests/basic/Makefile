@@ -11,7 +11,10 @@ define debug
 	$(CKB-DEBUGGER) --max-cycles $(MAX-CYCLES) --read-file $(ROOT_DIR)/$(1) --bin $(BIN_PATH) -- -r
 endef
 
-all: qjs-tests syntax-error log syscalls assert log
+all: qjs-tests syntax-error log syscalls assert log native-regressions
+
+native-regressions:
+	CKB_DEBUGGER="$(CKB-DEBUGGER)" node --test "$(ROOT_DIR)/test_native_regressions.js"
 
 qjs-tests:
 	$(call run,test_loop.js)

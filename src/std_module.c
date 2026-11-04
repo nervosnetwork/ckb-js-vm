@@ -124,10 +124,11 @@ JSModuleDef *js_module_loader(JSContext *ctx, const char *module_name, void *opa
             JS_ThrowReferenceError(ctx, "could not load module filename '%s'", module_name);
             return NULL;
         }
-        char secend_name[256];
-        strcpy(secend_name, module_name);
-        strcpy(secend_name + strlen(module_name) - 3, ".bc");
-        buf = js_load_file(ctx, &buf_len, secend_name);
+        char *second_name = js_strdup(ctx, module_name);
+        if (!second_name) return NULL;
+        strcpy(second_name + strlen(second_name) - 3, ".bc");
+        buf = js_load_file(ctx, &buf_len, second_name);
+        js_free(ctx, second_name);
         if (!buf) {
             JS_ThrowReferenceError(ctx, "could not load module filename '%s'", module_name);
             return NULL;

@@ -6,17 +6,9 @@ runs:
   - name: Install llvm 19
     shell: bash
     run: |
-      sudo apt-get purge --auto-remove llvm python3-lldb-14 llvm-14
-      wget https://apt.llvm.org/llvm.sh
-      chmod +x llvm.sh
-      sudo ./llvm.sh 19
-      rm llvm.sh
-  - name: Fix llvm-ar path
-    shell: bash
-    run: |
-      sudo ln -s $(which llvm-ar-19) /usr/bin/llvm-ar || true
-      sudo ln -s $(which llvm-objcopy-19) /usr/bin/llvm-objcopy || true
-      sudo ln -s $(which ld.lld-19) /usr/bin/ld.lld || true
+      sudo apt-get update
+      sudo apt-get install -y clang-19 lld-19 llvm-19
+      echo /usr/lib/llvm-19/bin >> "$GITHUB_PATH"
   - name: Setup Node.js
     uses: actions/setup-node@v4
     with:
@@ -29,4 +21,4 @@ runs:
       mv ckb-debugger ~/.cargo/bin
   - name: Install pnpm
     shell: bash
-    run: npm install -g pnpm
+    run: npm install -g pnpm@10.4.1
