@@ -14,7 +14,7 @@ endef
 all: qjs-tests syntax-error log syscalls assert log native-regressions
 
 native-regressions:
-	CKB_DEBUGGER=$(CKB-DEBUGGER) python3 $(ROOT_DIR)/test_native_regressions.py
+	CKB_DEBUGGER="$(CKB-DEBUGGER)" node --test "$(ROOT_DIR)/test_native_regressions.js"
 
 qjs-tests:
 	$(call run,test_loop.js)
