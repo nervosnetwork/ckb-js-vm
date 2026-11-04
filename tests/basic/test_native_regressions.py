@@ -11,6 +11,12 @@ DEBUGGER = os.environ.get("CKB_DEBUGGER", "ckb-debugger")
 
 
 class NativeRegressions(unittest.TestCase):
+    def test_long_module_names(self):
+        for length in [252, 253, 512, 2048]:
+            output = self.run_script('import "' + 'a' * length + '.js";', success=False)
+            self.assertIn("ReferenceError", output)
+            self.assertNotIn("memory error", output)
+
     def run_script(self, source, success=True):
         result = subprocess.run(
             [DEBUGGER, "--max-cycles", "2000000000", "--bin",
