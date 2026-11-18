@@ -12,15 +12,12 @@
   },
   "sideEffects": false,
   "main": "dist.commonjs/index.js",
-  "module": "dist/index.js",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
       "require": "./dist.commonjs/index.js",
       "default": "./dist.commonjs/index.js"
     },
     "./advanced": {
-      "import": "./dist/advanced.js",
       "require": "./dist.commonjs/advanced.js",
       "default": "./dist.commonjs/advanced.js"
     }
