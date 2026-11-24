@@ -13,6 +13,8 @@ ckb-testtool provides a testing framework that allows you to test CKB scripts wi
 
 You need to install [ckb-debugger](https://github.com/nervosnetwork/ckb-standalone-debugger) which is used by this library to verify transactions.
 
+By default the `ckb-debugger` on your `PATH` is used. To use a different binary, set the `CKB_DEBUGGER_PATH` environment variable to its full path (or set `verifier.debugger` in code). On Windows, point it at `ckb-debugger.exe`: a `.cmd` shim, such as the one installed by offckb, cannot be spawned without a shell.
+
 ## Usage
 
 ```typescript

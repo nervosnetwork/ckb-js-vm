@@ -823,14 +823,16 @@ export class UnitTestClient extends Client {
 
 // Verifier class is responsible for validating the transaction using a debugger tool.
 export class Verifier {
-  debugger: string; // The name of the debugger tool.
+  debugger: string; // The name or path of the debugger tool.
   args: string[];
   resource: Resource;
   tx: Transaction;
   useWasmDebugger: boolean;
 
   constructor(resource: Resource, tx: Transaction) {
-    this.debugger = "ckb-debugger";
+    // CKB_DEBUGGER_PATH lets users point at a specific binary, e.g. the
+    // ckb-debugger.exe behind a Windows .cmd shim.
+    this.debugger = process.env.CKB_DEBUGGER_PATH || "ckb-debugger";
     this.args = [];
     this.resource = resource;
     this.tx = tx;
@@ -927,7 +929,7 @@ export class Verifier {
     const argsPath = `--tx-file - --cell-type ${cellType} --script-group-type ${groupType} --cell-index ${index}`;
     const args = this.args.slice().concat(argsPath.split(" "));
     const result = spawnSync(this.debugger, args, config);
-    Verifier.checkSpawnResult(result);
+    Verifier.checkSpawnResult(result, this.debugger);
     return new ScriptVerificationResult(
       groupType,
       cellType,
@@ -1053,15 +1055,49 @@ export class Verifier {
     return cycles;
   }
 
-  static checkSpawnResult(result: SpawnSyncReturns<Buffer>) {
-    if (result.status === 0) {
+  static checkSpawnResult(
+    result: SpawnSyncReturns<Buffer>,
+    debuggerPath: string = "ckb-debugger",
+  ) {
+    if (result.status === 0 || !result.error) {
       return;
     }
-    if (result.error?.message.includes("ENOENT")) {
-      throw new Error(
+    throw new Error(
+      Verifier.spawnErrorMessage(result.error, debuggerPath, process.platform),
+    );
+  }
+
+  /**
+   * Builds the error message thrown when the debugger process cannot be spawned.
+   * @param error - The spawn error reported by `child_process`
+   * @param debuggerPath - The debugger path that was tried
+   * @param platform - The platform to explain the error for
+   * @returns A message naming the path tried, the reason, and how to fix it
+   */
+  static spawnErrorMessage(
+    error: Error,
+    debuggerPath: string,
+    platform: NodeJS.Platform,
+  ): string {
+    const code = (error as NodeJS.ErrnoException).code;
+    const lines = [
+      `Failed to run ckb-debugger at "${debuggerPath}": ${error.message}`,
+    ];
+    if (code === "ENOENT") {
+      lines.push(
         "ckb-debugger not found. Please install it first: https://github.com/nervosnetwork/ckb-standalone-debugger",
       );
     }
+    if (platform === "win32") {
+      lines.push(
+        "On Windows, a .cmd or .bat shim (such as the one installed by offckb) cannot be spawned without a shell. Point CKB_DEBUGGER_PATH at the ckb-debugger.exe binary instead.",
+      );
+    } else {
+      lines.push(
+        "Set CKB_DEBUGGER_PATH to the full path of the ckb-debugger binary if it is not on PATH.",
+      );
+    }
+    return lines.join("\n");
   }
 
   /**
