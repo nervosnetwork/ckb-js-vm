@@ -6,11 +6,8 @@ runs:
   - name: Install llvm 19
     shell: bash
     run: |
-      sudo apt-get purge --auto-remove llvm python3-lldb-14 llvm-14
-      wget https://apt.llvm.org/llvm.sh
-      chmod +x llvm.sh
-      sudo ./llvm.sh 19
-      rm llvm.sh
+      sudo apt-get update
+      sudo apt-get install -y llvm-19 clang-19 lld-19
   - name: Fix llvm-ar path
     shell: bash
     run: |
@@ -29,4 +26,4 @@ runs:
       mv ckb-debugger ~/.cargo/bin
   - name: Install pnpm
     shell: bash
-    run: npm install -g pnpm
+    run: npm install -g pnpm@10.4.1
