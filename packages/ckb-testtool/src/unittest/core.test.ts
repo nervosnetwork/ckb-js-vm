@@ -145,3 +145,69 @@ describe("example", () => {
     await verifier.verifySuccess();
   });
 });
+
+describe("debugger path", () => {
+  const savedPath = process.env.CKB_DEBUGGER_PATH;
+  afterEach(() => {
+    if (savedPath === undefined) {
+      delete process.env.CKB_DEBUGGER_PATH;
+    } else {
+      process.env.CKB_DEBUGGER_PATH = savedPath;
+    }
+  });
+
+  function alwaysSuccessTx(resource: Resource): Transaction {
+    const lockCell = resource.mockCellAsCellDep(hexFrom(readFileSync(DEFAULT_SCRIPT_ALWAYS_SUCCESS)));
+    const lockScript = resource.createScriptByType(lockCell, "0xEEFF");
+    const inputCell = resource.mockCell(lockScript);
+    return Transaction.from({
+      inputs: [Resource.createCellInput(inputCell)],
+      cellDeps: [Resource.createCellDep(lockCell, "code")],
+    });
+  }
+
+  test("defaults to ckb-debugger on PATH", () => {
+    delete process.env.CKB_DEBUGGER_PATH;
+    const resource = Resource.default();
+    const verifier = Verifier.from(resource, alwaysSuccessTx(resource));
+    expect(verifier.debugger).toBe("ckb-debugger");
+  });
+
+  test("reads the debugger path from CKB_DEBUGGER_PATH", () => {
+    process.env.CKB_DEBUGGER_PATH = "/opt/ckb/bin/ckb-debugger";
+    const resource = Resource.default();
+    const verifier = Verifier.from(resource, alwaysSuccessTx(resource));
+    expect(verifier.debugger).toBe("/opt/ckb/bin/ckb-debugger");
+  });
+
+  test("names the path tried when the debugger cannot be spawned", async () => {
+    const missing = "/no/such/dir/ckb-debugger-missing";
+    process.env.CKB_DEBUGGER_PATH = missing;
+    const resource = Resource.default();
+    const verifier = Verifier.from(resource, alwaysSuccessTx(resource));
+    await expect(verifier.verifySuccess()).rejects.toThrow(
+      `Failed to run ckb-debugger at "${missing}"`,
+    );
+    await expect(verifier.verifySuccess()).rejects.toThrow("ckb-debugger not found");
+  });
+
+  test("explains the .cmd shim limitation on Windows", () => {
+    const error = Object.assign(new Error("spawnSync C:\\tools\\ckb-debugger.cmd EINVAL"), {
+      code: "EINVAL",
+    });
+    const message = Verifier.spawnErrorMessage(error, "C:\\tools\\ckb-debugger.cmd", "win32");
+    expect(message).toContain('Failed to run ckb-debugger at "C:\\tools\\ckb-debugger.cmd"');
+    expect(message).toContain("EINVAL");
+    expect(message).toContain("CKB_DEBUGGER_PATH");
+    expect(message).toContain("ckb-debugger.exe");
+    expect(message).not.toContain("not found");
+  });
+
+  test("points at CKB_DEBUGGER_PATH on other platforms", () => {
+    const error = Object.assign(new Error("spawnSync ckb-debugger ENOENT"), { code: "ENOENT" });
+    const message = Verifier.spawnErrorMessage(error, "ckb-debugger", "linux");
+    expect(message).toContain("ckb-debugger not found");
+    expect(message).toContain("CKB_DEBUGGER_PATH");
+    expect(message).not.toContain(".cmd");
+  });
+});
